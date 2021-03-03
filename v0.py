@@ -147,8 +147,8 @@ class BeatAnimation:
                     
 
 if __name__ == "__main__":
-    bg_path = "bg.png"
-    title = "Fasnacht-O-Mat"
+    bg_path = "resources/images/bg.png"
+    title = "FasiBoi-Color"
 
     screen_pos = (150, 100)
     screen_size = (200, 300)
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         disp = PygameDisplay(win, screen_pos, screen_size, 10, 15)
         controller = PygameController()
         beatFeeler = BeatFeeler(controller.b)
-        animation = BeatAnimation("animations/shuffle3.npy", disp, controller)
+        animation = BeatAnimation("resources/animations/shuffle3.npy", disp, controller)
 
         win.blit(bg_image, (0, 0))
 
