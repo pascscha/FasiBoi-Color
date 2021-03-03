@@ -1,3 +1,6 @@
+import time
+from numpy import load
+
 class BeatFeeler:
     def __init__(self, controllerValue):
         controllerValue.subscribe(self.beat)
@@ -18,10 +21,10 @@ class BeatFeeler:
 
 
 class BeatAnimation:
-    def __init__(self, npy_path, disp, controller):
-        self.beatFeeler = BeatFeeler(controller.b)
-        self.disp = disp
-        self.animation = np.load(npy_path)
+    def __init__(self, npy_path, ioManager):
+        self.beatFeeler = BeatFeeler(ioManager.controller.b)
+        self.disp = ioManager.display
+        self.animation = load(npy_path)
         self.animation_length = len(self.animation)
         self.beat_frames = self.animation_length / 2
 

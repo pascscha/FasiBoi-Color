@@ -30,4 +30,4 @@ class _BaseController:
         self.a = self.ValueClass()
         self.b = self.ValueClass()
 
-from controller._pygameController import *
+from IO.controller._pygameController import *

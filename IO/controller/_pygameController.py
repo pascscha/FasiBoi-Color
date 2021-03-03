@@ -1,4 +1,4 @@
-from controller import _BaseController
+from IO.controller import _BaseController
 from pygame import KEYDOWN, KEYUP
 
 class PygameController(_BaseController):

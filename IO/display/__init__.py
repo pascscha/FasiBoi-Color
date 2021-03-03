@@ -22,4 +22,4 @@ class _BaseDisplay:
     def _update(self, x, y, color):
         raise NotImplementedError("Please implement this method.")
 
-from display._pygameDisplay import *
+from IO.display._pygameDisplay import *

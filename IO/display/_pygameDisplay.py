@@ -1,4 +1,4 @@
-from display import _BaseDisplay
+from IO.display import _BaseDisplay
 import pygame.draw
 
 class PygameDisplay(_BaseDisplay):
@@ -16,6 +16,11 @@ class PygameDisplay(_BaseDisplay):
         new_pos_y = screen_pos[1] + \
             (screen_size[1] - self.pixel_size * self.height) // 2
         self.screen_pos = (new_pos_x, new_pos_y)
+
+        pygame.draw.rect(
+            self.win,
+            (0,0,0),
+            (*screen_pos, *screen_size))
 
     def _update(self, x, y, color):
         left = self.screen_pos[0] + self.pixel_size * x
