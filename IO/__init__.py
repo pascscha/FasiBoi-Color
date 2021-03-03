@@ -57,7 +57,7 @@ class CursersIOManager(_IOManager):
     def __init__(self, screen_res=(10, 15)):
         screen = curses.initscr()
 
-        self.win = curses.newwin(screen_res[1] + 2, screen_res[0]*2 + 2, 0, 0)
+        self.win = curses.newwin(screen_res[1] + 4, screen_res[0]*2 + 4, 2, 2)
         curses.noecho()
         self.win.keypad(1)
         self.win.border(1)
@@ -65,7 +65,7 @@ class CursersIOManager(_IOManager):
         self.win.refresh()
 
         controller = CursesController()
-        display = CursesDisplay(self.win, *screen_res)
+        display = CursesDisplay(self.win, *screen_res, lazy=False)
 
         self.listener = keyboard.Listener(
             on_press=lambda key: controller.update(key, True),
@@ -74,8 +74,8 @@ class CursersIOManager(_IOManager):
         super().__init__(controller, display)
 
     def update(self):
-        pass#self.display.update()
-    
+        self.win.refresh()
+
     def destroy(self):
         curses.echo()
         curses.endwin()

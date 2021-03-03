@@ -7,8 +7,7 @@ class CursesDisplay(_BaseDisplay):
 
     def _update(self, x, y, color):
         if color == (255, 255, 255):
-            self.win.addstr(y+1, x*2+1, "##")
+            self.win.addstr(y+2, x*2+2, "##")
         else:
-            self.win.addstr(y+1, x*2+1, "  ")
-        self.win.refresh()
+            self.win.addstr(y+2, x*2+2, "  ")
         
