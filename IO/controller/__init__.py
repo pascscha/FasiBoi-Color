@@ -1,8 +1,8 @@
 class ControllerValue:
-    def __init__(self, subscribers=set(), dtype=bool, default=False):
+    def __init__(self, subscribers=[], dtype=bool, default=False):
         self.value = default
         self.dtype = dtype
-        self.subscribers = subscribers
+        self.subscribers = set(subscribers)
 
     def update(self, value):
         new_value = self.dtype(value)

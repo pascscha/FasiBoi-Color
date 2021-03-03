@@ -38,3 +38,16 @@ class BeatAnimation:
                     self.disp.update(y,x, (255,255,255))
                 else:
                     self.disp.update(y,x, (0,0,0))
+
+class AnimationCycler:
+    def __init__(self, ioManager, animations):
+        self.animations = animations
+        ioManager.controller.a.subscribe(self.cycle)
+        self.index = 0
+    
+    def cycle(self, value):
+        if value:
+            self.index = (self.index + 1) % len(self.animations)
+    
+    def update(self):
+        self.animations[self.index].update()
