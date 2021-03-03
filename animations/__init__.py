@@ -21,12 +21,12 @@ class BeatFeeler:
 
 
 class BeatAnimation:
-    def __init__(self, npy_path, ioManager):
+    def __init__(self, npy_path, ioManager, beats_per_loop=1):
         self.beatFeeler = BeatFeeler(ioManager.controller.b)
         self.disp = ioManager.display
         self.animation = load(npy_path)
         self.animation_length = len(self.animation)
-        self.beat_frames = self.animation_length / 2
+        self.beat_frames = self.animation_length / beats_per_loop
 
     def update(self):
         frame = self.animation[int(self.beatFeeler.getProgression(

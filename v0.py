@@ -1,4 +1,3 @@
-import pygame
 import numpy as np
 import random
 import time
@@ -10,7 +9,8 @@ if __name__ == "__main__":
     ioManager = setupPygameIOManager()
     animation = BeatAnimation(
         "resources/animations/shuffle3.npy",
-        ioManager)
+        ioManager,
+        beats_per_loop=2)
 
     while ioManager.running:
         ioManager.update()
