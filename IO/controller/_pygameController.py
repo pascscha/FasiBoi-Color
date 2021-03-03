@@ -1,16 +1,18 @@
 from IO.controller import _BaseController
 from pygame import KEYDOWN, KEYUP
 
+
 class PygameController(_BaseController):
     def __init__(self):
         super().__init__()
         self.keymap = {
-            276: self.left,
-            273: self.up,
-            275: self.right,
-            274: self.down,
-            97: self.a,
-            98: self.b
+            276: self.left,  # Arrow Left
+            273: self.up,  # Arrow Up
+            275: self.right,  # Arrow Right
+            274: self.down,  # Arrow Down
+            97: self.a,  # A
+            98: self.b,  # B
+            27: self.menu  # Esc
         }
 
     def update(self, event):

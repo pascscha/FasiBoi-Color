@@ -23,3 +23,4 @@ class _BaseDisplay:
         raise NotImplementedError("Please implement this method.")
 
 from IO.display._pygameDisplay import *
+from IO.display._cursesDisplay import *

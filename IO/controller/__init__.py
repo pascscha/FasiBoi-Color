@@ -29,5 +29,7 @@ class _BaseController:
         self.left = self.ValueClass()
         self.a = self.ValueClass()
         self.b = self.ValueClass()
+        self.menu = self.ValueClass()
 
 from IO.controller._pygameController import *
+from IO.controller._cursesController import *

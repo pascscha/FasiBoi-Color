@@ -1,5 +1,6 @@
 from IO.display import _BaseDisplay
 import pygame.draw
+from pygame import quit
 
 class PygameDisplay(_BaseDisplay):
     def __init__(self, win, screen_pos, screen_size, *args, **kwargs):

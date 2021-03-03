@@ -2,11 +2,11 @@ import numpy as np
 import random
 import time
 
-from IO import setupPygameIOManager
+from IO import PygameIOManager, CursersIOManager
 from animations import BeatAnimation, AnimationCycler
 
 if __name__ == "__main__":
-    ioManager = setupPygameIOManager()
+    ioManager = CursersIOManager()
     animations = [
         BeatAnimation(
             "resources/animations/shuffle1.npy",
@@ -24,6 +24,15 @@ if __name__ == "__main__":
 
     cycler = AnimationCycler(ioManager, animations)
 
-    while ioManager.running:
-        ioManager.update()
-        cycler.update()
+    fps = 30
+    last = time.time()
+    try:
+        while ioManager.running:
+            ioManager.update()
+            cycler.update()    
+
+            # Limit FPS
+            now = time.time()
+            time.sleep(max(0,1/30 - now + last))
+    finally:
+        ioManager.destroy()
