@@ -1,19 +1,41 @@
 from IO.controller import ControllerValue
 
+def controllerInput(func):
+    def inner(self, button, value):
+        if self.running:
+            if self.active:
+                func(self, button, value)
+        else:
+            button.unsubscribe(func)
+    return inner
+
+
 class _BaseApplication:
-    def __init__(self, io):
+    DEFAULT_NAME = "BaseApplication"
+
+    def __init__(self, io, name=None):
         self.io = io
         self.io.controller.menu.subscribe(self.close)
+
+        self.running = True
+        self.active = True
+
+        if name is None:
+            self.name = self.DEFAULT_NAME
+        else:
+            self.name = name
+
+    @controllerInput
+    def close(self, button, value):
+        if value:
+            self.running = False
+            self.destroy()
 
     def update(self):
         pass
 
-    def close(self, *args, **kwargs):
-        self.destroy()
-
     def destroy(self):
-        for val in filter(lambda val:isinstance(val, ControllerValue), self.io.controller.__dict__.values()):
-            # Make sure none of our functions listen to the controller anymore.
-            for fun in list(val.subscribers):
-                if fun.__self__ == self:
-                    val.unsubscribe(fun)
+        pass
+
+        
+from applications.menus import *

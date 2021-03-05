@@ -9,7 +9,7 @@ class ControllerValue:
         if new_value != self.value:
             self.value = new_value
             for fun in self.subscribers:
-                fun(self.value)
+                fun(self, self.value)
 
     def subscribe(self, fun):
         self.subscribers.add(fun)

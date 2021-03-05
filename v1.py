@@ -10,7 +10,7 @@ if __name__ == "__main__":
     try:
         application = _BaseApplication(ioManager)
         last = time.time()
-        while ioManager.running:
+        while application.running:
             ioManager.update()
             application.update()
 
