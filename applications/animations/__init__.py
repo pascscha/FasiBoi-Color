@@ -9,7 +9,7 @@ class BeatFeeler:
         self.duration = 1
         self.beat_count = 0
 
-    def beat(self, on):
+    def beat(self, _, on):
         if on:
             now = time.time()
             self.beat_count += round((now - self.last) / self.duration)
@@ -40,10 +40,11 @@ class BeatAnimation(_BaseApplication):
                 else:
                     self.disp.update(y,x, (0,0,0))
 
-class AnimationCycler:
-    def __init__(self, ioManager, animations):
+class AnimationCycler(_BaseApplication):
+    def __init__(self, animations, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.animations = animations
-        ioManager.controller.a.subscribe(self.cycle)
+        self.io.controller.a.subscribe(self.cycle)
         self.index = 0
     
     @controllerInput
