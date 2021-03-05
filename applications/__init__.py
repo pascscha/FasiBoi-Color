@@ -25,6 +25,12 @@ class _BaseApplication:
         else:
             self.name = name
 
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args, **keargs):
+        self.destroy()
+        
     @controllerInput
     def close(self, button, value):
         if value:

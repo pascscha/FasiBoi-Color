@@ -15,6 +15,12 @@ class _IOManager:
         self.display = display
         self.running = True
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.destroy()
+
     def update(self):
         raise NotImplementedError("Please implement this method.")
 
