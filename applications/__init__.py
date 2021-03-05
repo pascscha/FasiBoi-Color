@@ -4,7 +4,7 @@ def controllerInput(func):
     def inner(self, button, value):
         if self.running:
             if self.active:
-                func(self, button, value)
+                func(self, value)
         else:
             button.unsubscribe(func)
     return inner
@@ -32,7 +32,7 @@ class _BaseApplication:
         self.destroy()
         
     @controllerInput
-    def close(self, button, value):
+    def close(self, value):
         if value:
             self.running = False
             self.destroy()
@@ -45,3 +45,4 @@ class _BaseApplication:
 
         
 from applications.menus import *
+from applications.animations import *

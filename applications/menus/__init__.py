@@ -10,13 +10,13 @@ class TextMenu(_BaseApplication):
         self.io.controller.left.subscribe(self.previousChoice)
     
     @controllerInput
-    def nextChoice(self, button, value):
-        if val:
+    def nextChoice(self, value):
+        if value:
             self.choice_index += 1
 
     @controllerInput
-    def previousChoice(self, button, value):
-        if val:
+    def previousChoice(self, value):
+        if value:
             self.choice_index -= 1
 
     def update(self):

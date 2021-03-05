@@ -1,5 +1,6 @@
 import time
 from numpy import load
+from applications import _BaseApplication, controllerInput
 
 class BeatFeeler:
     def __init__(self, controllerValue):
@@ -20,7 +21,7 @@ class BeatFeeler:
         return self.beat_count + (now - self.last) / self.duration
 
 
-class BeatAnimation:
+class BeatAnimation(_BaseApplication):
     def __init__(self, npy_path, ioManager, beats_per_loop=1):
         self.beatFeeler = BeatFeeler(ioManager.controller.b)
         self.disp = ioManager.display
@@ -45,6 +46,7 @@ class AnimationCycler:
         ioManager.controller.a.subscribe(self.cycle)
         self.index = 0
     
+    @controllerInput
     def cycle(self, value):
         if value:
             self.index = (self.index + 1) % len(self.animations)
