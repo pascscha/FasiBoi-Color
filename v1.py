@@ -3,7 +3,6 @@ import random
 import time
 
 from IO import PygameIOManager, CursersIOManager
-from applications import TextMenu
 from applications.animations import BeatAnimation, AnimationCycler
 
 

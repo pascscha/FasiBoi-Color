@@ -3,10 +3,10 @@ import random
 import time
 
 from IO import PygameIOManager, CursersIOManager
-from animations import BeatAnimation, AnimationCycler
+from applications.animations import BeatAnimation, AnimationCycler
 
 if __name__ == "__main__":
-    ioManager = CursersIOManager()
+    ioManager = PygameIOManager()
     animations = [
         BeatAnimation(
             "resources/animations/shuffle1.npy",
@@ -22,7 +22,7 @@ if __name__ == "__main__":
             beats_per_loop=2)
     ]
 
-    cycler = AnimationCycler(ioManager, animations)
+    cycler = AnimationCycler(animations, ioManager)
 
     fps = 30
     last = time.time()
