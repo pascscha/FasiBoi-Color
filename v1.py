@@ -8,7 +8,7 @@ from applications.animations import BeatAnimation, AnimationCycler
 
 
 if __name__ == "__main__":
-    with CursersIOManager() as ioManager:
+    with PygameIOManager() as ioManager:
      
         animations = [
             BeatAnimation(
