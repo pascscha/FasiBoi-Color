@@ -53,6 +53,12 @@ class PygameDisplay(core.Display):
         pygame.draw.rect(self.win, color, (left, top,
                                            self.pixel_size, self.pixel_size))
 
+    def refresh(self):
+        for x in range(self.width):
+            for y in range(self.height):
+                self.update(x, y, self.pixels[x][y])
+
+
 
 class PygameIOManager(core.IOManager):
     def __init__(self,
