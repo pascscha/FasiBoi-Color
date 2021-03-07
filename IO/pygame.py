@@ -80,6 +80,7 @@ class PygameIOManager(core.IOManager):
             else:
                 self.controller.update(event)
         pygame.display.update()
+        super().update()
 
     def destroy(self):
         pygame.quit()
