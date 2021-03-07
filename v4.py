@@ -2,12 +2,12 @@ import numpy as np
 import random
 import time
 
-from IO import LEDIOManager
+from IO.pygame import PygameIOManager
 from applications.animations import BeatAnimation, AnimationCycler, SolidColor
 
 
 if __name__ == "__main__":
-    with LEDIOManager() as ioManager:
+    with PygameIOManager() as ioManager:
      
         animations = [
             BeatAnimation(

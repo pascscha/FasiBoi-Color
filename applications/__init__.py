@@ -1,4 +1,4 @@
-from IO.controller import ControllerValue
+from IO.core import ControllerValue
 
 def controllerInput(func):
     def inner(self, button, value):
