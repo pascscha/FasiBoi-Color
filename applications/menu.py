@@ -49,12 +49,10 @@ class Menu(core.Application):
             self.applications[choice_3].name[:2]
         ]))
         
-        hue = int(hashlib.md5(self.applications[choice_2].name.encode()).hexdigest(),16)%255
-        color = tuple(map(lambda x:int(x*255),colorsys.hsv_to_rgb(hue/255, 1, 1)))
-
         for x in range(io.display.width):
             for y in range(io.display.height):
                 io.display.update(x,y,(0,0,0))
 
+        color = self.applications[choice_2].color
         bitmaputils.applyBitmap(bmp, io.display, (int(-11 + progression * -12), io.display.height//2-2), color0=(0,0,0), color1=color)
         io.display.refresh()
