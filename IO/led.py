@@ -66,13 +66,7 @@ class LEDIOManager(core.IOManager):
         super().__init__(controller, display)
 
     def update(self):
-        pass
-        try:
-            char = self.screen.getch()
-            if char != -1:
-                self.controller.update(char)
-        except:
-            pass
+        self.controller.update(self.win.getch())
 
     def destroy(self):
         curses.endwin()

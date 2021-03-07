@@ -1,28 +1,25 @@
 import curses
 from IO import core
-from pynput import keyboard
 
 class CursesController(core.Controller):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.keymap = {
-            keyboard.Key.left: self.left,  # Arrow Left
-            keyboard.Key.up: self.up,  # Arrow Up
-            keyboard.Key.right: self.right,  # Arrow Right
-            keyboard.Key.down: self.down,  # Arrow Down
-            "a": self.a,  # A
-            "b": self.b,  # B
-            keyboard.Key.esc: self.menu  # Esc
+            106: self.left,  # J
+            105: self.up,  # I
+            108: self.right,  # L
+            107: self.down,  # K
+            97: self.a,  # A
+            98: self.b,  # B
+            27: self.menu  # Esc
         }
 
-    def update(self, event, pressed):
-        try:
-            event = event.char.lower()
-        except AttributeError:
-            pass
-
-        if event in self.keymap:
-            self.keymap[event].update(pressed)
+    def update(self, char):
+        for key, button in self.keymap.items():
+            if key == char:
+                button.update(True)
+            else:
+                button.update(False)
 
 class CursesDisplay(core.Display):
     def __init__(self, win, *args, **kwargs):
@@ -30,18 +27,23 @@ class CursesDisplay(core.Display):
         self.win = win
 
     def _update(self, x, y, color):
-        if color == (255, 255, 255):
+        if color != (0, 0, 0):
             self.win.addstr(y+2, x*2+2, "##")
         else:
             self.win.addstr(y+2, x*2+2, "  ")
-        
+    
+    def refresh(self):
+        pass#self.win.refresh()
 
-class CursersIOManager(core.IOManager):
+
+class CursesIOManager(core.IOManager):
     def __init__(self, screen_res=(10, 15)):
         screen = curses.initscr()
 
         self.win = curses.newwin(screen_res[1] + 4, screen_res[0]*2 + 4, 2, 2)
         curses.noecho()
+        self.win.nodelay(1)
+
         self.win.keypad(1)
         self.win.border(1)
         self.win.nodelay(1)
@@ -49,17 +51,10 @@ class CursersIOManager(core.IOManager):
 
         controller = CursesController()
         display = CursesDisplay(self.win, *screen_res, lazy=False)
-
-        self.listener = keyboard.Listener(
-            on_press=lambda key: controller.update(key, True),
-            on_release=lambda key: controller.update(key, False))
-        self.listener.start()
         super().__init__(controller, display)
 
     def update(self):
-        self.win.refresh()
+        self.controller.update(self.win.getch())
 
     def destroy(self):
-        curses.echo()
         curses.endwin()
-        self.listener.stop()

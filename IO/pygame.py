@@ -54,7 +54,6 @@ class PygameDisplay(core.Display):
         pygame.draw.rect(self.win, color, (left, top,
                                            self.pixel_size, self.pixel_size))
 
-
 class PygameIOManager(core.IOManager):
     def __init__(self,
                  bg_path="resources/images/bg.png",

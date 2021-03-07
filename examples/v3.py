@@ -2,12 +2,12 @@ import numpy as np
 import random
 import time
 
-from IO.pygame import PygameIOManager
+from IO.curses import CursesIOManager
 from applications.animations import BeatAnimation, AnimationCycler
 
 
 if __name__ == "__main__":
-    with PygameIOManager() as ioManager:
+    with CursesIOManager() as ioManager:
      
         animations = [
             BeatAnimation(
