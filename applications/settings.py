@@ -24,26 +24,22 @@ class Slider(core.Application):
         for x in range(0, io.display.width):
             for y in range(io.display.height):
                 io.display.update(x, y, (0, 0, 0))
-        
-        for x in range(int(io.display.width/3),int(2*io.display.width/3)+1):
+
+        for x in range(int(io.display.width/3), int(2*io.display.width/3)+1):
             for y in range(int((1-self.value_index/self.steps)*io.display.height), io.display.height):
                 io.display.update(x, y, self.color)
 
     def get_value(self):
         return self.start + self.value_index * self.delta
 
+
 class BrightnessSlider(Slider):
     def update(self, io, delta):
-        self.value_index = int(self.steps * (io.display.brightness - self.start) / (self.end - self.start))
+        self.value_index = int(
+            self.steps * (io.display.brightness - self.start) / (self.end - self.start))
         super().update(io, delta)
         io.display.brightness = self.get_value()
         io.display.refresh()
-
-
-from applications import core
-from helpers import textutils, bitmaputils
-import colorsys
-import hashlib
 
 
 class NumberChoice(core.Application):
@@ -75,10 +71,11 @@ class NumberChoice(core.Application):
             bmp,
             io.display,
             (io.display.width//2-bmp.shape[1]//2,
-            io.display.height//2-bmp.shape[0]//2),
-            color0 = (0, 0, 0),
-            color1 = self.color)
+             io.display.height//2-bmp.shape[0]//2),
+            color0=(0, 0, 0),
+            color1=self.color)
         io.display.refresh()
+
 
 class FPSChoice(NumberChoice):
     def update(self, io, delta):
