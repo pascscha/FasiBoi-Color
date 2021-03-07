@@ -2,14 +2,14 @@ import numpy as np
 import random
 import time
 
-from IO import LEDIOManager
-from applications import Menu
+from IO.pygame import PygameIOManager
+from applications.menu import Menu
 from applications.animations import BeatAnimation, AnimationCycler
 
 
 if __name__ == "__main__":
     fps = 20
-    with LEDIOManager() as ioManager:
+    with PygameIOManager() as ioManager:
         with Menu(["12", "34", "56", "78", "90"], ioManager) as application:
             last = time.time()
             while application.running:

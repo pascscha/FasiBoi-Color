@@ -1,6 +1,6 @@
 import time
 from numpy import load
-from applications import _BaseApplication, controllerInput
+from applications import core
 import colorsys
 
 class BeatFeeler:
@@ -22,7 +22,7 @@ class BeatFeeler:
         return self.beat_count + (now - self.last) / self.duration
 
 
-class BeatAnimation(_BaseApplication):
+class BeatAnimation(core.Application):
     def __init__(self, npy_path, ioManager, beats_per_loop=1):
         self.beatFeeler = BeatFeeler(ioManager.controller.b)
         self.disp = ioManager.display
@@ -52,14 +52,14 @@ class BeatAnimation(_BaseApplication):
                     self.disp.update(y,x, (0,0,0))
         self.disp.refresh()
 
-class AnimationCycler(_BaseApplication):
+class AnimationCycler(core.Application):
     def __init__(self, animations, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.animations = animations
         self.io.controller.a.subscribe(self.cycle)
         self.index = 0
     
-    @controllerInput
+    @core.controllerInput
     def cycle(self, value):
         if value:
             self.index = (self.index + 1) % len(self.animations)
@@ -67,7 +67,7 @@ class AnimationCycler(_BaseApplication):
     def update(self):
         self.animations[self.index].update()
 
-class SolidColor(_BaseApplication):
+class SolidColor(core.Application):
     def __init__(self, color, *args, **kwargs):
         super().__init__(*args, **kwargs)        
         self.color = color

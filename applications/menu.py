@@ -1,7 +1,7 @@
-from applications import _BaseApplication, controllerInput
+from applications import core
 import utils
 
-class Menu(_BaseApplication):
+class Menu(core.Application):
     def __init__(self, applications, *args, speed=0.01, **kwargs):
         super().__init__(*args, **kwargs)
         self.applications = applications
@@ -12,12 +12,12 @@ class Menu(_BaseApplication):
         self.io.controller.right.subscribe(self.nextChoice)
         self.io.controller.left.subscribe(self.previousChoice)
             
-    @controllerInput
+    @core.controllerInput
     def nextChoice(self, value):
         if value:
             self.choice_index = (self.choice_index + 1) % len(self.applications)
 
-    @controllerInput
+    @core.controllerInput
     def previousChoice(self, value):
         if value:
             self.choice_index = (self.choice_index - 1) % len(self.applications)

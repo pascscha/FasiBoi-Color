@@ -10,7 +10,7 @@ def controllerInput(func):
     return inner
 
 
-class _BaseApplication:
+class Application:
     DEFAULT_NAME = "BaseApplication"
 
     def __init__(self, io, name=None):
@@ -42,7 +42,3 @@ class _BaseApplication:
 
     def destroy(self):
         pass
-
-        
-from applications.menus import *
-from applications.animations import *
