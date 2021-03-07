@@ -2,6 +2,7 @@ from IO.core import ControllerValue
 import colorsys
 import hashlib
 
+
 class Application:
     DEFAULT_NAME = "BaseApplication"
 

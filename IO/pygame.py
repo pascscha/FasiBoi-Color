@@ -1,8 +1,7 @@
+from IO import core
+import pygame
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-import pygame
-
-from IO import core
 
 
 class PygameController(core.Controller):
@@ -53,6 +52,7 @@ class PygameDisplay(core.Display):
         top = self.screen_pos[1] + self.pixel_size * y
         pygame.draw.rect(self.win, color, (left, top,
                                            self.pixel_size, self.pixel_size))
+
 
 class PygameIOManager(core.IOManager):
     def __init__(self,

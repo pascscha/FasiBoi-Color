@@ -24,7 +24,7 @@ class ControllerValue:
     def get_value(self):
         self.fresh = False
         return self._value
-    
+
     def get_fresh_value(self):
         if self.fresh:
             self.fresh = False
@@ -45,6 +45,7 @@ class Controller:
         self.b = ControllerValue()
         self.menu = ControllerValue()
 
+
 class Display:
     def __init__(self, width, height, brightness=1, lazy=True):
         self.width = width
@@ -62,7 +63,8 @@ class Display:
             raise ValueError("Colors have to be between 0 and 255")
         else:
             self.pixels[x][y] = color
-            self._update(x, y, tuple(map(lambda x:int(x*self.brightness), color)))
+            self._update(x, y, tuple(
+                map(lambda x: int(x*self.brightness), color)))
 
     def _update(self, x, y, color):
         raise NotImplementedError("Please implement this method.")
@@ -105,14 +107,14 @@ class IOManager:
 
     def openApplication(self, application):
         self.applications.append(application)
-    
+
     def closeApplication(self):
         if len(self.applications) > 0:
             self.applications[-1].destroy()
             self.applications = self.applications[:-1]
         if len(self.applications) == 0:
             self.running = False
-    
+
     def update(self):
         pass
 
