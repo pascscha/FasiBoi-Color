@@ -5,7 +5,7 @@ def getCharBitmap(char):
     letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?:.><="
     char = char.upper()
     if char not in letters:
-        return np.ndarray((5,0), dtype=np.bool)
+        return np.zeros((5,3), dtype=np.bool)
 
     return np.load(file_path)[letters.index(char)]
 

@@ -31,5 +31,6 @@ class _BaseController:
         self.b = self.ValueClass()
         self.menu = self.ValueClass()
 
-from IO.controller._pygameController import *
-from IO.controller._cursesController import *
+#from IO.controller._pygameController import *
+#from IO.controller._cursesController import *
+from IO.controller._rbpyInput import *

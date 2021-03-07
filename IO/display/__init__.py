@@ -24,3 +24,4 @@ class _BaseDisplay:
 
 from IO.display._pygameDisplay import *
 from IO.display._cursesDisplay import *
+from IO.display._ledDisplay import *

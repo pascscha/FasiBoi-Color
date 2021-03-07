@@ -4,7 +4,7 @@ import pygame
 
 from IO.controller import *
 from IO.display import *
-from pynput import keyboard
+#from pynput import keyboard
 import curses
 
 
@@ -86,3 +86,26 @@ class CursersIOManager(_IOManager):
         curses.echo()
         curses.endwin()
         self.listener.stop()
+
+
+class LEDIOManager(_IOManager):
+    def __init__(self, screen_res=(10, 15)):
+        self.screen = curses.initscr()
+        self.screen.nodelay(1)
+        curses.nocbreak()
+
+        controller = RbpyController()
+        display = LEDDisplay(*screen_res, lazy=False)
+        super().__init__(controller, display)
+
+    def update(self):
+        pass
+        try:
+            char = self.screen.getch()
+            if char != -1:
+                self.controller.update(char)
+        except:
+            pass
+
+    def destroy(self):
+        curses.endwin()
