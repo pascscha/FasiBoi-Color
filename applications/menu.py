@@ -1,5 +1,5 @@
 from applications import core
-import utils
+from helpers import textutils, bitmaputils
 
 class Menu(core.Application):
     def __init__(self, applications, *args, speed=0.01, **kwargs):
@@ -24,12 +24,19 @@ class Menu(core.Application):
 
     def update(self):
         diff = self.choice_index - self.choice_current
-        if abs(diff) > len(self.applications)/2:
+        if diff > len(self.applications)/2:
             diff -= len(self.applications)
+        elif diff < -len(self.applications)/2:
+            diff += len(self.applications)
         if abs(diff) > self.speed:
             diff = self.speed if diff > 0 else -self.speed
         
         self.choice_current += diff
+        
+        if self.choice_current >= len(self.applications):
+            self.choice_current -= len(self.applications)
+        if self.choice_current < 0:
+            self.choice_current += len(self.applications)
 
         choice_1 = int(self.choice_current-1)%len(self.applications)
         choice_2 = int(self.choice_current)
@@ -37,11 +44,11 @@ class Menu(core.Application):
 
         progression = self.choice_current - choice_2
 
-        bmp = utils.getTextBitmap(" ".join([
+        bmp = textutils.getTextBitmap(" ".join([
             self.applications[choice_1][:2],
             self.applications[choice_2][:2],
             self.applications[choice_3][:2]
         ]))
         
-        utils.applyBitmap(bmp, self.io.display, (int(-11 + progression * -12),0), color0=(0,0,0), color1=(64,64,64))
+        bitmaputils.applyBitmap(bmp, self.io.display, (int(-11 + progression * -12),0), color0=(0,0,0), color1=(255,255,255))
         self.io.display.refresh()
