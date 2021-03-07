@@ -51,7 +51,11 @@ class Menu(core.Application):
         
         for x in range(io.display.width):
             for y in range(io.display.height):
-                io.display.update(x,y,(0,0,0))
+                if y == 0 or y == io.display.height -1 :
+                    color = self.color
+                else:
+                    color = (0,0,0)
+                io.display.update(x,y,color)
 
         color = self.applications[choice_2].color
         bitmaputils.applyBitmap(bmp, io.display, (int(-11 + progression * -12), io.display.height//2-2), color0=(0,0,0), color1=color)
