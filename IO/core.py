@@ -67,12 +67,13 @@ class Display:
     def update(self, x, y, color):
         self.checkCoordinates(x, y)
         self.checkColor(color)
+        color = tuple(map(lambda x: int(x*self.brightness), color))
         self.pixels[x][y] = color
-        self._update(x, y, tuple(map(lambda x: int(x*self.brightness), color)))
+        self._update(x, y, color)
 
     def fill(self, color):
         checkColor(color)
-        self.pixels = np.ones((width, height, 3), dtype=np.unit8) * color
+        self.pixels = np.ones((width, height, 3), dtype=np.unit8) * color * self.brightness
 
     def _update(self, x, y, color):
         raise NotImplementedError("Please implement this method.")

@@ -35,13 +35,6 @@ class Slider(core.Application):
     def get_value(self):
         return self.start + self.value_index * self.delta
 
-class BrightnessSlider(Slider):
-    def update(self, io, delta):
-        #self.value_index = int(
-        #    self.steps * (io.display.brightness - self.start) / (self.end - self.start))
-        super().update(io, delta)
-        io.display.brightness = self.get_value()
-
 
 class NumberChoice(core.Application):
     def __init__(self, *args, start=1, end=100, step_size=1, default=50, **kwargs):
@@ -80,8 +73,12 @@ class NumberChoice(core.Application):
             color1=self.color)
 
 
+class BrightnessSlider(Slider):
+    def update(self, io, delta):
+        super().update(io, delta)
+        io.display.brightness = self.get_value()
+
 class FPSChoice(NumberChoice):
     def update(self, io, delta):
-        self.value = io.fps
         super().update(io, delta)
         io.fps = self.value

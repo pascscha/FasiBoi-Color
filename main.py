@@ -6,17 +6,24 @@ from applications.paint import Paint
 from applications.games.snake import Snake
 
 if __name__ == "__main__":
+    settings = [
+        BrightnessSlider(start=0.1, end=1, default=1, name="Brightness"),
+        FPSChoice(default=1, name="FPS")
+    ]
+
     with PygameIOManager() as ioManager:
+
+        # Hack, this makes sure settings are loaded even without opening them, by letting them run for 1 frame
+        for setting in settings:
+            setting.update(ioManager, 0)
+
         ioManager.run(Menu([
-            Menu([
-                BrightnessSlider(start=0.1, end=1, default=1, name="Brightness"),
-                FPSChoice(default=1, name="FPS")
-            ],
-                name="Settings"),
+            Menu(settings,
+                 name="Settings"),
             Menu([
                 Menu([
                     Snake()
-                ],name="Games"),
+                ], name="Games"),
                 AnimationCycler([
                     BeatAnimation(
                         "resources/animations/shuffle1.npy",
