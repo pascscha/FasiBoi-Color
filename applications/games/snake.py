@@ -63,9 +63,6 @@ class Snake(core.Game):
             new_head = (new_x, new_y)
             if new_head in self.snake:
                 self.last_score = len(self.snake)
-                if self.last_score > self.highscore:
-                    self.highscore = self.last_score
-                    self.save_value("highscore", self.highscore)
                 self.state = self.GAME_OVER
                 return
 

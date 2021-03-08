@@ -4,6 +4,7 @@ from applications.menu import Menu
 from applications.animations import AnimationCycler, BeatAnimation, SolidColor
 from applications.paint import Paint
 from applications.games.snake import Snake
+from applications.games.flappy import Flappy
 
 if __name__ == "__main__":
     settings = [
@@ -22,7 +23,8 @@ if __name__ == "__main__":
                  name="Settings"),
             Menu([
                 Menu([
-                    Snake()
+                    Snake(),
+                    Flappy()
                 ], name="Games"),
                 AnimationCycler([
                     BeatAnimation(

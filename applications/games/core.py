@@ -32,6 +32,10 @@ class Game(core.Application):
         pass
 
     def _update_pregame(self, io, delta):
+        if self.last_score is not None and self.last_score > self.highscore:
+            self.highscore = self.last_score
+            self.save_value("highscore", self.highscore)
+
         if io.controller.a.get_fresh_value():
             self.reset()
             self.state = self.MID_GAME
