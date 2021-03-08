@@ -1,32 +1,13 @@
-from applications import core
-import random
-import json
-import os
+from applications.games import core
 from helpers import textutils, bitmaputils
-import colorsys
+import random
 
 
-class Snake(core.Application):
-    PRE_GAME = 0
-    MID_GAME = 1
-    GAME_OVER = 2
-    POST_GAME = 3
-
+class Snake(core.Game):
     UP = (0, -1)
     DOWN = (0, 1)
     LEFT = (-1, 0)
     RIGHT = (1, 0)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.highscore = self.load_value("highscore", default=0)
-
-        self.pulse_progression = 0
-        self.pulse_speed = 1
-
-        self.state = self.PRE_GAME
-        self.last_score = None
 
     def random_food_location(self):
         location = (random.randint(0, 9), random.randint(0, 14))
@@ -34,89 +15,17 @@ class Snake(core.Application):
             location = (random.randint(0, 9), random.randint(0, 14))
         return location
 
-    def update(self, io, delta):
-        self.pulse_progression += delta * self.pulse_speed
+    def reset(self):
+        self.button_press_queue = []
+        self.snake = [(5, 5), (4, 5), (3, 5)]
+        self.direction = self.RIGHT
 
-        if self.state == self.PRE_GAME:
-            self.update_pregame(io, delta)
-        elif self.state == self.MID_GAME:
-            self.update_midgame(io, delta)
-        elif self.state == self.GAME_OVER:
-            self.update_gameover(io, delta)
+        self.food = self.random_food_location()
 
-    def update_pregame(self, io, delta):
-        if io.controller.a.get_fresh_value():
-            self.button_press_queue = []
-            self.snake = [(5, 5), (4, 5), (3, 5)]
-            self.direction = self.RIGHT
+        self.snake_progression = 0
+        self.snake_speed = 3
 
-            self.food = self.random_food_location()
-
-            self.snake_progression = 0
-            self.snake_speed = 3
-
-            self.state = self.MID_GAME
-            return
-        else:
-            for x in range(io.display.width):
-                for y in range(io.display.height):
-                    io.display.update(x, y, (0, 0, 0))
-
-            highscore_bmp = textutils.getTextBitmap(str(self.highscore))
-
-            if self.last_score is None:
-                bitmaputils.applyBitmap(
-                    highscore_bmp,
-                    io.display,
-                    (io.display.width//2 -
-                     highscore_bmp.shape[1]//2, io.display.height//2-highscore_bmp.shape[0]//2),
-                    color0=(0, 0, 0),
-                    color1=(255, 255, 255))
-            else:
-                score_bmp = textutils.getTextBitmap(str(self.last_score))
-
-                bitmaputils.applyBitmap(
-                    highscore_bmp,
-                    io.display,
-                    (io.display.width//2 -
-                     highscore_bmp.shape[1]//2, 4-highscore_bmp.shape[0]//2),
-                    color0=(0, 0, 0),
-                    color1=(255, 255, 0))
-
-                if self.last_score == self.highscore:
-                    score_hue = self.pulse_progression - \
-                        int(self.pulse_progression)
-                    score_color = tuple(
-                        map(lambda x: int(x*255), colorsys.hsv_to_rgb(score_hue, 1, 1)))
-                else:
-                    score_color = (0, 0, 255)
-
-                bitmaputils.applyBitmap(
-                    score_bmp,
-                    io.display,
-                    (io.display.width//2 -
-                     score_bmp.shape[1]//2, 10-score_bmp.shape[0]//2),
-                    color0=(0, 0, 0),
-                    color1=score_color)
-
-    def update_gameover(self, io, delta):
-        self.snake_progression += delta * 7
-        if self.snake_progression > 1:
-            self.snake_progression -= 1
-            if len(self.snake) > 0:
-                self.snake = self.snake[1:]
-            else:
-                self.state = self.PRE_GAME
-                return
-
-        for x in range(io.display.width):
-            for y in range(io.display.height):
-                if (x, y) in self.snake:
-                    io.display.update(x, y, (116, 11, 11))
-                else:
-                    io.display.update(x, y, (0, 0, 0))
-
-    def update_midgame(self, io, delta):
+    def _update_midgame(self, io, delta):
         if io.controller.left.get_fresh_value():
             self.button_press_queue.append(self.LEFT)
         if io.controller.right.get_fresh_value():
@@ -177,3 +86,20 @@ class Snake(core.Application):
                 else:
                     io.display.update(x, y, (0, 0, 0))
         io.display.refresh()
+
+    def _update_gameover(self, io, delta):
+        self.snake_progression += delta * 7
+        if self.snake_progression > 1:
+            self.snake_progression -= 1
+            if len(self.snake) > 0:
+                self.snake = self.snake[1:]
+            else:
+                self.state = self.PRE_GAME
+                return
+
+        for x in range(io.display.width):
+            for y in range(io.display.height):
+                if (x, y) in self.snake:
+                    io.display.update(x, y, (116, 11, 11))
+                else:
+                    io.display.update(x, y, (0, 0, 0))
