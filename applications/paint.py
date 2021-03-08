@@ -59,3 +59,4 @@ class Paint(core.Application):
 
         for x, color in enumerate(self.color_pallette):
             io.display.update(x,13,color)
+        io.display.refresh()

@@ -3,6 +3,7 @@ from applications.settings import BrightnessSlider, FPSChoice
 from applications.menu import Menu
 from applications.animations import AnimationCycler, BeatAnimation, SolidColor
 from applications.paint import Paint
+from applications.games.snake import Snake
 
 if __name__ == "__main__":
     with PygameIOManager() as ioManager:
@@ -13,6 +14,9 @@ if __name__ == "__main__":
             ],
                 name="Settings"),
             Menu([
+                Menu([
+                    Snake()
+                ],name="Games"),
                 AnimationCycler([
                     BeatAnimation(
                         "resources/animations/shuffle1.npy",
