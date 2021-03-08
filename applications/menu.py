@@ -1,7 +1,5 @@
 from applications import core
 from helpers import textutils, bitmaputils
-import colorsys
-import hashlib
 
 
 class Menu(core.Application):
