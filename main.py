@@ -9,7 +9,7 @@ if __name__ == "__main__":
     with PygameIOManager() as ioManager:
         ioManager.run(Menu([
             Menu([
-                BrightnessSlider(default=1, name="Brightness"),
+                BrightnessSlider(start=0.1, end=1, default=1, name="Brightness"),
                 FPSChoice(default=1, name="FPS")
             ],
                 name="Settings"),

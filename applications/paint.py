@@ -19,7 +19,7 @@ class Paint(core.Application):
         self.selected_index = 3
         self.progression = 0
 
-        self.pixels = [[(0, 0, 0) for y in range(12)] for x in range(10)]
+        self.pixels = self.load_value("pixels", default=[[(0, 0, 0) for y in range(12)] for x in range(10)])
         self.cursor = [0, 0]
 
 
@@ -28,6 +28,7 @@ class Paint(core.Application):
             self.selected_index = (self.selected_index + 1) % len(self.color_pallette)
         if io.controller.a.get_fresh_value():
             self.pixels[self.cursor[0]][self.cursor[1]] = self.color_pallette[self.selected_index]
+            self.save_value("pixels", self.pixels)
 
         if io.controller.left.get_fresh_value():
             self.cursor[0] = max(0, self.cursor[0] - 1)

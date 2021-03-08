@@ -17,16 +17,10 @@ class Snake(core.Application):
     LEFT = (-1, 0)
     RIGHT = (1, 0)
 
-    SAVEFILE = "resources/appdata/snake.json"
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if os.path.exists(self.SAVEFILE):
-            with open(self.SAVEFILE) as f:
-                self.highscore = json.load(f)["highscore"]
-        else:
-            self.highscore = 0
+        self.highscore = self.load_value("highscore", default=0)
 
         self.pulse_progression = 0
         self.pulse_speed = 1
@@ -162,8 +156,7 @@ class Snake(core.Application):
                 self.last_score = len(self.snake)
                 if self.last_score > self.highscore:
                     self.highscore = self.last_score
-                    with open(self.SAVEFILE, "w+") as f:
-                        json.dump({"highscore": self.highscore}, f)
+                    self.save_value("highscore", self.highscore)
                 self.state = self.GAME_OVER
                 return
 

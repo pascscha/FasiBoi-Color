@@ -10,6 +10,8 @@ class Slider(core.Application):
         self.start = start
         self.end = end
         self.steps = steps
+
+        default = self.load_value("default", default=default)
         self.value_index = int(steps * (default - start) / (end - start))
         self.delta = (end - start)/steps
 
@@ -21,6 +23,7 @@ class Slider(core.Application):
             self.value_index -= 1
             self.value_index = max(0, self.value_index)
 
+        self.save_value("default", self.get_value())
         for x in range(0, io.display.width):
             for y in range(io.display.height):
                 io.display.update(x, y, (0, 0, 0))
@@ -32,11 +35,10 @@ class Slider(core.Application):
     def get_value(self):
         return self.start + self.value_index * self.delta
 
-
 class BrightnessSlider(Slider):
     def update(self, io, delta):
-        self.value_index = int(
-            self.steps * (io.display.brightness - self.start) / (self.end - self.start))
+        #self.value_index = int(
+        #    self.steps * (io.display.brightness - self.start) / (self.end - self.start))
         super().update(io, delta)
         io.display.brightness = self.get_value()
         io.display.refresh()
@@ -48,6 +50,7 @@ class NumberChoice(core.Application):
         self.start = start
         self.end = end
         self.step_size = step_size
+        default = self.load_value("default", default=default)
         self.value = min(end, max(start, default))
 
     def update(self, io, delta):
@@ -57,6 +60,8 @@ class NumberChoice(core.Application):
         if io.controller.down.get_fresh_value():
             self.value -= self.step_size
             self.value = max(self.start, self.value)
+
+        self.save_value("default", self.value)
 
         for x in range(io.display.width):
             for y in range(io.display.height):
