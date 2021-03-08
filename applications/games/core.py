@@ -36,9 +36,7 @@ class Game(core.Application):
             self.reset()
             self.state = self.MID_GAME
         else:
-            for x in range(io.display.width):
-                for y in range(io.display.height):
-                    io.display.update(x, y, (0, 0, 0))
+            io.display.fill((0,0,0))
 
             highscore_bmp = textutils.getTextBitmap(str(self.highscore))
             if self.last_score is None:

@@ -72,8 +72,8 @@ class Display:
         self._update(x, y, color)
 
     def fill(self, color):
-        checkColor(color)
-        self.pixels = np.ones((width, height, 3), dtype=np.unit8) * color * self.brightness
+        self.checkColor(color)
+        self.pixels = np.ones((self.width, self.height, 3), dtype=np.uint8) * color * self.brightness
 
     def _update(self, x, y, color):
         raise NotImplementedError("Please implement this method.")
