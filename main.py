@@ -19,12 +19,10 @@ if __name__ == "__main__":
             setting.update(ioManager, 0)
 
         ioManager.run(Menu([
-            Menu(settings,
-                 name="Settings"),
             Menu([
                 Menu([
-                    Snake(),
-                    Flappy()
+                    Snake(color=(11, 116, 93)),
+                    Flappy(color=(255, 255, 0))
                 ], name="Games"),
                 AnimationCycler([
                     BeatAnimation(
@@ -62,4 +60,7 @@ if __name__ == "__main__":
                 Paint()
             ],
                 name="Applications"),
+            Menu(settings,
+                 name="Settings"),
+
         ]))
