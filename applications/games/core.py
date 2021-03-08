@@ -30,7 +30,7 @@ class Game(core.Application):
 
     def reset(self):
         pass
-    
+
     def _update_pregame(self, io, delta):
         if io.controller.a.get_fresh_value():
             self.reset()

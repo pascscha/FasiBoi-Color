@@ -85,8 +85,7 @@ class Snake(core.Game):
                     io.display.update(x, y, (11, 116, 93))
                 else:
                     io.display.update(x, y, (0, 0, 0))
-        io.display.refresh()
-
+        
     def _update_gameover(self, io, delta):
         self.snake_progression += delta * 7
         if self.snake_progression > 1:

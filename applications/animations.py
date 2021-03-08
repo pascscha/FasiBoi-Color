@@ -39,7 +39,6 @@ class BeatAnimation(core.Application):
                     io.display.update(y, x, color)
                 else:
                     io.display.update(y, x, (0, 0, 0))
-        io.display.refresh()
 
 
 class AnimationCycler(core.Application):
@@ -66,4 +65,3 @@ class SolidColor(core.Application):
         for x in range(io.display.width):
             for y in range(io.display.height):
                 io.display.update(x, y, self.color)
-        io.display.refresh()

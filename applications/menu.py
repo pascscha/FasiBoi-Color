@@ -63,4 +63,4 @@ class Menu(core.Application):
         color = self.applications[choice_2].color
         bitmaputils.applyBitmap(bmp, io.display, (int(-11 + progression * -12),
                                                   io.display.height//2-2), color0=(0, 0, 0), color1=color)
-        io.display.refresh()
+        

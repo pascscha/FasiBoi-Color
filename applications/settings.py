@@ -41,7 +41,6 @@ class BrightnessSlider(Slider):
         #    self.steps * (io.display.brightness - self.start) / (self.end - self.start))
         super().update(io, delta)
         io.display.brightness = self.get_value()
-        io.display.refresh()
 
 
 class NumberChoice(core.Application):
@@ -79,7 +78,6 @@ class NumberChoice(core.Application):
              io.display.height//2-bmp.shape[0]//2),
             color0=(0, 0, 0),
             color1=self.color)
-        io.display.refresh()
 
 
 class FPSChoice(NumberChoice):

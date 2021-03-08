@@ -1,4 +1,5 @@
 import time
+import numpy as np
 
 BUTTON_UP = 0
 BUTTON_LEFT = 1
@@ -50,21 +51,28 @@ class Display:
     def __init__(self, width, height, brightness=1, lazy=True):
         self.width = width
         self.height = height
-        self.pixels = [[(0, 0, 0) for y in range(self.height)]
-                       for x in range(self.width)]
+        self.pixels = np.zeros((width, height, 3), dtype=np.uint8)
         self.brightness = brightness
 
-    def update(self, x, y, color):
+    def checkCoordinates(self, x, y):
         if x < 0 or x >= self.width:
             raise ValueError("x Coordinates out of bounds!")
         elif y < 0 or y >= self.height:
             raise ValueError("y Coordinates out of bounds!")
-        elif min(color) < 0 or max(color) >= 256:
+
+    def checkColor(self, color):
+        if min(color) < 0 or max(color) >= 256:
             raise ValueError("Colors have to be between 0 and 255")
-        else:
-            self.pixels[x][y] = color
-            self._update(x, y, tuple(
-                map(lambda x: int(x*self.brightness), color)))
+
+    def update(self, x, y, color):
+        self.checkCoordinates(x, y)
+        self.checkColor(color)
+        self.pixels[x][y] = color
+        self._update(x, y, tuple(map(lambda x: int(x*self.brightness), color)))
+
+    def fill(self, color):
+        checkColor(color)
+        self.pixels = np.ones((width, height, 3), dtype=np.unit8) * color
 
     def _update(self, x, y, color):
         raise NotImplementedError("Please implement this method.")
@@ -91,6 +99,7 @@ class IOManager:
             last = now
             self.update()
             self.applications[-1].update(self, delta)
+            self.display.refresh()
             if self.controller.menu.get_fresh_value():
                 self.closeApplication()
             sleep = max(0, min(delta, 1/self.fps))

@@ -48,15 +48,16 @@ class PygameDisplay(core.Display):
             (*screen_pos, *screen_size))
 
     def _update(self, x, y, color):
-        left = self.screen_pos[0] + self.pixel_size * x
-        top = self.screen_pos[1] + self.pixel_size * y
-        pygame.draw.rect(self.win, color, (left, top,
-                                           self.pixel_size, self.pixel_size))
+        pass
 
     def refresh(self):
         for x in range(self.width):
             for y in range(self.height):
-                self.update(x, y, self.pixels[x][y])
+                left = self.screen_pos[0] + self.pixel_size * x
+                top = self.screen_pos[1] + self.pixel_size * y
+                pygame.draw.rect(self.win, self.pixels[x][y], (left, top,
+                                                self.pixel_size, self.pixel_size))
+
 
 
 
