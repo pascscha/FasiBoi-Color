@@ -2,6 +2,7 @@ from IO.pygame import PygameIOManager
 from applications.settings import BrightnessSlider, FPSChoice
 from applications.menu import Menu
 from applications.animations import AnimationCycler, BeatAnimation, SolidColor
+from applications.paint import Paint
 
 if __name__ == "__main__":
     with PygameIOManager() as ioManager:
@@ -44,7 +45,8 @@ if __name__ == "__main__":
                         name="Blue"
                     )
                 ],
-                    name="Color")
+                    name="Color"),
+                Paint()
             ],
                 name="Applications"),
         ]))
