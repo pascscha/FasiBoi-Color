@@ -27,15 +27,12 @@ class CursesDisplay(core.Display):
         self.win = win
 
     def _update(self, x, y, color):
-        pass
+        if tuple(color) != (0, 0, 0):
+            self.win.addstr(y+2, x*2+2, f"##")
+        else:
+            self.win.addstr(y+2, x*2+2, "  ") 
 
-    def refresh(self):
-        for x in range(self.width):
-            for y in range(self.height):
-                if tuple(self.pixels[x][y]) != (0, 0, 0):
-                    self.win.addstr(y+2, x*2+2, f"##")
-                else:
-                    self.win.addstr(y+2, x*2+2, "  ")                
+    def _refresh(self):
         self.win.refresh()
 
 

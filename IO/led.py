@@ -20,7 +20,6 @@ class LEDDisplay(core.Display):
         self.strip.begin()
 
     def _update(self, x, y, color):
-        #y -= 2
         if y == 13 and x <= 1:
             return
         elif y == 14:
@@ -29,10 +28,9 @@ class LEDDisplay(core.Display):
             index = y * 10 + x
         else:
             index = y * 10 + 9 - x
-
         self.strip.setPixelColor(index, Color(*color))
 
-    def refresh(self):
+    def _refresh(self):
         self.strip.show()
 
 

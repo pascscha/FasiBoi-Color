@@ -47,18 +47,14 @@ class PygameDisplay(core.Display):
             (0, 0, 0),
             (*screen_pos, *screen_size))
 
+    def _refresh(self):
+        pygame.display.update()
+    
     def _update(self, x, y, color):
-        pass
-
-    def refresh(self):
-        for x in range(self.width):
-            for y in range(self.height):
-                left = self.screen_pos[0] + self.pixel_size * x
-                top = self.screen_pos[1] + self.pixel_size * y
-                pygame.draw.rect(self.win, self.pixels[x][y], (left, top,
-                                                self.pixel_size, self.pixel_size))
-
-
+        left = self.screen_pos[0] + self.pixel_size * x
+        top = self.screen_pos[1] + self.pixel_size * y
+        pygame.draw.rect(self.win, color, (left, top,
+                                        self.pixel_size, self.pixel_size))
 
 
 class PygameIOManager(core.IOManager):
@@ -86,7 +82,6 @@ class PygameIOManager(core.IOManager):
                 return
             else:
                 self.controller.update(event)
-        pygame.display.update()
         super().update()
 
     def destroy(self):

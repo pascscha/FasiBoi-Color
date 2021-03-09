@@ -52,6 +52,7 @@ class Display:
         self.width = width
         self.height = height
         self.pixels = np.zeros((width, height, 3), dtype=np.uint8)
+        self.last_pixels = self.pixels
         self.brightness = brightness
 
     def checkCoordinates(self, x, y):
@@ -69,18 +70,23 @@ class Display:
         self.checkColor(color)
         color = tuple(map(lambda x: int(x*self.brightness), color))
         self.pixels[x][y] = color
-        self._update(x, y, color)
 
     def fill(self, color):
         self.checkColor(color)
         self.pixels = np.ones((self.width, self.height, 3), dtype=np.uint8) * color * self.brightness
 
     def _update(self, x, y, color):
-        raise NotImplementedError("Please implement this method.")
+        raise NotImplementedError("Please implement this method!")
 
-    def refresh(self):
+    def _refresh(self):
         pass
 
+    def refresh(self):
+        # Only update pixels that have changed
+        for x,y in zip(*np.where(np.any(self.pixels != self.last_pixels,axis=2))):
+            self._update(x, y, self.pixels[x][y])
+        self.last_pixels = self.pixels.copy()
+        self._refresh()
 
 class IOManager:
     def __init__(self, controller, display, fps=30):
