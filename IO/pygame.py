@@ -1,7 +1,6 @@
 from IO import core
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-# environ["SDL_VIDEODRIVER"] = "dummy"
 import pygame
 
 
@@ -9,22 +8,17 @@ class PygameController(core.Controller):
     def __init__(self):
         super().__init__()
         self.keymap = {
-            276: self.left,  # Arrow Left
-            273: self.up,  # Arrow Up
-            275: self.right,  # Arrow Right
-            274: self.down,  # Arrow Down
-            97: self.a,  # A
-            98: self.b,  # B
-            27: self.menu,  # Esc
-            1073741904: self.left,
-            1073741906: self.up,
-            1073741903: self.right,
-            1073741905: self.down
+            pygame.K_LEFT: self.left,
+            pygame.K_UP: self.up,
+            pygame.K_RIGHT: self.right,
+            pygame.K_DOWN: self.down,
+            pygame.K_a: self.a,
+            pygame.K_b: self.b,
+            pygame.K_ESCAPE: self.menu
         }
 
     def update(self, event):
         if event.type == pygame.KEYDOWN:
-            print(event.key)
             if event.key in self.keymap:
                 self.keymap[event.key].update(True)
         elif event.type == pygame.KEYUP:
