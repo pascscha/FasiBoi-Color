@@ -30,8 +30,11 @@ class Game(core.Application):
         elif self.state == self.GAME_OVER:
             self._update_gameover(io, delta)
 
-    def reset(self):
+    def reset(self, io):
         """Method called when a new game is started. Set up new game here.
+
+        Args:
+            io (IO.core.IOManager): The IO manager that the application is running in
         """
         pass
 
@@ -47,7 +50,7 @@ class Game(core.Application):
             self.save_value("highscore", self.highscore)
 
         if io.controller.a.get_fresh_value():
-            self.reset()
+            self.reset(io)
             self.state = self.MID_GAME
         else:
             io.display.fill((0, 0, 0))

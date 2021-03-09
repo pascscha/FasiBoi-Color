@@ -3,28 +3,49 @@ import random
 
 
 class Snake(core.Game):
+    # Directions
     UP = (0, -1)
     DOWN = (0, 1)
     LEFT = (-1, 0)
     RIGHT = (1, 0)
 
-    def random_food_location(self):
-        location = (random.randint(0, 9), random.randint(0, 14))
+    def random_food_location(self, width=10, height=15):
+        """Spawns the food in a random location without colliding with the snake.
+
+        Returns:
+            (int, int): A location on the board that does not collide with the snake.
+        """
+        location = (random.randint(0, width-1), random.randint(0, height-1))
         while location in self.snake:
-            location = (random.randint(0, 9), random.randint(0, 14))
+            location = (random.randint(0, width-1),
+                        random.randint(0, height-1))
         return location
 
-    def reset(self):
+    def reset(self, io):
+        # Reset the press queue. I use a queue for the button presses, so that the user can quickly
+        # press for example left, down and then it would execute left in one frame and down in the next one.
+        # This allows for faster and more accurate steering of the snake
         self.button_press_queue = []
+
+        # The initial body of the snake
         self.snake = [(5, 5), (4, 5), (3, 5)]
+
+        # The snakes goes right at the beginning
         self.direction = self.RIGHT
 
-        self.food = self.random_food_location()
+        # Initialize the food at some random location
+        self.food = self.random_food_location(
+            width=io.display.width,
+            height=io.display.height
+        )
 
+        # Set speed and progression of snake. Progression accumulates the time that has passed since last movement.
         self.snake_progression = 0
         self.snake_speed = 3
 
     def _update_midgame(self, io, delta):
+        # Check controller values. We look for fresh_values, because we only care
+        # about button presses and not if the button is held down
         if io.controller.left.get_fresh_value():
             self.button_press_queue.append(self.LEFT)
         if io.controller.right.get_fresh_value():
@@ -66,7 +87,10 @@ class Snake(core.Game):
                 return
 
             if new_head == self.food:
-                self.food = self.random_food_location()
+                self.food = self.random_food_location(
+                    width=io.display.width,
+                    height=io.display.height
+                )
                 self.snake_speed += 0.1
                 self.snake = [new_head] + self.snake
             else:
@@ -81,7 +105,7 @@ class Snake(core.Game):
                     io.display.update(x, y, (11, 116, 93))
                 else:
                     io.display.update(x, y, (0, 0, 0))
-        
+
     def _update_gameover(self, io, delta):
         self.snake_progression += delta * 7
         if self.snake_progression > 1:

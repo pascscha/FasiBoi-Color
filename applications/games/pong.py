@@ -5,18 +5,18 @@ import math
 
 class Pong(core.Game):
 
-    def reset(self):
-        self.ball_x = 4.5
-        self.ball_y = 7
+    def reset(self, io):
+        self.ball_x = io.display.width/2
+        self.ball_y = io.display.height/2
         self.ball_direction = -math.pi/2 + (0.5-random.random())*math.pi/2
         self.ball_speed = 10
-        self.platform_width = 5
+        self.platform_width = io.display.width//2
         self.platform_speed = 10
-        self.ai_platform_width = 5
+        self.ai_platform_width = io.display.width//2
         self.ai_platform_speed = 10
 
-        self.platform_pos = 4.5
-        self.ai_platform_pos = 4.5
+        self.platform_pos = io.display.width/2
+        self.ai_platform_pos = io.display.width/2
         self.last_score = 0
 
     def _update_midgame(self, io, delta):
@@ -77,7 +77,7 @@ class Pong(core.Game):
                 if self.last_score % 15 == 0:
                     self.platform_width = max(1, self.platform_width-1)
                     self.ai_platform_width = max(1, self.ai_platform_width-1)
-                                    
+
         if self.ball_y < 0:
             self.ball_y = 1
             self.ball_direction *= -1
