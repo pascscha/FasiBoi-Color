@@ -52,7 +52,7 @@ class Display:
         self.width = width
         self.height = height
         self.pixels = np.zeros((width, height, 3), dtype=np.uint8)
-        self.last_pixels = self.pixels
+        self.last_pixels = np.ones((width, height, 3), dtype=np.uint8)
         self.brightness = brightness
 
     def checkCoordinates(self, x, y):
