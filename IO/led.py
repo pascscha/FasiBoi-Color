@@ -1,4 +1,5 @@
 from IO import core
+from IO.curses import CursesController
 from rpi_ws281x.rpi_ws281x import *
 
 # LED strip configuration:
@@ -34,34 +35,13 @@ class LEDDisplay(core.Display):
         self.strip.show()
 
 
-class LEDController(core.Controller):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.keymap = {
-            106: self.left,  # J
-            105: self.up,  # I
-            108: self.right,  # L
-            107: self.down,  # K
-            97: self.a,  # A
-            98: self.b,  # B
-            27: self.menu  # Esc
-        }
-
-    def update(self, char):
-        for key, button in self.keymap.items():
-            if key == char:
-                button.update(True)
-            else:
-                button.update(False)
-
-
 class LEDIOManager(core.IOManager):
     def __init__(self, screen_res=(10, 15)):
         self.screen = curses.initscr()
         self.screen.nodelay(1)
         curses.nocbreak()
 
-        controller = RbpyController()
+        controller = CursesController()
         display = LEDDisplay(*screen_res, lazy=False)
         super().__init__(controller, display)
 
