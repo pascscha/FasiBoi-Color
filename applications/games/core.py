@@ -45,36 +45,43 @@ class Game(core.Application):
             io (IO.core.IOManager): The IO manager that the application is running in
             delta (float): How much time has passed since the last frame
         """
+
+        # Save score if its a new highscore
         if self.score is not None and self.score > self.highscore:
             self.highscore = self.score
             self.save_value("highscore", self.highscore)
 
+        # If A is pressed we start the game
         if io.controller.a.get_fresh_value():
             self.reset(io)
             self.state = self.MID_GAME
         else:
+            # Fill display with black
             io.display.fill((0, 0, 0))
 
+            # Generate bitmap of highscore text
             highscore_bmp = textutils.getTextBitmap(str(self.highscore))
             if self.score is None:
+                # If we have no last score yet, just display highscore
                 bitmaputils.applyBitmap(
                     highscore_bmp,
                     io.display,
                     (io.display.width//2 -
                      highscore_bmp.shape[1]//2, io.display.height//2-highscore_bmp.shape[0]//2),
-                    color0=(0, 0, 0),
-                    color1=(255, 255, 255))
+                    fg_color=(255, 255, 255))
             else:
+                # Otherwise also show last score
                 score_bmp = textutils.getTextBitmap(str(self.score))
 
+                # Draw highscore
                 bitmaputils.applyBitmap(
                     highscore_bmp,
                     io.display,
                     (io.display.width//2 -
                      highscore_bmp.shape[1]//2, 4-highscore_bmp.shape[0]//2),
-                    color0=(0, 0, 0),
-                    color1=(255, 255, 0))
+                    fg_color=(255, 255, 0))
 
+                # Make color rainbow if its a new highscore
                 if self.score == self.highscore:
                     score_hue = self.pulse_progression - \
                         int(self.pulse_progression)
@@ -83,13 +90,13 @@ class Game(core.Application):
                 else:
                     score_color = (0, 0, 255)
 
+                # Draw last score
                 bitmaputils.applyBitmap(
                     score_bmp,
                     io.display,
                     (io.display.width//2 -
                      score_bmp.shape[1]//2, 10-score_bmp.shape[0]//2),
-                    color0=(0, 0, 0),
-                    color1=score_color)
+                    fg_color=score_color)
 
     def _update_midgame(self, io, delta):
         """The actual gameplay when the game is running. Put your game code here.

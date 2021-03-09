@@ -58,5 +58,5 @@ class Menu(core.Application):
                 io.display.update(x, y, color)
 
         bitmaputils.applyBitmap(bmp, io.display, (int(-11 + progression * -12),
-                                                  io.display.height//2-2), color0=(0, 0, 0), color1=color)
+                                                  io.display.height//2-2), fg_color=color)
         

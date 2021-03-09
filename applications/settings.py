@@ -66,8 +66,7 @@ class NumberChoice(core.Application):
             io.display,
             (io.display.width//2-bmp.shape[1]//2,
              io.display.height//2-bmp.shape[0]//2),
-            color0=(0, 0, 0),
-            color1=self.color)
+            fg_color=self.color)
 
 
 class BrightnessSlider(Slider):

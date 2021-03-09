@@ -14,13 +14,11 @@ class Clock(core.Application):
             io.display,
             (io.display.width//2 - hour_bmp.shape[1]//2,
              4-hour_bmp.shape[0]//2),
-            color0=(0, 0, 0),
-            color1=(255, 255, 255))
+            fg_color=(255, 255, 255))
 
         bitmaputils.applyBitmap(
             minute_bmp,
             io.display,
             (io.display.width//2 - hour_bmp.shape[1]//2,
              10-hour_bmp.shape[0]//2),
-            color0=(0, 0, 0),
-            color1=(255, 255, 255))
+            fg_color=(255, 255, 255))
