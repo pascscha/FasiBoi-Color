@@ -42,8 +42,8 @@ if __name__ == "__main__":
                         name="Little Big")
                 ]),
                 Clock(),
-                VideoPlayer("resources/videos/wave.gif"),
-                Webcam(),
+                # VideoPlayer("resources/videos/wave.gif"),
+                # Webcam(),
                 Menu([
                     SolidColor(
                         (255, 255, 255),
