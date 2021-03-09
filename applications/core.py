@@ -5,7 +5,6 @@ import json
 
 
 class Application:
-    DEFAULT_NAME = "BaseApplication"
 
     def __init__(self, name=None, color=None):
         if name is None:
