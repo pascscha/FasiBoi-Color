@@ -11,7 +11,7 @@ class Game(core.Application):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.highscore = self.load_value("highscore", default=0)
-        self.last_score = None
+        self.score = None
 
         # The state of the game, used for the STATE machine
         self.state = self.PRE_GAME
@@ -45,8 +45,8 @@ class Game(core.Application):
             io (IO.core.IOManager): The IO manager that the application is running in
             delta (float): How much time has passed since the last frame
         """
-        if self.last_score is not None and self.last_score > self.highscore:
-            self.highscore = self.last_score
+        if self.score is not None and self.score > self.highscore:
+            self.highscore = self.score
             self.save_value("highscore", self.highscore)
 
         if io.controller.a.get_fresh_value():
@@ -56,7 +56,7 @@ class Game(core.Application):
             io.display.fill((0, 0, 0))
 
             highscore_bmp = textutils.getTextBitmap(str(self.highscore))
-            if self.last_score is None:
+            if self.score is None:
                 bitmaputils.applyBitmap(
                     highscore_bmp,
                     io.display,
@@ -65,7 +65,7 @@ class Game(core.Application):
                     color0=(0, 0, 0),
                     color1=(255, 255, 255))
             else:
-                score_bmp = textutils.getTextBitmap(str(self.last_score))
+                score_bmp = textutils.getTextBitmap(str(self.score))
 
                 bitmaputils.applyBitmap(
                     highscore_bmp,
@@ -75,7 +75,7 @@ class Game(core.Application):
                     color0=(0, 0, 0),
                     color1=(255, 255, 0))
 
-                if self.last_score == self.highscore:
+                if self.score == self.highscore:
                     score_hue = self.pulse_progression - \
                         int(self.pulse_progression)
                     score_color = tuple(

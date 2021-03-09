@@ -55,70 +55,96 @@ class Snake(core.Game):
         if io.controller.down.get_fresh_value():
             self.button_press_queue.append(self.DOWN)
 
+        # Pulser value, that goes back and forth from 0 to 1, used to set brightness of food
         pulser = abs(self.pulse_progression -
                      int(self.pulse_progression) - 0.5)*2
 
+        # Update snake progression
         self.snake_progression += delta * self.snake_speed
+
+        # Move the snake to the next field if the time is ready
         if self.snake_progression > 1:
             self.snake_progression -= 1
 
+            # Execute next command on the button queue
             if len(self.button_press_queue) > 0:
                 direction = self.button_press_queue[0]
                 self.button_press_queue = self.button_press_queue[1:]
+                # Check that the direction is valid. Not allowed is to change direction by 180°, e.g. from left to right
+                # or from up to down.
                 if direction[0] != -self.direction[0] or direction[1] != -self.direction[1]:
                     self.direction = direction
 
+            # Calculate the new x position of the snake and warp it around the screen if necessary
             new_x = self.snake[0][0] + self.direction[0]
             if new_x >= io.display.width:
                 new_x -= io.display.width
             if new_x < 0:
                 new_x += io.display.width
 
+            # Calculate the new y position of the snake and warp it around the screen if necessary
             new_y = self.snake[0][1] + self.direction[1]
             if new_y >= io.display.height:
                 new_y -= io.display.height
             if new_y < 0:
                 new_y += io.display.height
 
+            # Check if there is a collision with the snakes body
             new_head = (new_x, new_y)
             if new_head in self.snake:
-                self.last_score = len(self.snake)
+                # Set the score to the length of the snake and proceed to the game over state
+                self.score = len(self.snake)
                 self.state = self.GAME_OVER
                 return
 
+            # We found the food
             if new_head == self.food:
+                # Generate new food
                 self.food = self.random_food_location(
                     width=io.display.width,
                     height=io.display.height
                 )
+                # Increase speed of snake
                 self.snake_speed += 0.1
+                # Add head of snake to body without cutting the tail by one, which increases its length by 1
                 self.snake = [new_head] + self.snake
             else:
+                # We did not find the food, add head to snake and cut its tail by one, so its length stays the same
                 self.snake = [new_head] + self.snake[:-1]
 
-        for x in range(io.display.width):
-            for y in range(io.display.height):
-                if (x, y) == self.food:
-                    brightness = int(pulser * 255)
-                    io.display.update(x, y, (brightness, 0, 0))
-                elif (x, y) in self.snake:
-                    io.display.update(x, y, (11, 116, 93))
-                else:
-                    io.display.update(x, y, (0, 0, 0))
+        #
+        # Draw everyting
+        #
 
+        # Fill with black
+        io.display.fill((0,0,0))
+
+        # Draw pulsating food
+        food_brightness = int(pulser * 255)
+        io.display.update(*self.food, (food_brightness, 0, 0))
+
+        # Draw snake
+        for (x,y) in self.snake:
+            io.display.update(x, y, (11, 116, 93))
+        
     def _update_gameover(self, io, delta):
-        self.snake_progression += delta * 7
+        # We still use the snake progression for the dying animation
+        self.snake_progression += delta * 10
         if self.snake_progression > 1:
+            # We update the dying animation by one frame
             self.snake_progression -= 1
+            
+            # If the snake has still some body left, continue cutting it away
             if len(self.snake) > 0:
                 self.snake = self.snake[1:]
             else:
+                # When the snake is gone go back to the start screen
                 self.state = self.PRE_GAME
                 return
 
-        for x in range(io.display.width):
-            for y in range(io.display.height):
-                if (x, y) in self.snake:
-                    io.display.update(x, y, (116, 11, 11))
-                else:
-                    io.display.update(x, y, (0, 0, 0))
+        # Fill with black
+        io.display.fill((0,0,0))
+
+        # Draw snake in red
+        for (x,y) in self.snake:
+            io.display.update(x, y, (116, 11, 11))

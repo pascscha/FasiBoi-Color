@@ -17,7 +17,7 @@ class Pong(core.Game):
 
         self.platform_pos = io.display.width/2
         self.ai_platform_pos = io.display.width/2
-        self.last_score = 0
+        self.score = 0
 
     def _update_midgame(self, io, delta):
         if io.controller.left.get_value():
@@ -72,9 +72,9 @@ class Pong(core.Game):
                     (math.pi/2 - math.pi/2*(self.ball_x -
                                             self.platform_pos) / (self.platform_width))
                 self.ball_y = io.display.height-2
-                self.last_score += 1
+                self.score += 1
                 self.ball_speed += 1/2
-                if self.last_score % 15 == 0:
+                if self.score % 15 == 0:
                     self.platform_width = max(1, self.platform_width-1)
                     self.ai_platform_width = max(1, self.ai_platform_width-1)
 

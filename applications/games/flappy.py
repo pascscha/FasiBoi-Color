@@ -28,7 +28,7 @@ class Pipe:
 
 class Flappy(core.Game):
     def get_random_pipe(self, screen_height):
-        score = self.last_score + len(self.pipes)
+        score = self.score + len(self.pipes)
         gap = screen_height//2-min(3, score//10)
         height = random.randint(gap//2+2, screen_height-gap//2-2)
         if len(self.pipes) > 0:
@@ -46,7 +46,7 @@ class Flappy(core.Game):
         self.y_velocity = -2
         self.y_location = 7.5
 
-        self.last_score = 0
+        self.score = 0
         self.pipes = []
         for i in range(10):
             self.pipes.append(self.get_random_pipe(int(io.display.width*1.5)))
@@ -66,7 +66,7 @@ class Flappy(core.Game):
             return
 
         while len(self.pipes) > 0 and self.pipes[0].is_passed(self.pipe_progression):
-            self.last_score += 1
+            self.score += 1
             self.pipes = self.pipes[1:]
             self.pipes.append(self.get_random_pipe(io.display.height))
 
