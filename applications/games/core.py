@@ -12,8 +12,11 @@ class Game(core.Application):
         super().__init__(*args, **kwargs)
         self.highscore = self.load_value("highscore", default=0)
         self.last_score = None
+
+        # The state of the game, used for the STATE machine
         self.state = self.PRE_GAME
 
+        # Can beu used for any pulsing elements, such as the food of snake
         self.pulse_progression = 0
         self.pulse_speed = 1
 
@@ -27,19 +30,30 @@ class Game(core.Application):
         elif self.state == self.GAME_OVER:
             self._update_gameover(io, delta)
 
-    def reset(self):
+    def reset(self, io):
+        """Method called when a new game is started. Set up new game here.
+
+        Args:
+            io (IO.core.IOManager): The IO manager that the application is running in
+        """
         pass
 
     def _update_pregame(self, io, delta):
+        """Start screen of the game which shows highscore and last score
+
+        Args:
+            io (IO.core.IOManager): The IO manager that the application is running in
+            delta (float): How much time has passed since the last frame
+        """
         if self.last_score is not None and self.last_score > self.highscore:
             self.highscore = self.last_score
             self.save_value("highscore", self.highscore)
 
         if io.controller.a.get_fresh_value():
-            self.reset()
+            self.reset(io)
             self.state = self.MID_GAME
         else:
-            io.display.fill((0,0,0))
+            io.display.fill((0, 0, 0))
 
             highscore_bmp = textutils.getTextBitmap(str(self.highscore))
             if self.last_score is None:
@@ -78,7 +92,20 @@ class Game(core.Application):
                     color1=score_color)
 
     def _update_midgame(self, io, delta):
+        """The actual gameplay when the game is running. Put your game code here.
+
+        Args:
+            io (IO.core.IOManager): The IO manager that the application is running in
+            delta (float): How much time has passed since the last frame
+        """
         raise NotImplementedError("Please Implement this Method!")
 
     def _update_gameover(self, io, delta):
+        """The screen shown when the game is over. Put death animations here. If 
+        this method is not implemented it will automatically go to the pregame screen.
+
+        Args:
+            io (IO.core.IOManager): The IO manager that the application is running in
+            delta (float): How much time has passed since the last frame
+        """
         self.state = self.PRE_GAME

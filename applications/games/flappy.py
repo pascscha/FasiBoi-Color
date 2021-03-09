@@ -37,8 +37,7 @@ class Flappy(core.Game):
             x = 10
         return Pipe(height, gap, x)
 
-    def reset(self):
-        self.height = 0
+    def reset(self, io):
         self.pipe_speed = 3
         self.pipe_progression = 0
 
@@ -50,7 +49,7 @@ class Flappy(core.Game):
         self.last_score = 0
         self.pipes = []
         for i in range(10):
-            self.pipes.append(self.get_random_pipe(15))
+            self.pipes.append(self.get_random_pipe(int(io.display.width*1.5)))
 
     def _update_midgame(self, io, delta):
         if io.controller.up.get_fresh_value():

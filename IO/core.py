@@ -1,14 +1,6 @@
 import time
 import numpy as np
 
-BUTTON_UP = 0
-BUTTON_LEFT = 1
-BUTTON_RIGHT = 2
-BUTTON_DOWN = 3
-BUTTON_A = 4
-BUTTON_B = 5
-BUTTON_MENU = 6
-
 
 class ControllerValue:
     def __init__(self,  dtype=bool, default=False):
@@ -17,16 +9,32 @@ class ControllerValue:
         self.dtype = dtype
 
     def update(self, value):
+        """Assigns a new value to the button/input
+
+        Args:
+            value (self.dtype): The new value that is assigned to that button
+        """
         new_value = self.dtype(value)
         if new_value != self._value:
             self._value = new_value
             self.fresh = True
 
     def get_value(self):
+        """Gets the current value of the button/input
+
+        Returns:
+            self.dtype: The current Value of the controller
+        """
         self.fresh = False
         return self._value
 
     def get_fresh_value(self):
+        """Gets the current value of that button/input, if it has not been accessed yet (if it's fresh).
+        Otherwise returns None
+
+        Returns:
+            self.dtype: The value of the button/input if it has not been accessed yet, otherwise None
+        """
         if self.fresh:
             self.fresh = False
             return self._value
@@ -56,24 +64,56 @@ class Display:
         self.brightness = brightness
 
     def checkCoordinates(self, x, y):
+        """Checks wether the given coordinates are valid
+
+        Args:
+            x (int): X coordinate
+            y (int): Y coordinate
+
+        Raises:
+            ValueError: If X or Y coordinates are out of bounds
+        """
         if x < 0 or x >= self.width:
             raise ValueError("x Coordinates out of bounds!")
         elif y < 0 or y >= self.height:
             raise ValueError("y Coordinates out of bounds!")
 
     def checkColor(self, color):
+        """Checks wether a color is valid
+
+        Args:
+            color ((int, int, int)): The color
+
+        Raises:
+            ValueError: If the color is not properly formatted
+        """
         if min(color) < 0 or max(color) >= 256:
             raise ValueError("Colors have to be between 0 and 255")
+        elif len(color) != 3:
+            raise ValueError("Colors must have 3 channels")
 
     def update(self, x, y, color):
+        """Updates single pixel on the screen
+
+        Args:
+            x (int): The x coordinate of that pixel
+            y (int): The y coordinate of that pixel
+            color ((int, int, int)): The new rgb color of that pixel
+        """
         self.checkCoordinates(x, y)
         self.checkColor(color)
         color = tuple(map(lambda x: int(x*self.brightness), color))
         self.pixels[x][y] = color
 
     def fill(self, color):
+        """Fills the entire screen with one color
+
+        Args:
+            color ((int, int, int)): The rgb color to fill the screen with
+        """
         self.checkColor(color)
-        self.pixels = np.ones((self.width, self.height, 3), dtype=np.uint8) * color * self.brightness
+        self.pixels = np.ones((self.width, self.height, 3),
+                              dtype=np.uint8) * color * self.brightness
 
     def _update(self, x, y, color):
         raise NotImplementedError("Please implement this method!")
@@ -82,11 +122,15 @@ class Display:
         pass
 
     def refresh(self):
+        """Shows changes on the screen. Only updates pixels that have been changed
+        since last call to this function.
+        """
         # Only update pixels that have changed
-        for x,y in zip(*np.where(np.any(self.pixels != self.last_pixels,axis=2))):
+        for x, y in zip(*np.where(np.any(self.pixels != self.last_pixels, axis=2))):
             self._update(x, y, self.pixels[x][y])
         self.last_pixels = self.pixels.copy()
         self._refresh()
+
 
 class IOManager:
     def __init__(self, controller, display, fps=30):
@@ -97,6 +141,13 @@ class IOManager:
         self.fps = fps
 
     def run(self, application):
+        """Runs an application. Should only be invoked with the root
+        application, all further applications can then be called with 
+        `openApplication`.
+
+        Args:
+            application ([type]): [description]
+        """
         self.applications = [application]
         last = time.time()
         delta = 0
@@ -122,9 +173,17 @@ class IOManager:
         self.destroy()
 
     def openApplication(self, application):
+        """Opens a new application
+
+        Args:
+            application (application.core.Application): The application to be opened
+        """
         self.applications.append(application)
 
     def closeApplication(self):
+        """Closes the topmost application and returns to the previously opened appplication.
+        If none exists quits the Program
+        """
         if len(self.applications) > 0:
             self.applications[-1].destroy()
             self.applications = self.applications[:-1]

@@ -43,7 +43,7 @@ if __name__ == "__main__":
                 ]),
                 Clock(),
                 VideoPlayer("resources/videos/wave.gif"),
-                Webcam(),
+                # Webcam(),
                 Menu([
                     SolidColor(
                         (255, 255, 255),

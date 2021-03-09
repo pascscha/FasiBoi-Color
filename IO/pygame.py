@@ -8,13 +8,13 @@ class PygameController(core.Controller):
     def __init__(self):
         super().__init__()
         self.keymap = {
-            276: self.left,  # Arrow Left
-            273: self.up,  # Arrow Up
-            275: self.right,  # Arrow Right
-            274: self.down,  # Arrow Down
-            97: self.a,  # A
-            98: self.b,  # B
-            27: self.menu  # Esc
+            pygame.K_LEFT: self.left,
+            pygame.K_UP: self.up,
+            pygame.K_RIGHT: self.right,
+            pygame.K_DOWN: self.down,
+            pygame.K_a: self.a,
+            pygame.K_b: self.b,
+            pygame.K_ESCAPE: self.menu
         }
 
     def update(self, event):
