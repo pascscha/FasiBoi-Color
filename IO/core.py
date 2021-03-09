@@ -1,15 +1,6 @@
 import time
 import numpy as np
 
-BUTTON_UP = 0
-BUTTON_LEFT = 1
-BUTTON_RIGHT = 2
-BUTTON_DOWN = 3
-BUTTON_A = 4
-BUTTON_B = 5
-BUTTON_MENU = 6
-
-
 class ControllerValue:
     def __init__(self,  dtype=bool, default=False):
         self._value = default
@@ -32,7 +23,6 @@ class ControllerValue:
             return self._value
         else:
             return None
-
 
 class Controller:
     ValueClass = ControllerValue
