@@ -43,7 +43,6 @@ class ControllerValue:
 
 
 class Controller:
-    ValueClass = ControllerValue
 
     def __init__(self):
         self.up = ControllerValue()
@@ -56,7 +55,7 @@ class Controller:
 
 
 class Display:
-    def __init__(self, width, height, brightness=1, lazy=True):
+    def __init__(self, width, height, brightness=1):
         self.width = width
         self.height = height
         self.pixels = np.zeros((width, height, 3), dtype=np.uint8)
@@ -122,7 +121,7 @@ class Display:
         pass
 
     def refresh(self):
-        """Shows changes on the screen. Only updates pixels that have been changed
+        """Shows changes on the screen. Only updated pixels that have been changed
         since last call to this function.
         """
         # Only update pixels that have changed
@@ -160,7 +159,6 @@ class IOManager:
             self.display.refresh()
             if self.controller.menu.get_fresh_value():
                 self.closeApplication()
-            sleep = max(0, min(delta, 1/self.fps))
             time.sleep(max(0, min(delta, 1/self.fps)))
 
     def __enter__(self):

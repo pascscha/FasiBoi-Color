@@ -27,7 +27,7 @@ class Game(core.Application):
         # The state of the game, used for the STATE machine
         self.state = self.PRE_GAME
 
-        # Can beu used for any pulsing elements, such as the food of snake
+        # Can be used for any pulsing elements, such as the food of snake
         self.pulse_progression = 0
         self.pulse_speed = 1
 
