@@ -42,9 +42,9 @@ class Flappy(core.Game):
         self.pipe_speed = 3
         self.pipe_progression = 0
 
-        self.gravity = 1
+        self.gravity = 20
         self.gravity_progression = 0
-        self.y_velocity = -.2
+        self.y_velocity = -2
         self.y_location = 7.5
 
         self.last_score = 0
@@ -54,14 +54,15 @@ class Flappy(core.Game):
 
     def _update_midgame(self, io, delta):
         if io.controller.up.get_fresh_value():
-            self.y_velocity = -.5
+            self.y_velocity -= 7
+            self.y_velocity = min(-10, self.y_velocity)
 
         self.y_velocity += self.gravity * delta
-        self.y_location += self.y_velocity
+        self.y_location += self.y_velocity * delta
         self.pipe_progression += delta*self.pipe_speed
 
         if self.y_location > io.display.height:
-            self.y_velocity = -.5
+            self.y_velocity = -10
             self.state = self.GAME_OVER
             return
 
@@ -87,7 +88,7 @@ class Flappy(core.Game):
 
     def _update_gameover(self, io, delta):
         self.y_velocity += self.gravity * delta
-        self.y_location += self.y_velocity
+        self.y_location += self.y_velocity * delta
 
         if self.y_location > io.display.height:
             self.state = self.PRE_GAME
