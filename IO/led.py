@@ -1,9 +1,6 @@
 from IO import core
 from rpi_ws281x.rpi_ws281x import *
 
-import time
-import argparse
-
 # LED strip configuration:
 LED_COUNT = 149      # Number of LED pixels.
 LED_PIN = 18      # GPIO pin connected to the pixels (18 uses PWM!).

@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def getCharBitmap(char):
     file_path = "resources/sprites/letters.npy"
     letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?:.><="

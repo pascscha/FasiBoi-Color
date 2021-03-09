@@ -1,7 +1,3 @@
-import numpy as np
-import random
-import time
-
 from IO.pygame import PygameIOManager
 from applications.animations import BeatAnimation, AnimationCycler
 

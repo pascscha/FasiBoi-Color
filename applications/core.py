@@ -1,4 +1,3 @@
-from IO.core import ControllerValue
 import colorsys
 import hashlib
 import os.path
