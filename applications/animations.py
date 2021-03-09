@@ -55,34 +55,47 @@ class AnimationCycler(core.Application):
 
 
 class VideoPlayer(core.Application):
-    def __init__(self, path):
+    def __init__(self, path, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.cap = cv2.VideoCapture(path)
         self.video_fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.video_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
         self.progression = 0
 
-    def update(self, io, delta):
+    def get_frame(self, delta):
         self.progression += delta
         frame_index = int(self.progression *
                           self.video_fps) % self.video_frames
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
-        ret, frame = self.cap.read()
+        return self.cap.read()
+
+    def update(self, io, delta):
+        ret, frame = self.get_frame(delta)
         if ret:
             max_width = frame.shape[0]*io.display.width/io.display.height
             if max_width < frame.shape[1]:
                 cut = int((frame.shape[1] - max_width)/2)
-                frame = frame[:,cut:-cut]
-            
+                frame = frame[:, cut:-cut]
+
             max_height = frame.shape[1]*io.display.height/io.display.width
             if max_height < frame.shape[0]:
                 cut = int((frame.shape[0] - max_height)/2)
-                frame = frame[cut:-cut,:]
+                frame = frame[cut:-cut, :]
 
             resized = cv2.resize(frame, (io.display.width, io.display.height))
             converted = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
             for x in range(io.display.width):
                 for y in range(io.display.height):
                     io.display.update(x, y, converted[y][x])
+
+
+class Webcam(VideoPlayer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(None, *args, **kwargs)
+        self.cap = cv2.VideoCapture(0)
+
+    def get_frame(self, delta):
+        return self.cap.read()
 
 
 class SolidColor(core.Application):

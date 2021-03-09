@@ -1,7 +1,7 @@
 from IO.pygame import PygameIOManager
 from applications.settings import BrightnessSlider, FPSChoice
 from applications.menu import Menu
-from applications.animations import AnimationCycler, BeatAnimation, SolidColor
+from applications.animations import AnimationCycler, BeatAnimation, SolidColor, VideoPlayer, Webcam
 from applications.paint import Paint
 from applications.games.snake import Snake
 from applications.games.flappy import Flappy
@@ -42,6 +42,8 @@ if __name__ == "__main__":
                         name="Little Big")
                 ]),
                 Clock(),
+                VideoPlayer("resources/videos/wave.gif"),
+                Webcam(),
                 Menu([
                     SolidColor(
                         (255, 255, 255),
