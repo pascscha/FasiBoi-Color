@@ -2,6 +2,7 @@ import time
 from numpy import load
 from applications import core
 import colorsys
+import cv2
 
 
 class BeatAnimation(core.Application):
@@ -51,6 +52,37 @@ class AnimationCycler(core.Application):
         if io.controller.a.get_fresh_value():
             self.index = (self.index + 1) % len(self.animations)
         self.animations[self.index].update(io, delta)
+
+
+class VideoPlayer(core.Application):
+    def __init__(self, path):
+        self.cap = cv2.VideoCapture(path)
+        self.video_fps = self.cap.get(cv2.CAP_PROP_FPS)
+        self.video_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        self.progression = 0
+
+    def update(self, io, delta):
+        self.progression += delta
+        frame_index = int(self.progression *
+                          self.video_fps) % self.video_frames
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+        ret, frame = self.cap.read()
+        if ret:
+            max_width = frame.shape[0]*io.display.width/io.display.height
+            if max_width < frame.shape[1]:
+                cut = int((frame.shape[1] - max_width)/2)
+                frame = frame[:,cut:-cut]
+            
+            max_height = frame.shape[1]*io.display.height/io.display.width
+            if max_height < frame.shape[0]:
+                cut = int((frame.shape[0] - max_height)/2)
+                frame = frame[cut:-cut,:]
+
+            resized = cv2.resize(frame, (io.display.width, io.display.height))
+            converted = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+            for x in range(io.display.width):
+                for y in range(io.display.height):
+                    io.display.update(x, y, converted[y][x])
 
 
 class SolidColor(core.Application):

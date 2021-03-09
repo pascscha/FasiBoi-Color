@@ -1,5 +1,4 @@
 from applications.games import core
-from helpers import textutils, bitmaputils
 import random
 
 
@@ -28,7 +27,6 @@ class Pipe:
 
 
 class Flappy(core.Game):
-
     def get_random_pipe(self, screen_height):
         score = self.last_score + len(self.pipes)
         gap = screen_height//2-min(3, score//10)

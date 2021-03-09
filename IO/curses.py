@@ -27,13 +27,16 @@ class CursesDisplay(core.Display):
         self.win = win
 
     def _update(self, x, y, color):
-        if color != (0, 0, 0):
-            self.win.addstr(y+2, x*2+2, "##")
-        else:
-            self.win.addstr(y+2, x*2+2, "  ")
-    
+        pass
+
     def refresh(self):
-        pass#self.win.refresh()
+        for x in range(self.width):
+            for y in range(self.height):
+                if tuple(self.pixels[x][y]) != (0, 0, 0):
+                    self.win.addstr(y+2, x*2+2, f"##")
+                else:
+                    self.win.addstr(y+2, x*2+2, "  ")                
+        self.win.refresh()
 
 
 class CursesIOManager(core.IOManager):

@@ -7,7 +7,6 @@ class Game(core.Application):
     PRE_GAME = 0
     MID_GAME = 1
     GAME_OVER = 2
-    POST_GAME = 3
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

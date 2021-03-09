@@ -1,8 +1,6 @@
 from applications import core
 from helpers import textutils, bitmaputils
-import colorsys
-import hashlib
-
+import datetime
 
 class Slider(core.Application):
     def __init__(self, *args, start=0, end=1, steps=10, default=0.5, **kwargs):
