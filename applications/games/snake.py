@@ -40,8 +40,7 @@ class Snake(core.Game):
         )
 
         # Set speed and progression of snake. Progression accumulates the time that has passed since last movement.
-        self.snake_progression = 0
-        self.snake_speed = 3
+        self.ticker = core.Ticker(3)
 
     def _update_midgame(self, io, delta):
         # Check controller values. We look for fresh_values, because we only care
@@ -59,12 +58,8 @@ class Snake(core.Game):
         pulser = abs(self.pulse_progression -
                      int(self.pulse_progression) - 0.5)*2
 
-        # Update snake progression
-        self.snake_progression += delta * self.snake_speed
-
         # Move the snake to the next field if the time is ready
-        if self.snake_progression > 1:
-            self.snake_progression -= 1
+        if self.ticker.tick(delta):
 
             # Execute next command on the button queue
             if len(self.button_press_queue) > 0:
@@ -105,7 +100,7 @@ class Snake(core.Game):
                     height=io.display.height
                 )
                 # Increase speed of snake
-                self.snake_speed += 0.1
+                self.ticker.speed += 0.1
                 # Add head of snake to body without cutting the tail by one, which increases its length by 1
                 self.snake = [new_head] + self.snake
             else:
@@ -129,11 +124,7 @@ class Snake(core.Game):
         
     def _update_gameover(self, io, delta):
         # We still use the snake progression for the dying animation
-        self.snake_progression += delta * 10
-        if self.snake_progression > 1:
-            # We update the dying animation by one frame
-            self.snake_progression -= 1
-            
+        if self.ticker.tick(delta):            
             # If the snake has still some body left, continue cutting it away
             if len(self.snake) > 0:
                 self.snake = self.snake[1:]

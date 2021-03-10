@@ -2,6 +2,17 @@ from applications import core
 from helpers import textutils, bitmaputils
 import colorsys
 
+class Ticker:
+    def __init__(self, speed):
+        self.speed = speed
+        self.progression = 0
+    
+    def tick(self, delta):
+        self.progression += delta * self.speed
+        if self.progression > 1:
+            self.progression -= 1
+            return True
+        return False
 
 class Game(core.Application):
     PRE_GAME = 0
