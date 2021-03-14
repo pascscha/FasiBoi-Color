@@ -12,7 +12,7 @@ from applications.games.tetris import Tetris
 if __name__ == "__main__":
     settings = [
         BrightnessSlider(start=0.1, end=1, default=1, name="Brightness"),
-        FPSChoice(default=1, name="FPS")
+        FPSChoice(default=30, name="FPS")
     ]
 
     with PygameIOManager() as ioManager:
