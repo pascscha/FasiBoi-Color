@@ -74,13 +74,14 @@ class Tetris(core.Game):
         self.tl = TetrominoList()
 
     def reset(self, io):
-        self.gb = np.ones((10, 15))*self.BG
+        self.gb = np.ones((10, 18))*self.BG
+        self.gb_shape = (10, 15)
         self.score = 0
 
         self.tetromino = self.tl.sample()
         self.curr_rot = 0
         self.curr_pos_x, self.curr_pos_y = self.tetromino.get_rotation(0)
-        self.curr_shift_y = 0
+        self.curr_shift_y = 3-max(self.curr_pos_y)
         self.curr_shift_x = 3
         self.curr_pos_x += self.curr_shift_x
 
@@ -93,16 +94,16 @@ class Tetris(core.Game):
 
         # Check controller values. We look for fresh_values, because we only care
         # about button presses and not if the button is held down
-        # if io.controller.left.get_fresh_value():
-        #     d = self.LEFT[0]
-        #     if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
-        #         self.curr_pos_x += d
-        #         self.curr_shift_x += d
-        # if io.controller.right.get_fresh_value():
-        #     d = self.RIGHT[0]
-        #     if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
-        #         self.curr_pos_x += d
-        #         self.curr_shift_x += d
+        if io.controller.left.get_fresh_value():
+            d = self.LEFT[0]
+            if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
+                self.curr_pos_x += d
+                self.curr_shift_x += d
+        if io.controller.right.get_fresh_value():
+            d = self.RIGHT[0]
+            if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
+                self.curr_pos_x += d
+                self.curr_shift_x += d
         if io.controller.down.get_fresh_value():
             d = self.DOWN[1]
             if self.check(self.curr_pos_x, self.curr_pos_y+d, io):
@@ -145,8 +146,8 @@ class Tetris(core.Game):
                     self.curr_pos_y] = self.tetromino.get_color()
 
         # Draw Gameboard
-        for x, y in np.ndindex(self.gb.shape):
-            io.display.update(x, y, self.tl.COLORS[int(self.gb[x, y])])
+        for x, y in np.ndindex(self.gb_shape):
+            io.display.update(x, y, self.tl.COLORS[int(self.gb[x, y+3])])
         io.display.refresh()
 
     def _update_gameover(self, io, delta):
@@ -157,7 +158,7 @@ class Tetris(core.Game):
         for x, y in zip(new_x, new_y):
             if x >= io.display.width or x < 0:
                 return False
-            if y >= io.display.height or y < 0:
+            if y >= io.display.height+3 or y < 0:
                 return False
             if self.gb[x, y] != self.BG:
                 return False
