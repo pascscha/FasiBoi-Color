@@ -1,6 +1,7 @@
 from applications.games import core
 import random
 import numpy as np
+import time
 
 
 class Tetromino():
@@ -49,6 +50,7 @@ class TetrominoList():
     COLOR_Z = (255, 0, 0)
     COLOR_S = (0, 255, 0)
     COLOR_B = (0, 0, 0)
+    COLOR_G = (128, 128, 128)
 
     COLORS = [COLOR_I, COLOR_O, COLOR_L, COLOR_J,
               COLOR_T, COLOR_Z, COLOR_S, COLOR_B]
@@ -77,6 +79,7 @@ class Tetris(core.Game):
         self.gb = np.ones((10, 18))*self.BG
         self.gb_shape = (10, 15)
         self.score = 0
+        self.game_over_counter = 0
 
         self.tetromino = self.tl.sample()
         self.curr_rot = 0
@@ -110,7 +113,7 @@ class Tetris(core.Game):
                 self.curr_pos_y += d
                 self.curr_shift_y += d
         if io.controller.a.get_fresh_value():
-            self.curr_rot = (self.curr_rot + 1) % self.tetromino.nrot
+            self.curr_rot = (self.curr_rot - 1) % self.tetromino.nrot
             new_pos_x, new_pos_y = self.tetromino.get_rotation(self.curr_rot)
             new_pos_x += self.curr_shift_x-int(np.median(new_pos_x))
             new_pos_y += self.curr_shift_y-int(np.median(new_pos_y))
@@ -126,7 +129,7 @@ class Tetris(core.Game):
                 self.curr_pos_x = new_pos_x
                 self.curr_shift_x += shift_x
             else:
-                self.curr_rot = (self.curr_rot - 1) % self.tetromino.nrot
+                self.curr_rot = (self.curr_rot + 1) % self.tetromino.nrot
 
         # Move the Tetromino down if the time is ready
         if self.ticker.tick(delta):
@@ -148,11 +151,19 @@ class Tetris(core.Game):
         # Draw Gameboard
         for x, y in np.ndindex(self.gb_shape):
             io.display.update(x, y, self.tl.COLORS[int(self.gb[x, y+3])])
-        io.display.refresh()
 
     def _update_gameover(self, io, delta):
-        print("Game over")
-        self.state = self.PRE_GAME
+        self.ticker.speed = 6
+        if self.game_over_counter >= 18:
+            self.state = self.PRE_GAME
+        if self.ticker.tick(delta):
+            for x, y in np.ndindex(self.gb_shape):
+                col = self.tl.COLOR_B
+                if self.gb[x, y+3] != self.BG:
+                    col = self.tl.COLOR_G
+                io.display.update(x, y, col)
+            self.shift_rows(self.game_over_counter)
+            self.game_over_counter += 1
 
     def check(self, new_x, new_y, io):
         for x, y in zip(new_x, new_y):
@@ -165,6 +176,7 @@ class Tetris(core.Game):
         return True
 
     def new_tetromino(self, io):
+        self.ticker.speed += 0.01
         self.tetromino = self.tl.sample()
         self.curr_rot = 0
         self.curr_pos_x, self.curr_pos_y = self.tetromino.get_rotation(0)
@@ -180,11 +192,9 @@ class Tetris(core.Game):
         for idx in to_delete:
             self.shift_rows(idx)
         self.score += 2**len(to_delete)-1
-        print(self.score)
 
     def shift_rows(self, idx):
         top = np.ones([10]) * self.BG
         for i in range(idx, 0, -1):
             self.gb[:, i] = self.gb[:, i-1]
         self.gb[:, 0] = top
-        self.ticker.speed += 0.1
