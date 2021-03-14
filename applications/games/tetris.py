@@ -90,6 +90,7 @@ class Tetris(core.Game):
 
         # Set speed and progression of Tetrominos. Progression accumulates the time that has passed since last movement.
         self.ticker = core.Ticker(3)
+        self.move_ticker = core.Ticker(12)
 
     def _update_midgame(self, io, delta):
 
@@ -97,21 +98,37 @@ class Tetris(core.Game):
 
         # Check controller values. We look for fresh_values, because we only care
         # about button presses and not if the button is held down
+        pressed_l = False
+        pressed_r = False
+        pressed_d = False
+
         if io.controller.left.get_value():
             d = self.LEFT[0]
-            if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
-                self.curr_pos_x += d
-                self.curr_shift_x += d
+            if self.check(self.curr_pos_x+d, self.curr_pos_y, io) or pressed_l:
+                if self.move_ticker.tick(delta):
+                    self.curr_pos_x += d
+                    self.curr_shift_x += d
+                    pressed_l = False
+                else:
+                    pressed_l = True
         if io.controller.right.get_value():
             d = self.RIGHT[0]
-            if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
-                self.curr_pos_x += d
-                self.curr_shift_x += d
+            if self.check(self.curr_pos_x+d, self.curr_pos_y, io) or pressed_r:
+                if self.move_ticker.tick(delta):
+                    self.curr_pos_x += d
+                    self.curr_shift_x += d
+                    pressed_r = False
+                else:
+                    pressed_r = True
         if io.controller.down.get_value():
             d = self.DOWN[1]
-            if self.check(self.curr_pos_x, self.curr_pos_y+d, io):
-                self.curr_pos_y += d
-                self.curr_shift_y += d
+            if self.check(self.curr_pos_x, self.curr_pos_y+d, io) or pressed_d:
+                if self.move_ticker.tick(delta):
+                    self.curr_pos_y += d
+                    self.curr_shift_y += d
+                    pressed_d = False
+                else:
+                    pressed_d
         if io.controller.a.get_fresh_value():
             self.curr_rot = (self.curr_rot - 1) % self.tetromino.nrot
             new_pos_x, new_pos_y = self.tetromino.get_rotation(self.curr_rot)
@@ -196,16 +213,16 @@ class Tetris(core.Game):
     def shift_rows(self, idx, io=None):
         if io is not None:
             brightness = 255
-            pulse= False
+            pulse = False
             for count in range(5):
                 # Draw pulsating line
-                pulse= not pulse
+                pulse = not pulse
                 for x in range(10):
                     io.display.update(x, idx-3, (brightness*pulse,
-                                                brightness*pulse, brightness*pulse))
+                                                 brightness*pulse, brightness*pulse))
                 io.display.refresh()
                 time.sleep(0.1)
-            
+
         top = np.ones([10]) * self.BG
         for i in range(idx, 0, -1):
             self.gb[:, i] = self.gb[:, i-1]
