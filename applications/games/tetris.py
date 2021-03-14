@@ -195,10 +195,10 @@ class Tetris(core.Game):
 
     def shift_rows(self, idx, io):
         brightness = 255
-          pulse = False
+        pulse = False
         for count in range(5):
             # Draw  pulseating line
-             pulse = not  pulse
+             pulse = not pulse
             for x in range(10):
                 io.display.update(x, idx-3, (brightness* pulse,
                                              brightness* pulse, brightness* pulse))
