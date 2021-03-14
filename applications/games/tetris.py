@@ -67,13 +67,16 @@ class Tetris(core.Game):
     DOWN = (0, 1)
     LEFT = (-1, 0)
     RIGHT = (1, 0)
+    BG = 7
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tl = TetrominoList()
 
     def reset(self, io):
-        self.gb = np.ones((10, 15))*7
+        self.gb = np.ones((10, 15))*self.BG
+        self.score = 0
+
         self.tetromino = self.tl.sample()
         self.curr_rot = 0
         self.curr_pos_x, self.curr_pos_y = self.tetromino.get_rotation(0)
@@ -86,20 +89,20 @@ class Tetris(core.Game):
 
     def _update_midgame(self, io, delta):
 
-        self.gb[self.curr_pos_x, self.curr_pos_y] = 7
+        self.gb[self.curr_pos_x, self.curr_pos_y] = self.BG
 
         # Check controller values. We look for fresh_values, because we only care
         # about button presses and not if the button is held down
-        if io.controller.left.get_fresh_value():
-            d = self.LEFT[0]
-            if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
-                self.curr_pos_x += d
-                self.curr_shift_x += d
-        if io.controller.right.get_fresh_value():
-            d = self.RIGHT[0]
-            if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
-                self.curr_pos_x += d
-                self.curr_shift_x += d
+        # if io.controller.left.get_fresh_value():
+        #     d = self.LEFT[0]
+        #     if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
+        #         self.curr_pos_x += d
+        #         self.curr_shift_x += d
+        # if io.controller.right.get_fresh_value():
+        #     d = self.RIGHT[0]
+        #     if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
+        #         self.curr_pos_x += d
+        #         self.curr_shift_x += d
         if io.controller.down.get_fresh_value():
             d = self.DOWN[1]
             if self.check(self.curr_pos_x, self.curr_pos_y+d, io):
@@ -135,6 +138,7 @@ class Tetris(core.Game):
             else:
                 self.gb[self.curr_pos_x,
                         self.curr_pos_y] = self.tetromino.get_color()
+                self.check_gb()
                 self.new_tetromino(io)
         else:
             self.gb[self.curr_pos_x,
@@ -147,13 +151,7 @@ class Tetris(core.Game):
 
     def _update_gameover(self, io, delta):
         print("Game over")
-
-        # Fill with black
-        io.display.fill((0, 0, 0))
-
-        # Draw snake in red
-        for (x, y) in self.snake:
-            io.display.update(x, y, (116, 11, 11))
+        self.state = self.PRE_GAME
 
     def check(self, new_x, new_y, io):
         for x, y in zip(new_x, new_y):
@@ -161,7 +159,7 @@ class Tetris(core.Game):
                 return False
             if y >= io.display.height or y < 0:
                 return False
-            if self.gb[x, y] != 7:
+            if self.gb[x, y] != self.BG:
                 return False
         return True
 
@@ -172,3 +170,20 @@ class Tetris(core.Game):
         self.curr_shift_y = 0
         self.curr_shift_x = 3
         self.curr_pos_x += self.curr_shift_x
+        if not self.check(self.curr_pos_x, self.curr_pos_y, io):
+            self.state = self.GAME_OVER
+
+    def check_gb(self):
+        to_delete = np.where(np.any(self.gb == self.BG, axis=0) == False)
+        to_delete = list(to_delete[0])
+        for idx in to_delete:
+            self.shift_rows(idx)
+        self.score += 2**len(to_delete)-1
+        print(self.score)
+
+    def shift_rows(self, idx):
+        top = np.ones([10]) * self.BG
+        for i in range(idx, 0, -1):
+            self.gb[:, i] = self.gb[:, i-1]
+        self.gb[:, 0] = top
+        self.ticker.speed += 0.1
