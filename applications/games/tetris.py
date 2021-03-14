@@ -195,16 +195,16 @@ class Tetris(core.Game):
 
     def shift_rows(self, idx, io):
         brightness = 255
-        pulse = False
+        pulse= False
         for count in range(5):
-            # Draw  pulseating line
-             pulse = not pulse
+            # Draw pulsating line
+            pulse= not puls
             for x in range(10):
-                io.display.update(x, idx-3, (brightness* pulse,
-                                             brightness* pulse, brightness* pulse))
+                io.display.update(x, idx-3, (brightness*pulse,
+                                             brightness*pulse, brightness*puls))
             io.display.refresh()
             time.sleep(0.1)
-
+            
         top = np.ones([10]) * self.BG
         for i in range(idx, 0, -1):
             self.gb[:, i] = self.gb[:, i-1]
