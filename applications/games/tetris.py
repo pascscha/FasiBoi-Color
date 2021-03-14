@@ -193,17 +193,18 @@ class Tetris(core.Game):
             self.shift_rows(idx, io)
         self.score += 2**len(to_delete)-1
 
-    def shift_rows(self, idx, io):
-        brightness = 255
-        pulse= False
-        for count in range(5):
-            # Draw pulsating line
-            pulse= not pulse
-            for x in range(10):
-                io.display.update(x, idx-3, (brightness*pulse,
-                                             brightness*pulse, brightness*pulse))
-            io.display.refresh()
-            time.sleep(0.1)
+    def shift_rows(self, idx, io=None):
+        if io is not None:
+            brightness = 255
+            pulse= False
+            for count in range(5):
+                # Draw pulsating line
+                pulse= not pulse
+                for x in range(10):
+                    io.display.update(x, idx-3, (brightness*pulse,
+                                                brightness*pulse, brightness*pulse))
+                io.display.refresh()
+                time.sleep(0.1)
             
         top = np.ones([10]) * self.BG
         for i in range(idx, 0, -1):
