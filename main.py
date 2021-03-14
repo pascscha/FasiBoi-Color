@@ -7,6 +7,7 @@ from applications.games.snake import Snake
 from applications.games.flappy import Flappy
 from applications.games.pong import Pong
 from applications.clock import Clock
+from applications.games.tetris import Tetris
 
 if __name__ == "__main__":
     settings = [
@@ -25,7 +26,8 @@ if __name__ == "__main__":
                 Menu([
                     Snake(color=(11, 116, 93)),
                     Flappy(color=(255, 255, 0)),
-                    Pong(color=(0, 0, 255))
+                    Pong(color=(0, 0, 255)),
+                    Tetris(color=(0, 120, 93))
                 ], name="Games"),
                 AnimationCycler([
                     BeatAnimation(
