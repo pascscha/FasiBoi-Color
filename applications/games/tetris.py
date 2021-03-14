@@ -198,10 +198,10 @@ class Tetris(core.Game):
         pulse= False
         for count in range(5):
             # Draw pulsating line
-            pulse= not puls
+            pulse= not pulse
             for x in range(10):
                 io.display.update(x, idx-3, (brightness*pulse,
-                                             brightness*pulse, brightness*puls))
+                                             brightness*pulse, brightness*pulse))
             io.display.refresh()
             time.sleep(0.1)
             

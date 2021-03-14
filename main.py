@@ -27,7 +27,7 @@ if __name__ == "__main__":
                     Snake(color=(11, 116, 93)),
                     Flappy(color=(255, 255, 0)),
                     Pong(color=(0, 0, 255)),
-                    Tetris(color=(0, 120, 93))
+                    Tetris(color=(255, 127, 0))
                 ], name="Games"),
                 AnimationCycler([
                     BeatAnimation(
