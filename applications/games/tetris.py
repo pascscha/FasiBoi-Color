@@ -142,7 +142,7 @@ class Tetris(core.Game):
             else:
                 self.gb[self.curr_pos_x,
                         self.curr_pos_y] = self.tetromino.get_color()
-                self.check_gb()
+                self.check_gb(io)
                 self.new_tetromino(io)
         else:
             self.gb[self.curr_pos_x,
@@ -186,14 +186,25 @@ class Tetris(core.Game):
         if not self.check(self.curr_pos_x, self.curr_pos_y, io):
             self.state = self.GAME_OVER
 
-    def check_gb(self):
+    def check_gb(self, io):
         to_delete = np.where(np.any(self.gb == self.BG, axis=0) == False)
         to_delete = list(to_delete[0])
         for idx in to_delete:
-            self.shift_rows(idx)
+            self.shift_rows(idx, io)
         self.score += 2**len(to_delete)-1
 
-    def shift_rows(self, idx):
+    def shift_rows(self, idx, io):
+        brightness = 255
+          pulse = False
+        for count in range(5):
+            # Draw  pulseating line
+             pulse = not  pulse
+            for x in range(10):
+                io.display.update(x, idx-3, (brightness* pulse,
+                                             brightness* pulse, brightness* pulse))
+            io.display.refresh()
+            time.sleep(0.1)
+
         top = np.ones([10]) * self.BG
         for i in range(idx, 0, -1):
             self.gb[:, i] = self.gb[:, i-1]
