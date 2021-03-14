@@ -97,17 +97,17 @@ class Tetris(core.Game):
 
         # Check controller values. We look for fresh_values, because we only care
         # about button presses and not if the button is held down
-        if io.controller.left.get_fresh_value():
+        if io.controller.left.get_value():
             d = self.LEFT[0]
             if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
                 self.curr_pos_x += d
                 self.curr_shift_x += d
-        if io.controller.right.get_fresh_value():
+        if io.controller.right.get_value():
             d = self.RIGHT[0]
             if self.check(self.curr_pos_x+d, self.curr_pos_y, io):
                 self.curr_pos_x += d
                 self.curr_shift_x += d
-        if io.controller.down.get_fresh_value():
+        if io.controller.down.get_value():
             d = self.DOWN[1]
             if self.check(self.curr_pos_x, self.curr_pos_y+d, io):
                 self.curr_pos_y += d
