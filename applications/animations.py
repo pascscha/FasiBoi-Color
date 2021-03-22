@@ -55,17 +55,22 @@ class AnimationCycler(core.Application):
 
 
 class VideoPlayer(core.Application):
-    def __init__(self, path, *args, **kwargs):
+    def __init__(self, path, *args, loop=True, **kwargs):
         super().__init__(*args, **kwargs)
         self.cap = cv2.VideoCapture(path)
         self.video_fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.video_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        self.loop = loop
         self.progression = 0
 
     def get_frame(self, delta):
         self.progression += delta
-        frame_index = int(self.progression *
-                          self.video_fps) % self.video_frames
+        frame_index = int(self.progression * self.video_fps)
+        if frame_index >= self.video_frames:
+            if self.loop:
+                frame_index = frame_index % self.video_frames
+            else:
+                return False, None
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
         return self.cap.read()
 
@@ -87,6 +92,8 @@ class VideoPlayer(core.Application):
             for x in range(io.display.width):
                 for y in range(io.display.height):
                     io.display.update(x, y, converted[y][x])
+        else:
+            io.closeApplication()
 
 
 class Webcam(VideoPlayer):
