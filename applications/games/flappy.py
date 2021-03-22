@@ -1,4 +1,5 @@
 from applications.games import core
+from applications.animations import VideoPlayer
 import random
 
 
@@ -86,6 +87,9 @@ class Flappy(core.Game):
             io.display.update(1, round(self.y_location), (255, 255, 0))
 
     def _update_gameover(self, io, delta):
+        io.openApplication(VideoPlayer("resources/videos/flappy.gif", loop=False))
+        self.state = self.PRE_GAME
+        """
         self.y_velocity += self.gravity * delta
         self.y_location += self.y_velocity * delta
 
@@ -99,3 +103,4 @@ class Flappy(core.Game):
         display_location = round(self.y_location)
         if 0 <= display_location < io.display.height:
             io.display.update(1, round(self.y_location), (255, 0, 0))
+        """
