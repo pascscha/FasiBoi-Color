@@ -96,8 +96,7 @@ class Tetris(core.Game):
 
         self.gb[self.curr_pos_x, self.curr_pos_y] = self.BG
 
-        # Check controller values. We look for fresh_values, because we only care
-        # about button presses and not if the button is held down
+        # Check controller values.
         pressed_l = False
         pressed_r = False
         pressed_d = False
