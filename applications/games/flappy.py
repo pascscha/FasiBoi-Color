@@ -87,7 +87,7 @@ class Flappy(core.Game):
             io.display.update(1, round(self.y_location), (255, 255, 0))
 
     def _update_gameover(self, io, delta):
-        io.openApplication(VideoPlayer("resources/videos/flappy.gif", loop=False))
+        io.openApplication(VideoPlayer("resources/animations/flappy-death.gif", loop=False))
         self.state = self.PRE_GAME
         """
         self.y_velocity += self.gravity * delta

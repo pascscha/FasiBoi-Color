@@ -1,6 +1,9 @@
-from applications.games import core
 import random
 import numpy as np
+import time
+from applications.games import core
+from applications.animations import VideoPlayer
+from helpers import textutils, bitmaputils
 
 
 class Position:
@@ -83,6 +86,9 @@ class Field:
 
     def set_value(self, pos, value):
         self.field[pos.x][pos.y] = value
+
+    def completed(self):
+        return not (np.any(self.field == self.FOOD) or np.any(self.field == self.SUPER_FOOD))
 
     def draw(self, display, pulse_progression):
         prog1 = pulse_progression*2
@@ -210,7 +216,7 @@ class Ghost(Entity):
             self.update_eaten()
 
     def frighten(self):
-        if self.state == self.TARGET:
+        if self.state == self.TARGET or self.state == self.FRIGHTENED:
             self.state = self.FRIGHTENED
             self.frighten_time = self.age
 
@@ -234,7 +240,6 @@ class Ghost(Entity):
 
     def update_eaten(self):
         self.direction = self.go_to(self.field.base_entrance)
-        print(self.field.base_entrance, self.pos)
         self.pos += self.direction
 
     def get_color(self):
@@ -249,21 +254,49 @@ class Ghost(Entity):
 class Pacman(core.Game):
     SPREAD = 1
     ATTACK = 0
+    NEW_LEVEL_WAIT = 2
 
     def reset(self, io):
+        self.score = 0
+        self.reset_level(io, 1)
+
+    def reset_level(self, io, level):
+        self.level = level
+        self.level_start = time.time()
+
         self.field = Field()
         self.pac = Pac(self.field, Position(4, 11),
                        speed=5, direction=Field.RIGHT)
-        self.score = 0
+
+        frighten_duration = max(2, 6 - level/2)
+        release_after_eaten = max(0, 3 - level/2)
+        target_speed = 3 + level/4
+        release = max(0.5, 2 - level/4)
 
         self.blinky = Ghost(self.field, Position(9, 0),
-                            color=(255, 0, 38))
-        self.pinky = Ghost(self.field, Position(
-            0, 0), color=(255, 182, 251))
+                            color=(255, 0, 38),
+                            frighten_duration=frighten_duration,
+                            release_after_eaten=release_after_eaten,
+                            target_speed=target_speed,
+                            release=release)
+        self.pinky = Ghost(self.field, Position(0, 0),
+                           color=(255, 182, 251),
+                           frighten_duration=frighten_duration,
+                           release_after_eaten=release_after_eaten,
+                           target_speed=target_speed,
+                           release=2*release)
         self.inky = Ghost(self.field, Position(9, 14),
-                          color=(0, 255, 253))
-        self.clyde = Ghost(self.field, Position(
-            0, 14), color=(255, 181, 97))
+                          color=(0, 255, 253),
+                          frighten_duration=frighten_duration,
+                          release_after_eaten=release_after_eaten,
+                          target_speed=target_speed,
+                          release=3*release)
+        self.clyde = Ghost(self.field, Position(0, 14),
+                           color=(255, 181, 97),
+                           frighten_duration=frighten_duration,
+                           release_after_eaten=release_after_eaten,
+                           target_speed=target_speed,
+                           release=4*release)
         self.ghosts = [self.clyde, self.inky, self.pinky, self.blinky]
         self.level_age = 0
 
@@ -272,63 +305,87 @@ class Pacman(core.Game):
         self.mode = self.SPREAD
 
     def _update_midgame(self, io, delta):
-        self.level_age += delta
-        if io.controller.left.get_fresh_value():
-            self.pac.change_direction(Field.LEFT)
-        if io.controller.right.get_fresh_value():
-            self.pac.change_direction(Field.RIGHT)
-        if io.controller.up.get_fresh_value():
-            self.pac.change_direction(Field.UP)
-        if io.controller.down.get_fresh_value():
-            self.pac.change_direction(Field.DOWN)
+        next_level = False
+        if time.time() > self.level_start + self.NEW_LEVEL_WAIT:
+            self.level_age += delta
+            if io.controller.left.get_fresh_value():
+                self.pac.change_direction(Field.LEFT)
+            if io.controller.right.get_fresh_value():
+                self.pac.change_direction(Field.RIGHT)
+            if io.controller.up.get_fresh_value():
+                self.pac.change_direction(Field.UP)
+            if io.controller.down.get_fresh_value():
+                self.pac.change_direction(Field.DOWN)
 
-        if self.mode == self.SPREAD:
-            if len(self.attacks) > 0 and self.level_age > self.attacks[0]:
-                print("attack")
-                self.mode = self.ATTACK
-                self.attacks = self.attacks[1:]
-                for ghost in self.ghosts:
-                    ghost.direction = -ghost.direction
-            else:
-                for ghost in self.ghosts:
-                    ghost.target = ghost.idle_target
-
-        elif self.mode == self.ATTACK:
-            if len(self.defenses) > 0 and self.level_age > self.defenses[0]:
-                self.mode = self.SPREAD
-                print("spread")
-                self.defenses = self.defenses[1:]
-            else:
-                self.blinky.target = self.pac.pos
-                self.pinky.target = self.pac.pos + self.pac.direction * 2
-                self.inky.target = self.pac.pos * 2 - self.blinky.pos
-                if self.clyde.pos.squared_distance(self.pac.pos) > 4:
-                    self.clyde.target = self.clyde.idle_target
+            if self.mode == self.SPREAD:
+                if len(self.attacks) > 0 and self.level_age > self.attacks[0]:
+                    print("attack")
+                    self.mode = self.ATTACK
+                    self.attacks = self.attacks[1:]
+                    for ghost in self.ghosts:
+                        ghost.direction = -ghost.direction
                 else:
-                    self.clyde.target = self.pac.pos
+                    for ghost in self.ghosts:
+                        ghost.target = ghost.idle_target
 
-        self.pac.update(delta)
+            elif self.mode == self.ATTACK:
+                if len(self.defenses) > 0 and self.level_age > self.defenses[0]:
+                    self.mode = self.SPREAD
+                    print("spread")
+                    self.defenses = self.defenses[1:]
+                else:
+                    self.blinky.target = self.pac.pos
+                    self.pinky.target = self.pac.pos + self.pac.direction * 2
+                    self.inky.target = self.pac.pos * 2 - self.blinky.pos
+                    if self.clyde.pos.squared_distance(self.pac.pos) > 4:
+                        self.clyde.target = self.clyde.idle_target
+                    else:
+                        self.clyde.target = self.pac.pos
 
-        if self.field.get_value(self.pac.pos) == Field.FOOD:
-            self.field.set_value(self.pac.pos, Field.EMPTY)
-            self.score += 1
-        elif self.field.get_value(self.pac.pos) == Field.SUPER_FOOD:
-            self.field.set_value(self.pac.pos, Field.EMPTY)
-            self.score += 5
+            self.pac.update(delta)
+
+            if self.field.get_value(self.pac.pos) == Field.FOOD:
+                self.field.set_value(self.pac.pos, Field.EMPTY)
+                self.score += 1
+                if self.field.completed():
+                    next_level = True
+            elif self.field.get_value(self.pac.pos) == Field.SUPER_FOOD:
+                self.field.set_value(self.pac.pos, Field.EMPTY)
+                self.score += 5
+                if self.field.completed():
+                    next_level = True
+                for ghost in self.ghosts:
+                    ghost.frighten()
+
             for ghost in self.ghosts:
-                ghost.frighten()
-
-        for ghost in self.ghosts:
-            if self.pac.pos == ghost.pos:
-                if ghost.state == ghost.FRIGHTENED:
-                    ghost.state = ghost.EATEN
-                    self.score += 10
-                elif ghost.state == ghost.TARGET:
-                    self.state = self.GAME_OVER
-                    return
-            ghost.update(delta)
+                if self.pac.pos == ghost.pos:
+                    if ghost.state == ghost.FRIGHTENED:
+                        ghost.state = ghost.EATEN
+                        self.score += 10
+                    elif ghost.state == ghost.TARGET:
+                        self.state = self.GAME_OVER
+                        return
+                ghost.update(delta)
 
         self.field.draw(io.display, self.pulse_progression)
         for ghost in self.ghosts:
             ghost.draw(io.display)
         self.pac.draw(io.display)
+
+        if time.time() < self.level_start + self.NEW_LEVEL_WAIT:
+            if int(self.pulse_progression*3) % 2 == 0:
+                level_text = textutils.getTextBitmap(str(self.level))
+                bitmaputils.applyBitmap(
+                    level_text,
+                    io.display,
+                    (io.display.width//2 -
+                     level_text.shape[1]//2, io.display.height//2-level_text.shape[0]//2),
+                    fg_color=(255, 255, 255))
+
+        if next_level:
+            self.reset_level(io, self.level + 1)
+
+    def _update_gameover(self, io, delta):
+        io.openApplication(VideoPlayer(
+            "resources/animations/pacman-death.gif", loop=False))
+        self.state = self.PRE_GAME
