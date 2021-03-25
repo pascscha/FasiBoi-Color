@@ -26,7 +26,7 @@ if __name__ == "__main__":
             Menu([
                 Menu([
                     Snake(color=(11, 116, 93)),
-                    Flappy(color=(255, 255, 0)),
+                    Flappy(color=(116, 190, 46)),
                     Pong(color=(0, 0, 255)),
                     Tetris(color=(255, 127, 0)),
                     Pacman(color=(255, 255, 0))
