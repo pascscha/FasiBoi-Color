@@ -2,6 +2,7 @@ from applications.games import core
 import numpy as np
 import random
 from helpers import textutils, bitmaputils
+import math
 
 
 class Tile:
@@ -12,6 +13,11 @@ class Tile:
         (243, 151, 100),  # 16
         (248, 121, 102),  # 32
         (242, 97, 68),  # 64
+        (231, 206, 113),  # 128
+        (237, 203, 103),  # 256
+        (235, 199, 85),  # 512
+        (229, 195, 85),  # 1024
+        (232, 190, 82)  # 2048
         # TODO
     ]
 
@@ -63,7 +69,7 @@ class Tile:
                     field[self.x][self.y] = None
                     field[nx][ny] = self
                     self.value += 1
-                    score_increment = self.value
+                    score_increment = math.sqrt(self.value)
                     self.x = nx
                     self.y = ny
                     self.fresh = True
@@ -125,6 +131,24 @@ class G2048(core.Game):
                     return False
         return True
 
+    def is_game_over(self):
+        if not self.is_full():
+            return False
+        else:
+            for x in range(4):
+                for y in range(1, 3):
+                    if self.field[x][y].value == self.field[x][y-1].value:
+                        return False
+                    if self.field[x][y].value == self.field[x][y+1].value:
+                        return False
+            for x in range(1, 3):
+                for y in range(4):
+                    if self.field[x][y].value == self.field[x-1][y].value:
+                        return False
+                    if self.field[x][y].value == self.field[x+1][y].value:
+                        return False
+        return True
+
     def spawn_random(self):
         empty = []
         for x in range(4):
@@ -174,6 +198,9 @@ class G2048(core.Game):
                 if self.field[x][y] is not None:
                     self.score += self.field[x][y].update(self.field, delta)
 
+        if self.is_game_over():
+            self.state = GAME_OVER
+
         io.display.fill((0, 0, 0))
 
         # Draw Border
@@ -192,7 +219,7 @@ class G2048(core.Game):
                 if self.field[x][y] is not None:
                     self.field[x][y].draw(io.display)
 
-        score_bmp = textutils.getTextBitmap(str(self.score))
+        score_bmp = textutils.getTextBitmap(str(round(self.score)))
 
         bitmaputils.applyBitmap(
             score_bmp,
