@@ -27,7 +27,7 @@ class Blinker(Ticker):
         prog = 2*abs(self.progression - 0.5)
         c1 = map(lambda c: c*prog, self.color1)
         c2 = map(lambda c: c*(1-prog), self.color2)
-        return tuple(map(lambda c: int(c[0]+c[1]), zip(c1, c2)))
+        return tuple(map(lambda c: min(255, max(0, int(c[0]+c[1]))), zip(c1, c2)))
 
 
 class Game(core.Application):

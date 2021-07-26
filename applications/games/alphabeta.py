@@ -158,15 +158,28 @@ class Strategy:
 
     def make_move(self, io, delta, field):
         raise NotImplementedError("Please Implement this method")
+    
+
+# Sorry for this ugly thing...
+class Applyer:
+    def __init__(self, game, strategy):
+        self.game = game
+        self.strategy = strategy
+    
+    def __call__(self, *args, **kwargs):
+        self.game.set_player(self.strategy)
+
 
 class AIPlayer(Strategy):
     def __init__(self, time_limit, max_depth, *args, **kwargs):
+        print(time_limit, max_depth)
         super().__init__(*args, **kwargs)
         self.time_limit = time_limit
         self.max_depth = max_depth
         move = None
     
     def make_move(self, io, delta, field, left, top):
+        io.display.refresh()
         finish_time = time.time() + self.time_limit
         move = None
         for d in range(1, self.max_depth+1):
@@ -177,7 +190,7 @@ class AIPlayer(Strategy):
                 print("AI ran out of time at depth", d)
                 print(e)
                 return move
-        print("AI finished analysis with depth", d)
+        print("AI finished analysis with depth", d, self.max_depth)
         return move
 
 class HumanPlayer(Strategy):
@@ -259,15 +272,16 @@ class StrategyGame(core.Game):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.player1 = None
+        
         self.player1Choice = SlidingChoice([
-            Choice("Hu", (255, 255, 255), lambda io: self.set_player(BitField.COLOR1, HumanPlayer(BitField.COLOR1)))
-            ] + [Choice(name, color, lambda io: self.set_player(BitField.COLOR1, AIPlayer(t, d, BitField.COLOR1))) for name, (color, t, d) in self.DIFFICULTIES.items()]
+            Choice("Hu", (255, 255, 255), Applyer(self, HumanPlayer(BitField.COLOR1)))
+            ] + [Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR1))) for name, (color, t, d) in self.DIFFICULTIES.items()]
             , 8)
 
         self.player2 = None
         self.player2Choice = SlidingChoice([
-            Choice("Hu", (255, 255, 255), lambda io: self.set_player(BitField.COLOR2, HumanPlayer(BitField.COLOR2)))
-            ] + [Choice(name, color, lambda io: self.set_player(BitField.COLOR2, AIPlayer(t, d, BitField.COLOR2))) for name, (color, t, d) in self.DIFFICULTIES.items()]
+            Choice("Hu", (255, 255, 255), Applyer(self, HumanPlayer(BitField.COLOR2)))
+            ] + [Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR2))) for name, (color, t, d) in self.DIFFICULTIES.items()]
             , 8)
         
         self.field = None
@@ -276,8 +290,8 @@ class StrategyGame(core.Game):
         self.p1_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR1], (256, 256, 256), speed=2)
         self.p2_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR2], (256, 256, 256), speed=2)
 
-    def set_player(self, color, player):
-        if color == BitField.COLOR1:
+    def set_player(self, player):
+        if player.color == BitField.COLOR1:
             self.player1 = player
         else:
             self.player2 = player
