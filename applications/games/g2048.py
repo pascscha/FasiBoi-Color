@@ -69,7 +69,7 @@ class Tile:
                     field[self.x][self.y] = None
                     field[nx][ny] = self
                     self.value += 1
-                    score_increment = math.sqrt(self.value)
+                    score_increment = self.value/10
                     self.x = nx
                     self.y = ny
                     self.fresh = True
@@ -199,7 +199,7 @@ class G2048(core.Game):
                     self.score += self.field[x][y].update(self.field, delta)
 
         if self.is_game_over():
-            self.state = GAME_OVER
+            self.state = self.GAME_OVER
 
         io.display.fill((0, 0, 0))
 
