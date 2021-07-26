@@ -9,6 +9,7 @@ from applications.games.pong import Pong
 from applications.clock import Clock
 from applications.games.tetris import Tetris
 from applications.games.pacman import Pacman
+from applications.games.tictactoe import TicTacToe
 
 if __name__ == "__main__":
     settings = [
@@ -29,7 +30,10 @@ if __name__ == "__main__":
                     Flappy(color=(116, 190, 46)),
                     Pong(color=(0, 0, 255)),
                     Tetris(color=(255, 127, 0)),
-                    Pacman(color=(255, 255, 0))
+                    Pacman(color=(255, 255, 0)),
+                    Menu([
+                        TicTacToe()
+                    ], name="Strategy")
                 ], name="Games"),
                 AnimationCycler([
                     BeatAnimation(

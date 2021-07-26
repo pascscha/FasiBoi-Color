@@ -1,11 +1,14 @@
 import time
 from applications.games import core
 from helpers import textutils, bitmaputils
+from applications.menu import SlidingChoice, Choice
 
 class Move:
     def apply(self, field):
         raise NotImplementedError("Please implement this method")
 
+    def __eq__(self, other):
+        return repr(self) == repr(other)
 
 class Field:
     def score(self, player):
@@ -20,6 +23,8 @@ class Field:
     def game_over(self):
         raise NotImplementedError("Please implement this method")
 
+    def winning_moves(self):
+        raise NotImplementedError("Please implement this method")
 
 class BitField(Field):
     EMPTY = 0
@@ -82,8 +87,7 @@ class BitField(Field):
                     line.append(" ")
             out.append(" | ".join(line))
         sep = "-" * len(out[-1])
-        return (f"\n{sep}\n").join(out)
-
+        return (f"\n{sep}\n").join(out)    
 
 class AlphaBeta:
     ALPHA_INIT = -111111111111
@@ -148,32 +152,188 @@ class AlphaBeta:
                 return beta
         return bestScore
 
+class Strategy:
+    def __init__(self, color):
+        self.color = color
+
+    def make_move(self, io, delta, field):
+        raise NotImplementedError("Please Implement this method")
+
+class AIPlayer(Strategy):
+    def __init__(self, time_limit, max_depth, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.time_limit = time_limit
+        self.max_depth = max_depth
+        move = None
+    
+    def make_move(self, io, delta, field, left, top):
+        finish_time = time.time() + self.time_limit
+        move = None
+        for d in range(1, self.max_depth+1):
+            try:
+                time_left = finish_time - time.time()
+                move = AlphaBeta(d, time_left)(self.color, field)
+            except Exception as e:
+                print("AI ran out of time at depth", d)
+                print(e)
+                return move
+        print("AI finished analysis with depth", d)
+        return move
+
+class HumanPlayer(Strategy):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.select_blinker = core.Blinker((128, 128, 128), (256, 256, 256))
+        self.selected_move = None
+
+    def make_move(self, io, delta, field, left, top):
+        possible_moves = list(field.possible_moves(self.color))
+        if len(possible_moves) == 0:
+            return None
+
+        if self.selected_move is None or self.selected_move not in possible_moves:
+            self.selected_move = possible_moves[0]
+
+        direction = None
+        if io.controller.left.get_fresh_value():
+            direction = (1, 0)
+        if io.controller.right.get_fresh_value():
+            direction = (-1, 0)
+        if io.controller.up.get_fresh_value():
+            direction = (0, 1)
+        if io.controller.down.get_fresh_value():
+            direction = (0, -1)
+
+        if direction is not None:
+            best_score = None
+            best_field = None
+            for p in possible_moves:
+                delta_x = min(self.selected_move.x - p.x,
+                                self.selected_move.x - p.x + field.width)
+                delta_y = min(self.selected_move.y - p.y,
+                                self.selected_move.y - p.y + field.height)
+
+                score = 0
+                if direction[0] == 0:
+                    score += field.width - abs(delta_x)
+                else:
+                    sign = 1 if direction[0] * delta_x > 0 else -1
+                    score += 100 * \
+                        (field.width - abs(delta_x)) * sign
+
+                if direction[1] == 0:
+                    score += field.height - abs(delta_y)
+                else:
+                    sign = 1 if direction[1] * delta_y > 0 else -1
+                    score += 100 * \
+                        (field.height - abs(delta_y)) * sign
+
+                if best_score is None or score > best_score:
+                    best_score = score
+                    best_field = p
+            self.selected_move = best_field
+
+        if self.selected_move is not None:
+            io.display.update(left + self.selected_move.x, top + self.selected_move.y,
+                                self.select_blinker.tick(delta))
+
+        if io.controller.a.get_fresh_value():
+            return self.selected_move
+        else:
+            return None
+
 
 class StrategyGame(core.Game):
     FIELD_SIZE = (3, 3)
     FIELD_CLASS = BitField
     COLOR_MAP = {
         BitField.COLOR1: (255, 0, 0),
-        BitField.COLOR2: (0, 255, 255),
+        BitField.COLOR2: (0, 255, 0),
+    }
+    DIFFICULTIES = {
+        "Ea": ((0, 255, 0), 1, 2),
+        "Me": ((255, 255, 0), 2, 10),
+        "Di": ((255, 0, 0), 5, 30)
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.player1 = None
+        self.player1Choice = SlidingChoice([
+            Choice("Hu", (255, 255, 255), lambda io: self.set_player(BitField.COLOR1, HumanPlayer(BitField.COLOR1)))
+            ] + [Choice(name, color, lambda io: self.set_player(BitField.COLOR1, AIPlayer(t, d, BitField.COLOR1))) for name, (color, t, d) in self.DIFFICULTIES.items()]
+            , 8)
+
         self.player2 = None
+        self.player2Choice = SlidingChoice([
+            Choice("Hu", (255, 255, 255), lambda io: self.set_player(BitField.COLOR2, HumanPlayer(BitField.COLOR2)))
+            ] + [Choice(name, color, lambda io: self.set_player(BitField.COLOR2, AIPlayer(t, d, BitField.COLOR2))) for name, (color, t, d) in self.DIFFICULTIES.items()]
+            , 8)
+        
+        self.field = None
         self.active_color = BitField.COLOR1
         self.select_blinker = core.Blinker((128, 128, 128), (256, 256, 256))
+        self.p1_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR1], (256, 256, 256), speed=2)
+        self.p2_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR2], (256, 256, 256), speed=2)
 
+    def set_player(self, color, player):
+        if color == BitField.COLOR1:
+            self.player1 = player
+        else:
+            self.player2 = player
+        
     def player_select(self, io, delta, color):
-        bmp = textutils.getTextBitmap(f"P{[BitField.COLOR1, BitField.COLOR2].index(color)+1}")
         io.display.fill((0,0,0))
-        bitmaputils.applyBitmap(bmp, io.display, (2, 0), fg_color=self.COLOR_MAP[color])
+        idx = [BitField.COLOR1, BitField.COLOR2].index(color)
 
-    def _update_midgame(self, io, delta):
+        bmp = textutils.getTextBitmap(f"P{idx+1}")
+        bitmaputils.applyBitmap(bmp, io.display, (1, 1), fg_color=self.COLOR_MAP[color])
+        [self.player1Choice, self.player2Choice][idx].update(io, delta)
+
+    def _update_pregame(self, io, delta):
         if self.player1 is None:
             self.player_select(io, delta, BitField.COLOR1)
+        elif self.player2 is None:
+            self.player_select(io, delta, BitField.COLOR2)
         else:
-            self.draw_field(io, delta)
+            self.field = self.FIELD_CLASS()
+            self.state = self.MID_GAME
+
+    def _update_midgame(self, io, delta):
+        left = int(5 - self.FIELD_SIZE[0]/2)
+        top = int(5 - self.FIELD_SIZE[1]/2)
+        self.draw_field(io, delta, left, top)
+
+        if self.active_color == BitField.COLOR1:
+            move = self.player1.make_move(io, delta, self.field, left, top)
+        else:
+            move = self.player2.make_move(io, delta, self.field, left, top)
+            
+        if move is not None:
+            self.field = move.apply(self.field)
+            if self.field.game_over():
+                self.state = self.GAME_OVER   
+            else:
+                self.active_color = self.field.other(self.active_color)     
+
+    def _update_gameover(self, io, delta):
+        if io.controller.a.get_fresh_value():
+            self.state = self.PRE_GAME
+            self.field = None
+            self.player1 = None
+            self.player2 = None    
+        else:
+            left = int(5 - self.FIELD_SIZE[0]/2)
+            top = int(5 - self.FIELD_SIZE[1]/2)
+            self.draw_field(io, delta, left, top)
+            color1 = self.p1_win_blinker.tick(delta)
+            color2 = self.p2_win_blinker.tick(delta)
+            
+            for move in self.field.winning_moves():
+                if move.color == BitField.COLOR1:
+                    io.display.update(left + move.x, top + move.y, color1)
+                if move.color == BitField.COLOR2:
+                    io.display.update(left + move.x, top + move.y, color2)
 
     def get_background_color(self, x, y):
         if (x + y) % 2 == 0:
@@ -204,71 +364,10 @@ class StrategyGame(core.Game):
                     display.update(left + x, top + y,
                                    self.get_background_color(x, y))
 
-    def draw_highlight(self, io, delta, left, top):
-        if self.possible_fields is not None and len(self.possible_fields) > 0:
-            if self.selected_field is None or self.selected_field not in self.possible_fields:
-                self.selected_field = self.possible_fields[0]
-
-            direction = None
-            if io.controller.left.get_fresh_value():
-                direction = (1, 0)
-            if io.controller.right.get_fresh_value():
-                direction = (-1, 0)
-            if io.controller.up.get_fresh_value():
-                direction = (0, 1)
-            if io.controller.down.get_fresh_value():
-                direction = (0, -1)
-
-            if direction is not None:
-                best_score = None
-                best_field = None
-                for p in self.possible_fields:
-                    delta_x = min(self.selected_field.x - p.x,
-                                  self.selected_field.x - p.x + self.FIELD_SIZE[0])
-                    delta_y = min(self.selected_field.y - p.y,
-                                  self.selected_field.y - p.y + self.FIELD_SIZE[1])
-
-                    score = 0
-                    if direction[0] == 0:
-                        score += self.FIELD_SIZE[0] - abs(delta_x)
-                    else:
-                        sign = 1 if direction[0] * delta_x > 0 else -1
-                        score += 100 * \
-                            (self.FIELD_SIZE[0] - abs(delta_x)) * sign
-
-                    if direction[1] == 0:
-                        score += self.FIELD_SIZE[1] - abs(delta_y)
-                    else:
-                        sign = 1 if direction[1] * delta_y > 0 else -1
-                        score += 100 * \
-                            (self.FIELD_SIZE[1] - abs(delta_y)) * sign
-
-                    if best_score is None or score > best_score:
-                        best_score = score
-                        best_field = p
-                self.selected_field = best_field
-
-            if self.selected_field is not None:
-                io.display.update(left + self.selected_field.x, top + self.selected_field.y,
-                                  self.select_blinker.tick(delta))
-
-    def draw_field(self, io, delta):
-        left = int(5 - self.FIELD_SIZE[0]/2)
-        top = int(5 - self.FIELD_SIZE[1]/2)
-
+    def draw_field(self, io, delta, left, top):
         io.display.fill((0, 0, 0))
         self.draw_border(io.display, left, top)
         self.draw_stones(io.display, left, top)
-        self.draw_highlight(io, delta, left, top)
-
-        if io.controller.a.get_fresh_value():
-            if self.selected_field is not None:
-                self.field = self.selected_field.apply(self.field)
-                self.active_color = self.field.other(self.active_color)
-                self.possible_fields = list(self.field.possible_moves(
-                    self.active_color))
-                if self.field.has_won(self.active_color) or self.field.has_won(self.field.other(self.active_color)):
-                    self.state = self.GAME_OVER
 
     def _update(self, io, delta):
         pass

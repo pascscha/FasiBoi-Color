@@ -69,9 +69,23 @@ class TicTacToeField(alphabeta.BitField):
     def game_over(self):
         return self.is_full() or self.has_won(self.COLOR1) or self.has_won(self.COLOR2)
 
+    def winning_moves(self):
+        out = []
+        for player in [self.COLOR1, self.COLOR2]:
+            for row in self.ROWS:
+                if all(self.get_value(x, y) == player for x, y in row):
+                    out += [TicTacToeMove(x, y, player) for x, y in row]
+        return out
+
+
 class TicTacToe(alphabeta.StrategyGame):
     FIELD_SIZE = (3, 3)
     FIELD_CLASS = TicTacToeField
+    DIFFICULTIES = {
+        "Ea": ((0, 255, 0), 1, 1),
+        "Me": ((255, 255, 0), 1, 2),
+        "Di": ((255, 0, 0), 5, 9)
+    }
 
 if __name__ == "__main__":
     field = TicTacToeField()
