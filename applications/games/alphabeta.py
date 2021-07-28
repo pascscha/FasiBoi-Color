@@ -2,6 +2,7 @@ import time
 from applications.games import core
 from helpers import textutils, bitmaputils
 from applications.menu import SlidingChoice, Choice
+import threading
 
 class Move:
     def apply(self, field):
@@ -169,6 +170,11 @@ class Applyer:
     def __call__(self, *args, **kwargs):
         self.game.set_player(self.strategy)
 
+class TreadWithResult(threading.Thread):
+    def __init__(self, *threadArgs, target=None, args=(), kwargs={}, **threadKwargs):
+        def function():
+            self.result = target(*args, **kwargs)
+        super().__init__(*threadArgs, target=function, **threadKwargs)
 
 class AIPlayer(Strategy):
     def __init__(self, time_limit, max_depth, *args, **kwargs):
@@ -176,10 +182,10 @@ class AIPlayer(Strategy):
         super().__init__(*args, **kwargs)
         self.time_limit = time_limit
         self.max_depth = max_depth
+        self.thread = None
         move = None
-    
-    def make_move(self, io, delta, field, left, top):
-        io.display.refresh()
+
+    def _make_move(self, field):
         finish_time = time.time() + self.time_limit
         move = None
         for d in range(1, self.max_depth+1):
@@ -192,6 +198,18 @@ class AIPlayer(Strategy):
                 return move
         print("AI finished analysis with depth", d, self.max_depth)
         return move
+
+    def make_move(self, io, delta, field, left, top):
+        if self.thread is None:
+            self.thread = TreadWithResult(target=self._make_move, args=(field,))
+            self.thread.start()
+        elif not self.thread.is_alive():
+            self.thread.join()
+            out = self.thread.result
+            self.thread = None
+            return out
+        else:
+            return None
 
 class HumanPlayer(Strategy):
     def __init__(self, *args, **kwargs):
