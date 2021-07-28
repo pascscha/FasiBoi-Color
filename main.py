@@ -11,6 +11,7 @@ from applications.games.tetris import Tetris
 from applications.games.pacman import Pacman
 from applications.games.tictactoe import TicTacToe
 from applications.games.connect4 import Connect4
+from applications.games.reversi import Reversi
 
 if __name__ == "__main__":
     settings = [
@@ -34,7 +35,8 @@ if __name__ == "__main__":
                     Pacman(color=(255, 255, 0)),
                     Menu([
                         TicTacToe(),
-                        Connect4(name="C4")
+                        Connect4(name="C4"),
+                        Reversi()
                     ], name="Strategy")
                 ], name="Games"),
                 AnimationCycler([

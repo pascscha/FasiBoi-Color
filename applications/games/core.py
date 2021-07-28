@@ -2,7 +2,6 @@ from applications import core
 from helpers import textutils, bitmaputils
 import colorsys
 
-
 class Ticker:
     def __init__(self, speed):
         self.speed = speed

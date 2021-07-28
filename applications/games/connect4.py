@@ -2,7 +2,6 @@ from applications.games import alphabeta
 import random
 import numpy as np
 
-
 class Connect4Move(alphabeta.Move):
     def __init__(self, x, y, color):
         self.x = x
@@ -26,12 +25,6 @@ class Connect4Field(alphabeta.BitField):
         (-1, 1),  # Diagonal \
     ]
 
-    # Constants used for bit count
-    M1 = np.int64(0x5555555555555555)
-    M2 = np.int64(0x3333333333333333)
-    M4 = np.int64(0x0f0f0f0f0f0f0f0f)
-    H01 = np.int64(0x0101010101010101)
-
     # Masks for each row (vertical)
     ROW_MASKS = np.array([0x0000000000003f,
                           0x00000000003f00,
@@ -44,14 +37,6 @@ class Connect4Field(alphabeta.BitField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, width=8, height=8, **kwargs)
     
-    @classmethod
-    def count_bits(self, x):
-        x -= (x >> 1) & self.M1
-        x = (x & self.M2) + ((x >> 2) & self.M2)
-        x = (x + (x >> 4)) & self.M4
-        return (x * self.H01) >> 56
-
-
     def score(self, player):
         return self.count3(player) - self.count3(self.other(player))
 

@@ -14,8 +14,10 @@ class AnimatedValue:
         self.progression += delta * self.speed
 
     def set_value(self, value):
-        self.progression = 0
-        self.new_value = value
+        if value != self.new_value:
+            self.old_value = self.get_value()
+            self.progression = 0
+            self.new_value = value
 
     @staticmethod
     def blend(value1, value2, prog):
