@@ -130,14 +130,51 @@ class Display:
         self.last_pixels = self.pixels.copy()
         self._refresh()
 
+class WindowAnimation:
+    def __init__(self, display, duration):
+        self.duration = duration
+        self.start_pixels = display.pixels
+        self.start_time = time.time()
+
+    def is_finished(self):
+        return time.time() >= self.start_time + self.duration
+
+    def apply(self, display):
+        raise NotImplementedError("Please Implement this method")
+
+class SlideDown(WindowAnimation):
+    def apply(self, display):
+        progression = (time.time() - self.start_time)/self.duration
+        if progression > 1:
+            return
+
+        height = max(1,int(display.pixels.shape[1] * progression))
+
+        display.pixels[:,:height] = display.pixels[:,-height:]
+        display.pixels[:,height:] = self.start_pixels[:,height:]
+
+class SlideUp(WindowAnimation):
+    def apply(self, display):
+        progression = (time.time() - self.start_time)/self.duration
+        if progression > 1:
+            return
+
+        height = max(1,int(display.pixels.shape[1] * (1-progression)))
+
+        display.pixels[:,:height] = self.start_pixels[:,-height:]
+        display.pixels[:,height:] = display.pixels[:,height:]
 
 class IOManager:
-    def __init__(self, controller, display, fps=30):
+    def __init__(self, controller, display, fps=30, animation_duration=0.25):
         self.controller = controller
         self.display = display
         self.running = True
         self.applications = None
         self.fps = fps
+        self.last_frame = display.pixels
+        self.last_update = time.time()
+        self.animation_duration = animation_duration
+        self.current_animation = None
 
     def run(self, application):
         """Runs an application. Should only be invoked with the root
@@ -156,6 +193,13 @@ class IOManager:
             last = now
             self.update()
             self.applications[-1].update(self, delta)
+
+            if self.current_animation is not None:
+                if self.current_animation.is_finished():
+                    self.current_animation = None
+                else:
+                    self.current_animation.apply(self.display)
+            
             self.display.refresh()
             if self.controller.menu.get_fresh_value():
                 self.closeApplication()
@@ -176,6 +220,7 @@ class IOManager:
         Args:
             application (application.core.Application): The application to be opened
         """
+        self.current_animation = SlideDown(self.display, self.animation_duration)
         self.applications.append(application)
 
     def closeApplication(self):
@@ -183,6 +228,7 @@ class IOManager:
         If none exists quits the Program
         """
         if len(self.applications) > 0:
+            self.current_animation = SlideUp(self.display, self.animation_duration)
             self.applications[-1].destroy()
             self.applications = self.applications[:-1]
         if len(self.applications) == 0:
