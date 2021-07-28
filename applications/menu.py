@@ -1,62 +1,81 @@
 from applications import core
 from helpers import textutils, bitmaputils
 
+class Choice:
+    def __init__(self, text, color, fun):
+        self.text = text
+        self.color = color
+        self.fun = fun
+
+class SlidingChoice:
+    def __init__(self, choices, height, speed=4):
+        self.choices = choices
+        self.index = 0
+        self.prog = 0
+        self.speed = speed
+        self.height = height
+
+    def update(self, io, delta):
+        if io.controller.right.get_fresh_value():
+            self.index = (self.index + 1) % len(self.choices)
+        if io.controller.left.get_fresh_value():
+            self.index = (self.index -1) % len(self.choices)
+        if io.controller.a.get_fresh_value():
+            self.choices[self.index].fun(io)
+
+        diff = self.index - self.prog
+        if diff > len(self.choices)/2:
+            diff -= len(self.choices)
+        elif diff < -len(self.choices)/2:
+            diff += len(self.choices)
+
+        max_diff = delta * self.speed
+        if abs(diff) > max_diff:
+            diff = max_diff if diff > 0 else - max_diff
+
+        self.prog += diff
+
+        if self.prog >= len(self.choices):
+            self.prog -= len(self.choices)
+        if self.prog < 0:
+            self.prog += len(self.choices)
+
+        choice_1 = int(self.prog-1) % len(self.choices)
+        choice_2 = int(self.prog)
+        choice_3 = int(self.prog+1) % len(self.choices)
+
+        progression = self.prog - choice_2
+
+        bmp = textutils.getTextBitmap(" ".join([
+            self.choices[choice_1].text[:2],
+            self.choices[choice_2].text[:2],
+            self.choices[choice_3].text[:2]
+        ]))
+
+        color = self.choices[choice_2].color
+        bitmaputils.applyBitmap(bmp, io.display, (int(-11 + progression * -12), self.height), fg_color=color)
+
+class ApplicationOpener:
+    def __init__(self, application):
+        self.application = application
+    
+    def __call__(self, io):
+        io.openApplication(self.application)
 
 class Menu(core.Application):
     def __init__(self, applications, *args, speed=4, **kwargs):
         super().__init__(*args, **kwargs)
         self.applications = applications
+        choices = [Choice(application.name, application.color, ApplicationOpener(application)) for application in applications]
+        self.chooser = SlidingChoice(choices, 5)
         self.choice_index = 0
         self.choice_current = 0
         self.speed = speed
 
     def update(self, io, delta):
-        if io.controller.right.get_fresh_value():
-            self.choice_index = (self.choice_index +
-                                 1) % len(self.applications)
-        if io.controller.left.get_fresh_value():
-            self.choice_index = (self.choice_index -
-                                 1) % len(self.applications)
-        if io.controller.a.get_fresh_value():
-            io.openApplication(self.applications[self.choice_index])
-
-        diff = self.choice_index - self.choice_current
-
-        if diff > len(self.applications)/2:
-            diff -= len(self.applications)
-        elif diff < -len(self.applications)/2:
-            diff += len(self.applications)
-
-        max_diff = delta * self.speed
-        if abs(diff) > max_diff:
-            diff = max_diff if diff > 0 else -max_diff
-
-        self.choice_current += diff
-
-        if self.choice_current >= len(self.applications):
-            self.choice_current -= len(self.applications)
-        if self.choice_current < 0:
-            self.choice_current += len(self.applications)
-
-        choice_1 = int(self.choice_current-1) % len(self.applications)
-        choice_2 = int(self.choice_current)
-        choice_3 = int(self.choice_current+1) % len(self.applications)
-
-        progression = self.choice_current - choice_2
-
-        bmp = textutils.getTextBitmap(" ".join([
-            self.applications[choice_1].name[:2],
-            self.applications[choice_2].name[:2],
-            self.applications[choice_3].name[:2]
-        ]))
-
-        io.display.fill((0,0,0))
-
-        color = self.applications[choice_2].color
+        io.display.fill((0, 0, 0))
+        self.chooser.update(io, delta)
+        color = self.applications[int(self.chooser.prog)].color
         for x in range(io.display.width):
             for y in [0, io.display.height-1]:
                 io.display.update(x, y, color)
-
-        bitmaputils.applyBitmap(bmp, io.display, (int(-11 + progression * -12),
-                                                  io.display.height//2-2), fg_color=color)
-        

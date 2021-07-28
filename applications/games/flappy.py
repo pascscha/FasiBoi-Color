@@ -4,6 +4,7 @@ import random
 
 
 class Pipe:
+    COLOR = (116, 190, 46)
     def __init__(self, height, gap, x):
         self.height = height
         self.gap = gap
@@ -16,9 +17,9 @@ class Pipe:
             if x < 0 or x >= display.width:
                 continue
             for y in range(0, self.height-self.gap//2):
-                display.update(x, y, (0, 255, 0))
+                display.update(x, y, self.COLOR)
             for y in range(self.height+(self.gap+1)//2, display.height):
-                display.update(x, y, (0, 255, 0))
+                display.update(x, y, self.COLOR)
 
     def is_passed(self, progression):
         return progression > self.x
