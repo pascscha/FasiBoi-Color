@@ -304,9 +304,11 @@ class StrategyGame(core.Game):
         
         self.field = None
         self.active_color = BitField.COLOR1
+        self.border_ticker = core.Ticker(0.1)
         self.select_blinker = core.Blinker((128, 128, 128), (256, 256, 256))
         self.p1_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR1], (256, 256, 256), speed=2)
         self.p2_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR2], (256, 256, 256), speed=2)
+        self.gameover_scroller = None
 
     def set_player(self, player):
         if player.color == BitField.COLOR1:
@@ -353,7 +355,8 @@ class StrategyGame(core.Game):
             self.state = self.PRE_GAME
             self.field = None
             self.player1 = None
-            self.player2 = None    
+            self.player2 = None
+            self.gameover_scroller = None
         else:
             left = int(5 - self.FIELD_SIZE[0]/2)
             top = int(5 - self.FIELD_SIZE[1]/2)
@@ -366,6 +369,26 @@ class StrategyGame(core.Game):
                     io.display.update(left + move.x, top + move.y, color1)
                 if move.color == BitField.COLOR2:
                     io.display.update(left + move.x, top + move.y, color2)
+            
+            if self.field.has_won(BitField.COLOR1):
+                text = "P1 WON!"
+                color = self.COLOR_MAP[BitField.COLOR1]
+            elif self.field.has_won(BitField.COLOR2):
+                text = "P2 WON!"
+                color = self.COLOR_MAP[BitField.COLOR2]
+            else:
+                text = "DRAW!"
+                color = (255, 255, 255)
+
+            text_bmp = textutils.getTextBitmap(text)
+
+            if self.gameover_scroller is None:
+                self.gameover_scroller = core.Ticker(4/(text_bmp.shape[1]+10))
+            self.gameover_scroller.tick(delta)
+
+            x = int((1-self.gameover_scroller.progression) * (text_bmp.shape[1] + 10) - text_bmp.shape[1])
+            y = top + self.FIELD_SIZE[1] + 1 + max(0, ((15 - (top + self.FIELD_SIZE[1] + 1) - 5)//2))
+            bitmaputils.applyBitmap(text_bmp, io.display, (x, y), fg_color=color)
 
     def get_background_color(self, x, y):
         if (x + y) % 2 == 0:
@@ -373,9 +396,10 @@ class StrategyGame(core.Game):
         else:
             return (32, 32, 32)
 
-    def draw_border(self, display, left, top):
+    def draw_border(self, io, delta, left, top):
         right = left + self.FIELD_SIZE[0]
         bottom = top + self.FIELD_SIZE[1]
+        self.border_ticker.tick(delta)
 
         coordinates = [(x, top-1) for x in range(left-1, right+1)] + \
             [(right, y) for y in range(top, bottom+1)] + \
@@ -383,7 +407,10 @@ class StrategyGame(core.Game):
             [(left-1, y) for y in range(bottom, top-1, -1)]
 
         for i, coord in enumerate(coordinates):
-            display.update(*coord, tuple(map(lambda c:c//2, self.COLOR_MAP[self.active_color])))
+            prog = 1-self.border_ticker.progression + i/len(coordinates)
+            prog = 4 * (prog - int(prog) - 0.5)**2
+
+            io.display.update(*coord, tuple(map(lambda c:c*(0.5 + 0.5*prog), self.COLOR_MAP[self.active_color])))
 
     def draw_stones(self, display, left, top):
         for x in range(self.FIELD_SIZE[0]):
@@ -398,7 +425,7 @@ class StrategyGame(core.Game):
 
     def draw_field(self, io, delta, left, top):
         io.display.fill((0, 0, 0))
-        self.draw_border(io.display, left, top)
+        self.draw_border(io, delta, left, top)
         self.draw_stones(io.display, left, top)
 
     def _update(self, io, delta):
