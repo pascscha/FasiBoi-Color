@@ -352,9 +352,9 @@ class StrategyGame(core.Game):
 
     def _update_midgame(self, io, delta):
         # Switch players if active player cannot move
-        if len(self.field.possible_moves(self.active_color)) == 0:
+        if len(list(self.field.possible_moves(self.active_color))) == 0:
             self.active_color = self.field.other(self.active_color)
-            if len(self.field.possible_moves(self.active_color)) == 0:
+            if len(list(self.field.possible_moves(self.active_color))) == 0:
                 self.state = self.GAME_OVER
                 return
 

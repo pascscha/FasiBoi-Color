@@ -1,6 +1,6 @@
 import time
 import numpy as np
-
+import cv2
 
 class ControllerValue:
     def __init__(self,  dtype=bool, default=False):
@@ -163,6 +163,20 @@ class SlideUp(WindowAnimation):
 
         display.pixels[:,:height] = self.start_pixels[:,-height:]
         display.pixels[:,height:] = display.pixels[:,height:]
+
+class Squeeze(WindowAnimation):
+    def apply(self, display):
+        progression = (time.time() - self.start_time)/self.duration
+        if progression > 1:
+            return
+
+        height = max(1,int(display.pixels.shape[1] * (1-progression)))
+
+        squeezed = cv2.resize(self.start_pixels, (height, display.pixels.shape[0]))
+        top = (display.pixels.shape[1] - height)//2
+
+        display.pixels[:, top:top+height] = squeezed
+
 
 class IOManager:
     def __init__(self, controller, display, fps=30, animation_duration=0.25):
