@@ -10,6 +10,7 @@ from applications.clock import Clock
 from applications.games.tetris import Tetris
 from applications.games.pacman import Pacman
 from applications.games.tictactoe import TicTacToe
+from applications.games.connect4 import Connect4
 
 if __name__ == "__main__":
     settings = [
@@ -32,7 +33,8 @@ if __name__ == "__main__":
                     Tetris(color=(255, 127, 0)),
                     Pacman(color=(255, 255, 0)),
                     Menu([
-                        TicTacToe()
+                        TicTacToe(),
+                        Connect4(name="C4")
                     ], name="Strategy")
                 ], name="Games"),
                 AnimationCycler([
