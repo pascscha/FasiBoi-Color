@@ -1,6 +1,6 @@
 import time
 from applications.games import core
-from helpers import textutils, bitmaputils
+from helpers import textutils, bitmaputils, animations
 from applications.menu import SlidingChoice, Choice
 import threading
 
@@ -279,7 +279,7 @@ class StrategyGame(core.Game):
     FIELD_CLASS = BitField
     COLOR_MAP = {
         BitField.COLOR1: (255, 0, 0),
-        BitField.COLOR2: (0, 255, 0),
+        BitField.COLOR2: (0, 0, 255),
     }
     DIFFICULTIES = {
         "Ea": ((0, 255, 0), 1, 2),
@@ -309,6 +309,8 @@ class StrategyGame(core.Game):
         self.p1_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR1], (256, 256, 256), speed=2)
         self.p2_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR2], (256, 256, 256), speed=2)
         self.gameover_scroller = None
+
+        self.border_color = animations.AnimatedColor(self.COLOR_MAP[BitField.COLOR1], speed=2)
 
     def set_player(self, player):
         if player.color == BitField.COLOR1:
@@ -349,6 +351,7 @@ class StrategyGame(core.Game):
                 self.state = self.GAME_OVER   
             else:
                 self.active_color = self.field.other(self.active_color)     
+                self.border_color.set_value(self.COLOR_MAP[self.active_color])
 
     def _update_gameover(self, io, delta):
         if io.controller.a.get_fresh_value():
@@ -400,6 +403,8 @@ class StrategyGame(core.Game):
         right = left + self.FIELD_SIZE[0]
         bottom = top + self.FIELD_SIZE[1]
         self.border_ticker.tick(delta)
+        self.border_color.tick(delta)
+        color = self.border_color.get_value()
 
         coordinates = [(x, top-1) for x in range(left-1, right+1)] + \
             [(right, y) for y in range(top, bottom+1)] + \
@@ -410,7 +415,7 @@ class StrategyGame(core.Game):
             prog = 1-self.border_ticker.progression + i/len(coordinates)
             prog = 4 * (prog - int(prog) - 0.5)**2
 
-            io.display.update(*coord, tuple(map(lambda c:c*(0.5 + 0.5*prog), self.COLOR_MAP[self.active_color])))
+            io.display.update(*coord, tuple(map(lambda c:c*(0.5 + 0.5*prog), color)))
 
     def draw_stones(self, display, left, top):
         for x in range(self.FIELD_SIZE[0]):
