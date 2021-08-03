@@ -12,6 +12,7 @@ from applications.games.pacman import Pacman
 from applications.games.tictactoe import TicTacToe
 from applications.games.connect4 import Connect4
 from applications.games.reversi import Reversi
+from applications.games.frat import Frat
 
 if __name__ == "__main__":
     settings = [
@@ -33,6 +34,7 @@ if __name__ == "__main__":
                     Pong(color=(0, 0, 255)),
                     Tetris(color=(255, 127, 0)),
                     Pacman(color=(255, 255, 0)),
+                    Frat(),
                     Menu([
                         TicTacToe(),
                         Connect4(name="C4"),

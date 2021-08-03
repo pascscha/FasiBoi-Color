@@ -6,7 +6,7 @@ from IO.animations import *
 class ControllerValue:
     def __init__(self,  dtype=bool, default=False):
         self._value = default
-        self.fresh = True
+        self.fresh = False
         self.dtype = dtype
 
     def update(self, value):

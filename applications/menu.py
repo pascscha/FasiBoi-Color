@@ -21,7 +21,7 @@ class SlidingChoice:
             self.index = (self.index + 1) % len(self.choices)
         if io.controller.left.get_fresh_value():
             self.index = (self.index -1) % len(self.choices)
-        if io.controller.a.get_fresh_value():
+        if io.controller.a.get_fresh_value() == False:
             self.choices[self.index].fun(io)
 
         diff = self.index - self.prog

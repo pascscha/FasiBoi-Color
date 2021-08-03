@@ -39,15 +39,15 @@ class Frat(core.Game):
         self.hint_colors = [animations.AnimatedColor((64, 64, 64), speed=4) for _ in range(4)]        
 
         # TODO: Auto Generate
-        self.solution = [[1, 1, 1, 2, 2, 2, 3, 3],
-                [1, 2, 1, 1, 1, 2, 3, 4],
-                [1, 2, 1, 2, 1, 2, 3, 4],
-                [1, 2, 2, 2, 2, 2, 3, 4],
-                [1, 2, 1, 2, 3, 3, 3, 4],
-                [1, 1, 1, 2, 3, 4, 4, 4],
-                [3, 3, 3, 3, 3, 3, 3, 4],
-                [4, 4, 4, 4, 4, 4, 4, 4]]
-        
+        self.solution = [[1, 1, 1, 1, 1, 4, 4, 2],
+                         [1, 3, 1, 4, 4, 4, 2, 2],
+                         [1, 3, 1, 1, 1, 4, 4, 2],
+                         [1, 3, 3, 4, 4, 4, 2, 2],
+                         [1, 3, 4, 4, 4, 2, 2, 2],
+                         [1, 3, 3, 2, 4, 4, 4, 2],
+                         [1, 1, 3, 2, 2, 2, 2, 2],
+                         [3, 3, 3, 3, 3, 3, 3, 3]]
+
         self.gameover_blinker = [[core.Blinker((0, 0, 0), (0, 0, 0)) for _ in range(8)] for _ in range(8)]
 
 
@@ -90,7 +90,7 @@ class Frat(core.Game):
         return True
 
     def _update_midgame(self, io, delta):        
-        if io.controller.b.get_fresh_value():
+        if io.controller.b.get_fresh_value() == False:
             if self.mode == self.MODE_GUESS:
                 self.mode = self.MODE_DRAW
             else:
@@ -112,7 +112,7 @@ class Frat(core.Game):
         self.selected[0] = max(0, min(limit, self.selected[0]))
         self.selected[1] = max(0, min(limit, self.selected[1]))
 
-        if io.controller.a.get_fresh_value():
+        if io.controller.a.get_fresh_value() == False:
             if self.mode == self.MODE_GUESS:
                 if not self.guessed[self.selected[0]][self.selected[1]]:
                     self.score += 1
