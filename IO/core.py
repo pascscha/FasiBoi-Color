@@ -1,6 +1,7 @@
 import time
 import numpy as np
 import cv2
+from IO.animations import *
 
 class ControllerValue:
     def __init__(self,  dtype=bool, default=False):
@@ -52,6 +53,7 @@ class Controller:
         self.a = ControllerValue()
         self.b = ControllerValue()
         self.menu = ControllerValue()
+        self.teppich = ControllerValue()
 
 
 class Display:
@@ -130,54 +132,6 @@ class Display:
         self.last_pixels = self.pixels.copy()
         self._refresh()
 
-class WindowAnimation:
-    def __init__(self, display, duration):
-        self.duration = duration
-        self.start_pixels = display.pixels
-        self.start_time = time.time()
-
-    def is_finished(self):
-        return time.time() >= self.start_time + self.duration
-
-    def apply(self, display):
-        raise NotImplementedError("Please Implement this method")
-
-class SlideDown(WindowAnimation):
-    def apply(self, display):
-        progression = (time.time() - self.start_time)/self.duration
-        if progression > 1:
-            return
-
-        height = max(1,int(display.pixels.shape[1] * progression))
-
-        display.pixels[:,:height] = display.pixels[:,-height:]
-        display.pixels[:,height:] = self.start_pixels[:,height:]
-
-class SlideUp(WindowAnimation):
-    def apply(self, display):
-        progression = (time.time() - self.start_time)/self.duration
-        if progression > 1:
-            return
-
-        height = max(1,int(display.pixels.shape[1] * (1-progression)))
-
-        display.pixels[:,:height] = self.start_pixels[:,-height:]
-        display.pixels[:,height:] = display.pixels[:,height:]
-
-class Squeeze(WindowAnimation):
-    def apply(self, display):
-        progression = (time.time() - self.start_time)/self.duration
-        if progression > 1:
-            return
-
-        height = max(1,int(display.pixels.shape[1] * (1-progression)))
-
-        squeezed = cv2.resize(self.start_pixels, (height, display.pixels.shape[0]))
-        top = (display.pixels.shape[1] - height)//2
-
-        display.pixels[:, top:top+height] = squeezed
-
-
 class IOManager:
     def __init__(self, controller, display, fps=30, animation_duration=0.25):
         self.controller = controller
@@ -189,6 +143,15 @@ class IOManager:
         self.last_update = time.time()
         self.animation_duration = animation_duration
         self.current_animation = None
+
+        self.teppich = 0
+        self.teppich_animations = [
+            None,
+            AnimationCombination([VerticalDistort(frequency=1/60), StripedNoise(limit=50)]),
+            AnimationCombination([VerticalDistort(), StripedNoise(limit=100)]),
+            AnimationCombination([VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1/2)]),
+            Black()
+        ] #Noise(level=50), Noise(level=200), Noise(level=20000)]
 
     def run(self, application):
         """Runs an application. Should only be invoked with the root
@@ -208,12 +171,20 @@ class IOManager:
             self.update()
             self.applications[-1].update(self, delta)
 
+            # Apply Animations
             if self.current_animation is not None:
                 if self.current_animation.is_finished():
                     self.current_animation = None
                 else:
                     self.current_animation.apply(self.display)
-            
+
+            # Apply Drunkguard
+            if self.controller.teppich.get_fresh_value():
+                self.teppich = (self.teppich + 1) % len(self.teppich_animations)
+
+            if self.teppich_animations[self.teppich] is not None:
+                self.teppich_animations[self.teppich].apply(self.display)
+
             self.display.refresh()
             if self.controller.menu.get_fresh_value():
                 self.closeApplication()

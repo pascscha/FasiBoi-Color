@@ -19,7 +19,7 @@ if __name__ == "__main__":
         FPSChoice(default=30, name="FPS")
     ]
 
-    with PygameIOManager() as ioManager:
+    with PygameIOManager(bg_path=None, screen_pos=(0,0), screen_size=(500, 750)) as ioManager:
 
         # Hack, this makes sure settings are loaded even without opening them, by letting them run for 1 frame
         for setting in settings:

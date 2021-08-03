@@ -14,7 +14,8 @@ class PygameController(core.Controller):
             pygame.K_DOWN: self.down,
             pygame.K_a: self.a,
             pygame.K_b: self.b,
-            pygame.K_ESCAPE: self.menu
+            pygame.K_ESCAPE: self.menu,
+            pygame.K_t: self.teppich
         }
 
     def update(self, event):
@@ -67,9 +68,12 @@ class PygameIOManager(core.IOManager):
         pygame.init()
         pygame.display.set_caption(title)
 
-        bg_image = pygame.image.load(bg_path)
-        win = pygame.display.set_mode(bg_image.get_size())
-        win.blit(bg_image, (0, 0))
+        if bg_path is not None:
+            bg_image = pygame.image.load(bg_path)
+            win = pygame.display.set_mode(bg_image.get_size())
+            win.blit(bg_image, (0, 0))
+        else:
+            win = pygame.display.set_mode(screen_size)
 
         display = PygameDisplay(win, screen_pos, screen_size, *screen_res)
         controller = PygameController()
