@@ -29,6 +29,7 @@ class Field:
         raise NotImplementedError("Please implement this method")
 
 class BitField(Field):
+    UNDEFINED = 2
     EMPTY = 0
     COLOR1 = 1
     COLOR2 = -1
@@ -65,21 +66,28 @@ class BitField(Field):
         if value == self.EMPTY:
             self.bits1 &= ~mask
             self.bits2 &= ~mask
-        if value == self.COLOR1:
+        elif value == self.COLOR1:
             self.bits1 |= mask
             self.bits2 &= ~mask
-        if value == self.COLOR2:
+        elif value == self.COLOR2:
             self.bits1 &= ~mask
+            self.bits2 |= mask
+        else:
+            self.bits1 |= mask
             self.bits2 |= mask
 
     def get_value(self, x, y):
         mask = self.get_bitmask(x, y)
-        if self.bits1 & mask:
-            return self.COLOR1
-        elif self.bits2 & mask:
-            return self.COLOR2
+        if self.bits1 & mask == 0:
+            if self.bits2 & mask == 0:
+                return self.EMPTY
+            else:
+                return self.COLOR2
         else:
-            return self.EMPTY
+            if self.bits2 & mask == 0:
+                return self.COLOR1
+            else:
+                return self.UNDEFINED
 
     def is_full(self):
         for x in range(self.width):

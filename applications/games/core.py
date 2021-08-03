@@ -34,9 +34,12 @@ class Game(core.Application):
     MID_GAME = 1
     GAME_OVER = 2
 
+    DEFAULT_SCORE=0
+    MISERE=False
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.highscore = self.load_value("highscore", default=0)
+        self.highscore = self.load_value("highscore", default=self.DEFAULT_SCORE)
         self.score = None
 
         # The state of the game, used for the STATE machine
@@ -73,9 +76,10 @@ class Game(core.Application):
         """
 
         # Save score if its a new highscore
-        if self.score is not None and self.score > self.highscore:
-            self.highscore = self.score
-            self.save_value("highscore", self.highscore)
+        if self.score is not None:
+            if self.MISERE and self.score < self.highscore or not self.MISERE and self.score > self.highscore:
+                self.highscore = self.score
+                self.save_value("highscore", self.highscore)
 
         # If A is pressed we start the game
         if io.controller.a.get_fresh_value():
