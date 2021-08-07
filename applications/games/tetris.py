@@ -1,4 +1,5 @@
 from applications.games import core
+from helpers import animations
 import random
 import numpy as np
 import time
@@ -89,8 +90,8 @@ class Tetris(core.Game):
         self.curr_pos_x += self.curr_shift_x
 
         # Set speed and progression of Tetrominos. Progression accumulates the time that has passed since last movement.
-        self.ticker = core.Ticker(3)
-        self.move_ticker = core.Ticker(12)
+        self.ticker = animations.Ticker(3)
+        self.move_ticker = animations.Ticker(12)
 
     def _update_midgame(self, io, delta):
 
@@ -128,7 +129,7 @@ class Tetris(core.Game):
                     pressed_d = False
                 else:
                     pressed_d
-        if io.controller.a.get_fresh_value():
+        if io.controller.a.get_fresh_value() == False:
             self.curr_rot = (self.curr_rot - 1) % self.tetromino.nrot
             new_pos_x, new_pos_y = self.tetromino.get_rotation(self.curr_rot)
             new_pos_x += self.curr_shift_x-int(np.median(new_pos_x))

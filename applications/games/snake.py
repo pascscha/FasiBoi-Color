@@ -1,4 +1,5 @@
 from applications.games import core
+from helpers import animations
 import random
 
 
@@ -40,7 +41,7 @@ class Snake(core.Game):
         )
 
         # Set speed and progression of snake. Progression accumulates the time that has passed since last movement.
-        self.ticker = core.Ticker(3)
+        self.ticker = animations.Ticker(3)
 
     def _update_midgame(self, io, delta):
         # Check controller values. We look for fresh_values, because we only care

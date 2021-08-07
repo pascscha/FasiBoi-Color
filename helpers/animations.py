@@ -1,16 +1,21 @@
+import numpy as np
+
 def blend_colors(color1, color2, prog):
     return tuple(map(lambda c: c[0] * (1 - prog) + c[1] * prog, zip(color1, color2)))
 
 class TimedValue:
     def __init__(self, speed=1):
         self.progression = 0
-        self.speed = 1
+        self.speed = speed
 
     def tick(self, delta):
         self.progression += delta * self.speed
         return self.progression
 
 class Ticker(TimedValue):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def tick(self, delta):
         super().tick(delta)
         if self.progression > 1:
@@ -20,18 +25,18 @@ class Ticker(TimedValue):
 
 class Blinker(Ticker):
     def __init__(self, value1, value2, *args, **kwargs):
-        super().__init__(speed, *args, **kwargs)
-        self.value1 = value2
-        self.value1 = value2
+        super().__init__(*args, **kwargs)
+        self.value1 = value1
+        self.value2 = value2
     
     @staticmethod
     def blend(value1, value2, prog):
-        return self.old_value * (1 - prog) + self.new_value * prog
+        return value1 * (1 - prog) + value2 * prog
 
     def tick(self, delta):
         super().tick(delta)
         prog = 2*abs(self.progression - 0.5)
-        return self.blend(self.color1, self.color2, prog)
+        return self.blend(self.value1, self.value2, prog)
 
 class AnimatedValue(TimedValue):
     def __init__(self, value, speed=1, function=lambda x:x):
@@ -47,7 +52,7 @@ class AnimatedValue(TimedValue):
         return self.get_value()
 
     def set_value(self, value):
-        if value != self.new_value:
+        if np.any(value != self.new_value):
             self.old_value = self.get_value()
             self.progression = 0
             self.new_value = value

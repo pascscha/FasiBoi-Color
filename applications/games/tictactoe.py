@@ -1,4 +1,5 @@
 from applications.games import alphabeta
+from IO.color import *
 import random
 
 class TicTacToeMove(alphabeta.Move):
@@ -82,9 +83,9 @@ class TicTacToe(alphabeta.StrategyGame):
     FIELD_SIZE = (3, 3)
     FIELD_CLASS = TicTacToeField
     DIFFICULTIES = {
-        "Ea": ((0, 255, 0), 1, 1),
-        "Me": ((255, 255, 0), 1, 2),
-        "Di": ((255, 0, 0), 5, 9)
+        "Ea": (GREEN, 1, 1),
+        "Me": (YELLOW, 1, 2),
+        "Di": (RED, 5, 9)
     }
 
 if __name__ == "__main__":

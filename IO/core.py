@@ -112,7 +112,10 @@ class Display:
         Args:
             color ((int, int, int)): The rgb color to fill the screen with
         """
-        self.checkColor(color)
+        if not isinstance(color, Color):
+            color = Color(*color)
+        color = tuple(color)
+
         self.pixels = np.ones((self.width, self.height, 3),
                               dtype=np.uint8) * color * self.brightness
 

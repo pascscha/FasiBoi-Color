@@ -2,6 +2,7 @@ import time
 from applications.games import core
 from helpers import textutils, bitmaputils, animations
 from applications.menu import SlidingChoice, Choice
+from IO.color import *
 import threading
 import numpy as np
 
@@ -235,7 +236,7 @@ class AIPlayer(Strategy):
 class HumanPlayer(Strategy):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.select_blinker = core.Blinker((128, 128, 128), (256, 256, 256))
+        self.select_blinker = animations.Blinker(Color(128, 128, 128), WHITE)
         self.selected_move = None
 
     def make_move(self, io, delta, field, left, top):
@@ -289,7 +290,7 @@ class HumanPlayer(Strategy):
             io.display.update(left + self.selected_move.x, top + self.selected_move.y,
                                 self.select_blinker.tick(delta))
 
-        if io.controller.a.get_fresh_value():
+        if io.controller.a.get_fresh_value() == False:
             return self.selected_move
         else:
             return None
@@ -299,13 +300,14 @@ class StrategyGame(core.Game):
     FIELD_SIZE = (3, 3)
     FIELD_CLASS = BitField
     COLOR_MAP = {
-        BitField.COLOR1: (255, 0, 0),
-        BitField.COLOR2: (0, 0, 255),
+        BitField.COLOR1: RED,
+        BitField.COLOR2: BLUE,
     }
+
     DIFFICULTIES = {
-        "Ea": ((0, 255, 0), 0.5, 2),
-        "Me": ((255, 255, 0), 1, 5),
-        "Di": ((255, 0, 0), 5, 30)
+        "Ea": (GREEN, 0.5, 2),
+        "Me": (YELLOW, 1, 5),
+        "Di": (RED, 5, 30)
     }
 
     def __init__(self, *args, **kwargs):
@@ -313,22 +315,22 @@ class StrategyGame(core.Game):
         self.player1 = None
         
         self.player1Choice = SlidingChoice([
-            Choice("Hu", (255, 255, 255), Applyer(self, HumanPlayer(BitField.COLOR1)))
+            Choice("Hu", WHITE, Applyer(self, HumanPlayer(BitField.COLOR1)))
             ] + [Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR1))) for name, (color, t, d) in self.DIFFICULTIES.items()]
             , 8)
 
         self.player2 = None
         self.player2Choice = SlidingChoice([
-            Choice("Hu", (255, 255, 255), Applyer(self, HumanPlayer(BitField.COLOR2)))
+            Choice("Hu", WHITE, Applyer(self, HumanPlayer(BitField.COLOR2)))
             ] + [Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR2))) for name, (color, t, d) in self.DIFFICULTIES.items()]
             , 8)
         
         self.field = None
         self.active_color = BitField.COLOR1
-        self.border_ticker = core.Ticker(0.1)
-        self.select_blinker = core.Blinker((128, 128, 128), (256, 256, 256))
-        self.p1_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR1], (256, 256, 256), speed=1)
-        self.p2_win_blinker = core.Blinker(self.COLOR_MAP[BitField.COLOR2], (256, 256, 256), speed=1)
+        self.border_ticker = animations.Ticker(0.1)
+        self.select_blinker = animations.Blinker(Color(128, 128, 128), WHITE)
+        self.p1_win_blinker = animations.Blinker(self.COLOR_MAP[BitField.COLOR1], WHITE, speed=1)
+        self.p2_win_blinker = animations.Blinker(self.COLOR_MAP[BitField.COLOR2], WHITE, speed=1)
         self.gameover_scroller = None
 
         self.field_colors = [[animations.AnimatedColor((0,0,0), speed=2) for _ in range(self.FIELD_SIZE[1])] for _ in range(self.FIELD_SIZE[0])]
@@ -384,7 +386,7 @@ class StrategyGame(core.Game):
                 self.border_color.set_value(self.COLOR_MAP[self.active_color])
 
     def _update_gameover(self, io, delta):
-        if io.controller.a.get_fresh_value():
+        if io.controller.a.get_fresh_value() == False:
             self.state = self.PRE_GAME
             self.field = None
             self.player1 = None
@@ -413,12 +415,12 @@ class StrategyGame(core.Game):
                 color = self.COLOR_MAP[BitField.COLOR2]
             else:
                 text = "DRAW!"
-                color = (255, 255, 255)
+                color = WHITE
 
             text_bmp = textutils.getTextBitmap(text)
 
             if self.gameover_scroller is None:
-                self.gameover_scroller = core.Ticker(4/(text_bmp.shape[1]+10))
+                self.gameover_scroller = animations.Ticker(4/(text_bmp.shape[1]+10))
             self.gameover_scroller.tick(delta)
 
             x = int((1-self.gameover_scroller.progression) * (text_bmp.shape[1] + 10) - text_bmp.shape[1])

@@ -2,33 +2,6 @@ from applications import core
 from helpers import textutils, bitmaputils
 import colorsys
 
-class Ticker:
-    def __init__(self, speed):
-        self.speed = speed
-        self.progression = 0
-
-    def tick(self, delta):
-        self.progression += delta * self.speed
-        if self.progression > 1:
-            self.progression -= 1
-            return True
-        return False
-
-
-class Blinker(Ticker):
-    def __init__(self, color1, color2, *args, speed=1, **kwargs):
-        super().__init__(speed, *args, **kwargs)
-        self.color1 = color1
-        self.color2 = color2
-
-    def tick(self, delta):
-        super().tick(delta)
-        prog = 2*abs(self.progression - 0.5)
-        c1 = map(lambda c: c*prog, self.color1)
-        c2 = map(lambda c: c*(1-prog), self.color2)
-        return tuple(map(lambda c: min(255, max(0, int(c[0]+c[1]))), zip(c1, c2)))
-
-
 class Game(core.Application):
     PRE_GAME = 0
     MID_GAME = 1

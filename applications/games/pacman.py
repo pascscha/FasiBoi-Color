@@ -3,7 +3,7 @@ import numpy as np
 import time
 from applications.games import core
 from applications.animations import VideoPlayer
-from helpers import textutils, bitmaputils
+from helpers import textutils, bitmaputils, animations
 
 
 class Position:
@@ -114,7 +114,7 @@ class Entity:
     def __init__(self, field, pos, speed=5, color=(255, 255, 255), direction=Field.LEFT, obstacles=[Field.WALL, Field.GHOST_DOOR]):
         self.field = field
         self.pos = pos
-        self.ticker = core.Ticker(speed)
+        self.ticker = animations.Ticker(speed)
         self.obstacles = obstacles
         self.direction = direction
         self.color = color
