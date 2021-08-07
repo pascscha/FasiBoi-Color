@@ -69,7 +69,7 @@ class Tile:
                     field[self.x][self.y] = None
                     field[nx][ny] = self
                     self.value += 1
-                    score_increment = self.value/10
+                    score_increment = self.value
                     self.x = nx
                     self.y = ny
                     self.fresh = True
@@ -104,7 +104,7 @@ class G2048(core.Game):
     def reset(self, io):
         self.field = [[None]*4 for i in range(4)]
         self.spawn_random()
-        self.score = 0
+        self.score = 1
         self.direction = (0, 0)
         self.last_field = self.copy_field(self.field)
         self.direction_queue = []
@@ -199,6 +199,7 @@ class G2048(core.Game):
                     self.score += self.field[x][y].update(self.field, delta)
 
         if self.is_game_over():
+            self.score = round(math.log(self.score,2))
             self.state = self.GAME_OVER
 
         io.display.fill((0, 0, 0))
@@ -219,7 +220,7 @@ class G2048(core.Game):
                 if self.field[x][y] is not None:
                     self.field[x][y].draw(io.display)
 
-        score_bmp = textutils.getTextBitmap(str(round(self.score)))
+        score_bmp = textutils.getTextBitmap(str(round(math.log(self.score,2))))
 
         bitmaputils.applyBitmap(
             score_bmp,

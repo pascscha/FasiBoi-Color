@@ -13,6 +13,8 @@ from applications.games.tictactoe import TicTacToe
 from applications.games.connect4 import Connect4
 from applications.games.reversi import Reversi
 from applications.games.frat import Frat
+from applications.games.g2048 import G2048
+
 
 if __name__ == "__main__":
     settings = [
@@ -34,6 +36,7 @@ if __name__ == "__main__":
                     Pong(color=(0, 0, 255)),
                     Tetris(color=(255, 127, 0)),
                     Pacman(color=(255, 255, 0)),
+                    G2048(name="20"),
                     Frat(),
                     Menu([
                         TicTacToe(),
