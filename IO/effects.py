@@ -2,7 +2,7 @@ import time
 import numpy as np
 import cv2
 
-class WindowAnimation:
+class WindowEffect:
     def __init__(self, display=None, duration=None):
         if display is not None:
             self.start_pixels = display.pixels
@@ -20,18 +20,18 @@ class WindowAnimation:
     def apply(self, display):
         raise NotImplementedError("Please Implement this method")
 
-class AnimationCombination:
-    def __init__(self, animations):
-        self.animations = animations
+class EffectCombination:
+    def __init__(self, effects):
+        self.effects = effects
     
     def is_finished(self):
-        return all([a.is_finished for a in self.animations])
+        return all([a.is_finished for a in self.effects])
     
     def apply(self, display):
-        for a in self.animations:
+        for a in self.effects:
             a.apply(display)
 
-class SlideDown(WindowAnimation):
+class SlideDown(WindowEffect):
     def apply(self, display):
         progression = (time.time() - self.start_time)/self.duration
         if progression > 1:
@@ -42,7 +42,7 @@ class SlideDown(WindowAnimation):
         display.pixels[:,:height] = display.pixels[:,-height:]
         display.pixels[:,height:] = self.start_pixels[:,height:]
 
-class SlideUp(WindowAnimation):
+class SlideUp(WindowEffect):
     def apply(self, display):
         progression = (time.time() - self.start_time)/self.duration
         if progression > 1:
@@ -53,7 +53,7 @@ class SlideUp(WindowAnimation):
         display.pixels[:,:height] = self.start_pixels[:,-height:]
         display.pixels[:,height:] = display.pixels[:,height:]
 
-class Squeeze(WindowAnimation):
+class Squeeze(WindowEffect):
     def apply(self, display):
         progression = (time.time() - self.start_time)/self.duration
         if progression > 1:
@@ -66,7 +66,7 @@ class Squeeze(WindowAnimation):
 
         display.pixels[:, top:top+height] = squeezed
 
-class Noise(WindowAnimation):
+class Noise(WindowEffect):
     def __init__(self, *args, level=20, **kwargs):
         super().__init__(*args, **kwargs)
         self.level = level
@@ -81,7 +81,7 @@ class Noise(WindowAnimation):
         noisy[np.where(noisy < 0)] = 0
         display.pixels = noisy.astype(np.uint8)
 
-class StripedNoise(WindowAnimation):
+class StripedNoise(WindowEffect):
     def __init__(self, *args, coarseness=0.02, limit=100, **kwargs):
         super().__init__(*args, **kwargs)
         self.coarseness = coarseness
@@ -103,7 +103,7 @@ class StripedNoise(WindowAnimation):
         img[np.where(img < 0)] = 0
         display.pixels = img.astype(np.uint8)
 
-class VerticalDistort(WindowAnimation):
+class VerticalDistort(WindowEffect):
     def __init__(self, *args, amount=2, frequency=1/10, **kwargs):
         super().__init__(*args, **kwargs)
         self.amount = amount
@@ -124,7 +124,7 @@ class VerticalDistort(WindowAnimation):
                 #display.pixels[-amount:, y] = 0
 
 
-class Dropout(WindowAnimation):
+class Dropout(WindowEffect):
     def __init__(self, *args, frequency=1/2, **kwargs):
         super().__init__(*args, **kwargs)
         self.frequency = frequency
@@ -135,6 +135,6 @@ class Dropout(WindowAnimation):
             if rand < self.frequency:
                 display.pixels[:, y] = 0
 
-class Black(WindowAnimation):
+class Black(WindowEffect):
     def apply(self, display):
         display.pixels[:] = 0

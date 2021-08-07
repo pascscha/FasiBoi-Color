@@ -1,7 +1,8 @@
 import time
 import numpy as np
 import cv2
-from IO.animations import *
+from IO.effects import *
+from IO.color import Color
 
 class ControllerValue:
     def __init__(self,  dtype=bool, default=False):
@@ -44,7 +45,6 @@ class ControllerValue:
 
 
 class Controller:
-
     def __init__(self):
         self.up = ControllerValue()
         self.right = ControllerValue()
@@ -102,9 +102,9 @@ class Display:
             color ((int, int, int)): The new rgb color of that pixel
         """
         self.checkCoordinates(x, y)
-        self.checkColor(color)
-        color = tuple(map(lambda x: int(x*self.brightness), color))
-        self.pixels[x][y] = color
+        if not isinstance(color, Color):
+            color = Color(*color)
+        self.pixels[x][y] = color * self.brightness
 
     def fill(self, color):
         """Fills the entire screen with one color
@@ -147,9 +147,9 @@ class IOManager:
         self.teppich = 0
         self.teppich_animations = [
             None,
-            AnimationCombination([VerticalDistort(frequency=1/60), StripedNoise(limit=50)]),
-            AnimationCombination([VerticalDistort(), StripedNoise(limit=100)]),
-            AnimationCombination([VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1/2)]),
+            EffectCombination([VerticalDistort(frequency=1/60), StripedNoise(limit=50)]),
+            EffectCombination([VerticalDistort(), StripedNoise(limit=100)]),
+            EffectCombination([VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1/2)]),
             Black()
         ] #Noise(level=50), Noise(level=200), Noise(level=20000)]
 
@@ -171,7 +171,7 @@ class IOManager:
             self.update()
             self.applications[-1].update(self, delta)
 
-            # Apply Animations
+            # Apply Effects
             if self.current_animation is not None:
                 if self.current_animation.is_finished():
                     self.current_animation = None
