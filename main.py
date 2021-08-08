@@ -14,7 +14,7 @@ from applications.games.connect4 import Connect4
 from applications.games.reversi import Reversi
 from applications.games.frat import Frat
 from applications.games.g2048 import G2048
-
+from applications.milkdrop import Milkdrop
 
 if __name__ == "__main__":
     settings = [
@@ -44,6 +44,7 @@ if __name__ == "__main__":
                         Reversi()
                     ], name="Strategy")
                 ], name="Games"),
+                Milkdrop(),
                 AnimationCycler([
                     BeatAnimation(
                         "resources/animations/shuffle1.npy",

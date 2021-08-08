@@ -174,7 +174,8 @@ class Milkdrop(core.Application):
     BEAT_MEMORY_SIZE = 4
     SIZE = (10, 15)
     
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.beat_duration = 0.5
         self.energy = 0.5
         now = time.time()
