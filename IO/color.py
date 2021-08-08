@@ -1,8 +1,13 @@
 import numpy as np
+import colorsys
 
 class Color(np.ndarray):
     def __new__(cls, r, g, b):
         return np.array([r, g, b], dtype=np.uint8).view(cls)
+
+    @classmethod
+    def from_hsv(cls, h, s, v):
+        return cls(*map(lambda x: int(x*255), colorsys.hsv_to_rgb(h, s, v)))
 
     @staticmethod
     def convert(color):
