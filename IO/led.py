@@ -37,10 +37,6 @@ class LEDDisplay(core.Display):
 
 class LEDIOManager(core.IOManager):
     def __init__(self, screen_res=(10, 15)):
-        self.screen = curses.initscr()
-        self.screen.nodelay(1)
-        curses.nocbreak()
-
         controller = CursesController()
         display = LEDDisplay(*screen_res, lazy=False)
         super().__init__(controller, display)
