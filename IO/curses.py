@@ -11,7 +11,8 @@ class CursesController(core.Controller):
             107: self.down,  # K
             97: self.a,  # A
             98: self.b,  # B
-            27: self.menu  # Esc
+            113: self.menu,  # Q
+            116: self.teppich  # T
         }
 
     def update(self, char):
@@ -25,19 +26,23 @@ class CursesDisplay(core.Display):
     def __init__(self, win, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.win = win
+        self.first = True
 
     def _update(self, x, y, color):
         if tuple(color) != (0, 0, 0):
             self.win.addstr(y+2, x*2+2, f"##")
         else:
-            self.win.addstr(y+2, x*2+2, "  ") 
+            self.win.addstr(y+2, x*2+2, "  ")
 
     def _refresh(self):
+        if self.first:
+            self.win.clear()
+            self.first = False
         self.win.refresh()
 
 
 class CursesIOManager(core.IOManager):
-    def __init__(self, screen_res=(10, 15)):
+    def __init__(self, screen_res=(10, 15), **kwargs):
         screen = curses.initscr()
 
         self.win = curses.newwin(screen_res[1] + 4, screen_res[0]*2 + 4, 2, 2)
@@ -50,7 +55,7 @@ class CursesIOManager(core.IOManager):
         self.win.refresh()
 
         controller = CursesController()
-        display = CursesDisplay(self.win, *screen_res, lazy=False)
+        display = CursesDisplay(self.win, *screen_res)
         super().__init__(controller, display)
 
     def update(self):
