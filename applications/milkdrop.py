@@ -104,6 +104,57 @@ class Animation(Drawer):
         self.coords = self.frame_coords[idx%self.animation_length]
         return super().apply(frame, delta, progression, beat)
 
+class GameOfLife(Drawer):
+    def __init__(self, *args, period=128, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.field = None
+        self.period = period
+        self.beat_count = 0
+
+    @staticmethod
+    def get(field, x, y):
+        return field[x%field.shape[0], y%field.shape[1]]
+
+    def apply(self, frame, delta, progression, beat):
+        if beat:
+            self.beat_count = (self.beat_count + 1) % self.period
+            if self.beat_count == 0:
+                self.field = None
+        
+        if self.field is None or np.all(self.field == False):
+            self.field = np.zeros(frame.shape[:2], dtype=np.bool)
+            for i in range(frame.shape[0]*frame.shape[1]//2):
+                x = random.randint(0, frame.shape[0]-1)
+                y = random.randint(0, frame.shape[1]-1)
+                self.field[x][y] = True
+
+        if beat:
+            next_field = np.zeros(self.field.shape)
+            for x in range(next_field.shape[0]):
+                for y in range(next_field.shape[1]):
+                    count = 0 + self.get(self.field, x-1, y-1) + \
+                            self.get(self.field, x-1, y) + \
+                            self.get(self.field, x-1, y+1) + \
+                            self.get(self.field, x, y-1) + \
+                            self.get(self.field, x, y+1) + \
+                            self.get(self.field, x+1, y-1) + \
+                            self.get(self.field, x+1, y) + \
+                            self.get(self.field, x+1, y+1)
+                    if count == 3:
+                        next_field[x][y] = True
+                    elif count == 2:
+                        next_field[x][y] = self.field[x][y]
+                    else:
+                        next_field[x][y] = False
+            self.coords = list(zip(*np.where(next_field)))
+
+            if np.all(self.field == next_field):
+                self.field = None
+            else:
+                self.field = next_field
+        return super().apply(frame, delta, progression, beat)                    
+
+
 def down(w, h, x, y):
     return (0, -1)
 
@@ -194,7 +245,7 @@ class Milkdrop(core.Application):
                  [(x, self.SIZE[1]-1) for x in range(self.SIZE[0]-2, 0,-1)] + \
                  [(0, y) for y in range(self.SIZE[1]-1,0,-1)]
 
-        circle_big = [(3, 2), (4, 2), (5, 2), (6, 2), (7, 3), (8, 4), (9, 5), (9, 6), (9, 7), (9, 8), (8, 9), (7, 10), (6, 11), (5, 11), (4, 11), (3, 11), (2, 10), (1, 9), (0, 8), (0, 7), (0, 6), (0, 5), (1, 4), (2, 3)]
+        circle_big = [(3, 3), (4, 3), (5, 3), (6, 3), (7, 4), (8, 5), (9, 6), (9, 7), (9, 8), (9, 9), (8, 10), (7, 11), (6, 12), (5, 12), (4, 12), (3, 12), (2, 11), (1, 10), (0, 9), (0, 8), (0, 7), (0, 6), (1, 5), (2, 4)]
         circle_medium = [(4, 5), (5, 5), (6, 6), (7, 7), (7, 8), (6, 9), (5, 10), (4, 10), (3, 9), (2, 8), (2, 7), (3, 6)]
         circle_small = [(4, 6), (5, 6), (6, 7), (6, 8), (5, 9), (4, 9), (3, 8), (3, 7)]
 
@@ -253,7 +304,14 @@ class Milkdrop(core.Application):
                 portalIn,
                 Animation(npy_path="resources/animations/shuffle3.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
             ]),
-
+            Visualization([
+                Distorter(vect_fun=to_center, darken=0.5),
+                GameOfLife(),
+            ]),
+            Visualization([
+                Distorter(vect_fun=from_center ),
+                Drawer(color=AnimatedHSVColor()),
+            ]),
         ]
         """
         # Visualizations
