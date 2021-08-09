@@ -5,116 +5,104 @@ import time
 import numpy
 import cv2
 import random
+import math
 
-class Provider:
-    ENERGY = 0.5
-    def __init__(self, shape):
-        self.shape = shape
+class MilkdropValue():
+    def get_value(self, delta, progression, beat):
+        raise NotImplementedError("Please Implement this method!")
+
+class ConstantValue(MilkdropValue):
+    def __init__(self, value):
+        self.value = value
     
-    def get_frame(self, delta, progression, beat):
-        raise NotImplementedError("Please Implement this Method")
+    def get_value(self, delta, progression, beat):
+        return self.value
 
-class Blinker(Provider):
-    def __init__(self, *args, coords=[(5, 7)], **kwargs):
-        super().__init__(*args, **kwargs)
-        self.black = np.zeros(self.shape) 
-        self.coords = coords
-
-    def _get_frame(self, color):
-        out = self.black.copy()
-        for c in self.coords:
-            out[c] = color
-        return out
-
-    def get_frame(self, delta, progression, beat):
-        if beat == True:
-            return self._get_frame(WHITE)
-        else:
-            return self._get_frame(Color(1,1,1))
-
-class Blinker2(Blinker):
-    def __init__(self, *args, color=WHITE, fun=lambda x:(1-x)**2, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fun = fun
-        self.color = color
-
-    def get_frame(self, delta, progression, beat):
-        return self._get_frame(self.color*self.fun(progression))
-
-class ColorBlinker(Blinker2):
-    def __init__(self, *args, color_cycle=8, **kwargs):
-        super().__init__(*args, **kwargs)
+class AnimatedValue(MilkdropValue):
+    def __init__(self, *args, fun1=lambda x:x**2, fun2=lambda x:1-x, period=1, offset=0,**kwargs):
         self.beat_count = 0
-        self.color_cycle = color_cycle
-
-    def get_frame(self, delta, progression, beat):
+        self.fun1 = fun1
+        self.fun2 = fun2
+        self.period = period
+        self.offset = offset
+    
+    def get_value(self, delta, progression, beat):
         if beat:
-            self.beat_count = (self.beat_count + 1) % self.color_cycle
-        hue = (self.beat_count + progression) / self.color_cycle
-        color = Color.from_hsv(hue, 1, self.fun(progression))
-        return self._get_frame(color)
+            self.beat_count = (self.beat_count + 1) % self.period
+        return self.fun2((self.beat_count + self.fun1(progression)) / self.period)
 
-class RandomBlinker(Provider):
-    def __init__(self, blinker, *args, n_active=10, change_interval=4, **kwargs):
-        super().__init__(blinker.shape, *args, **kwargs)
-        self.blinker = blinker
-        self.change_interval = change_interval
-        self.n_active = n_active
-        self.all_coords = [(x,y) for x in range(self.shape[0]) for y in range(self.shape[1])]
-        self.blinker.coords = random.sample(self.all_coords, self.n_active)
+class AnimatedHSVColor():
+    def __init__(self, *args, h=AnimatedValue(period=8), s=ConstantValue(1), v=AnimatedValue(), **kwargs):
+        super().__init__(*args, **kwargs)
+        self.h = h
+        self.s = s
+        self.v = v
+
+    def get_value(self, delta, progression, beat):
+        return Color.from_hsv(
+            self.h.get_value(delta, progression, beat),
+            self.s.get_value(delta, progression, beat),
+            self.v.get_value(delta, progression, beat)
+        )
+
+class Content:
+    def apply(self, frame, delta, progression, beat):
+        raise NotImplementedError()
+
+class Drawer(Content):
+    def __init__(self, color=AnimatedHSVColor(), coords=[(5,7)], radius=1):
+        self.color = color
+        self.coords = coords
+        self.radius = radius
+        self.radius1 = math.floor(radius/2)
+        self.radius2 = math.ceil(radius/2)
+    
+    def apply(self, frame, delta, progression, beat):
+        color = self.color.get_value(delta, progression, beat)
+        for x, y in self.coords:
+            frame[max(0, x-self.radius1):min(frame.shape[0], x+self.radius2),
+                  max(0, y-self.radius1):min(frame.shape[1], y+self.radius2)] = color
+        return frame
+
+class RandomDrawer(Drawer):
+    def __init__(self, *args, period=4, particles=10, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.period = period
+        self.particles = particles
         self.beat_count = 0
 
-    def get_frame(self, delta, progression, beat):
+    def apply(self, frame, delta, progression, beat):
         if beat:
             self.beat_count += 1
-        if self.beat_count >= self.change_interval:
-            self.beat_count -= self.change_interval
-            self.blinker.coords = random.sample(self.all_coords, self.n_active)
-        return self.blinker.get_frame(delta, progression, beat)
+            if self.beat_count % self.period == 0:
+                self.coords = [(random.randint(0,frame.shape[0]-1), random.randint(0,frame.shape[1]-1)) for _ in range(self.particles)]
+        return super().apply(frame, delta, progression, beat)
 
-class Particles(Provider):
-    def __init__(self, *args, path=[(5, 7)], n_particles = 2, fun=lambda x:(1-x)**2, speed=1, radius=2, color_cycle=8, **kwargs):
+class Particles(Drawer):
+    def __init__(self, *args, path=[(5, 7)], particles=10, position=AnimatedValue(period=4), **kwargs):
         super().__init__(*args, **kwargs)
         self.path = path
-        self.fun=fun
-        self.n_particles = n_particles
-        self.ticker = animations.Ticker(speed)
-        self.black = np.zeros(self.shape) 
-        self.radius = radius
-        self.color_cycle = color_cycle
-        self.beat_count = 0
+        self.particles = particles
+        self.position = position
     
-    def get_frame(self, delta, progression, beat):
-        self.ticker.tick(delta * (1 - progression))
+    def apply(self, frame, delta, progression, beat):
+        pos = self.position.get_value(delta, progression, beat)
+        color = self.color.get_value(delta, progression, beat)
+        self.coords = [self.path[int((pos + i/self.particles) * len(self.path)) % len(self.path)] for i in range(self.particles)]
+        return super().apply(frame, delta, progression, beat)
 
-        if beat:
-            self.beat_count = (self.beat_count + 1) % self.color_cycle
-
-
-        out = self.black.copy()
-        #for coord in self.path:
-        #    out[coord] = Color(1,1,1)
-
-        for i in range(self.n_particles):
-            prog = self.ticker.progression + i/self.n_particles
-            prog -= int(prog)
-            index = int(prog * len(self.path))
-            hue = (self.beat_count + progression) / self.color_cycle
-            hue = hue - int(hue)
-            x, y = self.path[index]
-            for px in range(x, x+self.radius):
-                for py in range(y, y+self.radius):
-                    px = max(0, min(self.shape[0]-1, px))
-                    py = max(0, min(self.shape[1]-1, py))
-                    out[px, py] = Color.from_hsv(hue, 1, self.fun(progression))
-        return out
-
-class Distorter:
-    ENERGY = 0.5
-
-    def __init__(self, shape, speed=10):
-        self.shape = shape
-        self.ticker = animations.Ticker(speed)
+class Animation(Drawer):
+    def __init__(self, *args, driver=AnimatedValue(fun1=lambda x:x), npy_path=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        animation = np.load(npy_path)
+        self.frame_coords = [list(zip(*reversed(np.where(frame)))) for frame in animation]
+        self.animation_length = len(animation)
+        self.driver = driver
+    
+    def apply(self, frame, delta, progression, beat):
+        idx = int(self.driver.get_value(delta, progression, beat) * self.animation_length)
+        self.coords = self.frame_coords[idx%self.animation_length]
+        return super().apply(frame, delta, progression, beat)
 
 def down(w, h, x, y):
     return (0, -1)
@@ -122,6 +110,9 @@ def down(w, h, x, y):
 def up(w, h, x, y):
     return (0, 1)
 
+def up_wave(w, h, x, y):
+    return (y%3-1, 1)
+    
 def to_center(w, h, x, y):
     return -(w/2-x), -(h/2-y)
 
@@ -131,43 +122,56 @@ def from_center(w, h, x, y):
 def swirl(w, h, x, y):
     return h/2 - y, x - w/2
 
-class Wave(Distorter):
-    def __init__(self, *args, speed=6, pred=to_center, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.cx = self.shape[0]//2
-        self.cy = self.shape[1]//2
+class Distorter(Content):
+    def __init__(self, shape=(10,15), speed=6, vect_fun=to_center, darken=0):
         self.speed = speed
-        
-        self.pred_map = {}
-        for x in range(self.shape[0]):
-            for y in range(self.shape[1]):
-                self.pred_map[(x, y)] = pred(self.shape[0], self.shape[1], x, y)
+        self.vectors = [[vect_fun(*shape, x, y) for y in range(shape[1])] for x in range(shape[0])]
+        self.darken = darken
+    
+    def apply(self, frame, delta, progression, beat):
+        darkened = frame * (1 - self.darken)
+        out = darkened.copy()
 
-    def distort(self, delta, last_frame, frame, progression, beat):
-        cx = self.shape[0]//2
-        cy = self.shape[1]//2
-
-
-        out = last_frame.copy()
-
-        for x in range(self.shape[0]):
-            for y in range(self.shape[1]):            
-                vx, vy = self.pred_map[(x, y)]
+        for x in range(out.shape[0]):
+            for y in range(out.shape[1]):      
+                vx, vy = self.vectors[x][y]
                 px = x + vx * self.speed * delta
                 py = y + vy * self.speed * delta
-                c = bitmaputils.getAntialiasedColor(last_frame, (px, py))
-                out[x, y] = bitmaputils.getAntialiasedColor(last_frame, (px, py))
-
-        nonzero_coords = np.where(np.any(frame != [0, 0, 0], axis=2))
-        out[nonzero_coords] = frame[nonzero_coords]   
-
+                out[x, y] = bitmaputils.getAntialiasedColor(darkened, (px, py))
+        
         return out
 
 class Visualization:
-    def __init__(self, provider, distorter, energy=0.5):
-        self.provider = provider
-        self.distorter = distorter
+    def __init__(self, effects=[], energy=0.5):
+        self.effects = effects
         self.energy = energy
+    
+    def apply(self, frame, delta, progression, beat):
+        for effect in self.effects:
+            frame = effect.apply(frame, delta, progression, beat)
+        return frame
+
+class FrameHolder:
+    def __init__(self):
+        self.frame = None
+
+class PortalIn(Content):
+    def __init__(self, frameHolder):
+        self.frameHolder = frameHolder
+
+    def apply(self, frame, delta, progression, beat):
+        self.frameHolder.frame = frame.copy()
+        return frame
+
+class PortalOut(Content):
+    def __init__(self, frameHolder):
+        self.frameHolder = frameHolder
+
+    def apply(self, frame, delta, progression, beat):
+        if self.frameHolder.frame is not None:
+            return self.frameHolder.frame
+        else:
+            return frame
 
 class Milkdrop(core.Application):
     ENERGY_GRANULARITY = 10
@@ -190,41 +194,97 @@ class Milkdrop(core.Application):
                  [(x, self.SIZE[1]-1) for x in range(self.SIZE[0]-2, 0,-1)] + \
                  [(0, y) for y in range(self.SIZE[1]-1,0,-1)]
 
+        circle_big = [(3, 2), (4, 2), (5, 2), (6, 2), (7, 3), (8, 4), (9, 5), (9, 6), (9, 7), (9, 8), (8, 9), (7, 10), (6, 11), (5, 11), (4, 11), (3, 11), (2, 10), (1, 9), (0, 8), (0, 7), (0, 6), (0, 5), (1, 4), (2, 3)]
+        circle_medium = [(4, 5), (5, 5), (6, 6), (7, 7), (7, 8), (6, 9), (5, 10), (4, 10), (3, 9), (2, 8), (2, 7), (3, 6)]
+        circle_small = [(4, 6), (5, 6), (6, 7), (6, 8), (5, 9), (4, 9), (3, 8), (3, 7)]
+
         all_coords = [(x, y) for x in range(self.SIZE[0]) for y in range(self.SIZE[1])]
         shape = (*self.SIZE, 3)
         self.last_frame = np.zeros(shape)
 
+        frameHolder = FrameHolder()
+        portalIn = PortalIn(frameHolder)
+        portalOut = PortalOut(frameHolder)
+
         # Visualizations
         self.visualizations = [
-            Visualization(
-                ColorBlinker(shape, coords = edge),
-                Wave(shape, pred=to_center)),
-            Visualization(
-                RandomBlinker(ColorBlinker(shape, coords = edge), change_interval=1),
-                Wave(shape, pred=swirl)),
-            Visualization(
-                Particles(shape, path=edge, n_particles=4),
-                Wave(shape, pred=to_center, speed=2)),
-            Visualization(
-                RandomBlinker(Blinker(shape), n_active=50),
-                Wave(shape, pred=from_center)),
-            Visualization(
-                Particles(shape, path=all_coords, n_particles=16, speed=0.1, radius=1),
-                Wave(shape, pred=up, speed=2)),
-            Visualization(
-                Particles(shape, path=all_coords, n_particles=16, speed=0.2, radius=1),
-                Wave(shape, pred=from_center, speed=2)),
-            Visualization(
-                RandomBlinker(Blinker2(shape, color=BLUE), n_active=10, change_interval=1),
-                Wave(shape, pred=down)),
+            Visualization([
+                Distorter(),
+                Drawer(coords=edge, color=AnimatedHSVColor()),
+            ]),
+            Visualization([
+                Distorter(vect_fun=swirl),
+                RandomDrawer(period=1),
+            ]),
+            Visualization([
+                Distorter(vect_fun=to_center),
+                Particles(path=edge, particles=5, radius=3, position=AnimatedValue(period=8)),
+            ]),
+            Visualization([
+                Distorter(vect_fun=from_center),
+                RandomDrawer(period=1, particles=50, color=AnimatedHSVColor(h=ConstantValue(0), s=ConstantValue(0), v=AnimatedValue(fun1=lambda x:0 if x < 0.1 else 1))),
+            ]),
+            Visualization([
+                Distorter(vect_fun=up),
+                Particles(path=all_coords, particles=16, position=AnimatedValue(period=50)),
+            ]),
+            Visualization([
+                Distorter(vect_fun=down),
+                RandomDrawer(period=1, particles=10, color=AnimatedHSVColor(h=ConstantValue(0.6), s=ConstantValue(1))),
+            ]),
+            Visualization([
+                portalOut,
+                Animation(npy_path="resources/animations/shuffle1.npy", driver=AnimatedValue(fun1=lambda x:1-x), color=AnimatedHSVColor(v=ConstantValue(1))),
+                Distorter(vect_fun=from_center, darken=0.2),
+                portalIn,
+                Animation(npy_path="resources/animations/shuffle1.npy", driver=AnimatedValue(fun1=lambda x:1-x), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
+            ]),
+            Visualization([
+                portalOut,
+                Animation(npy_path="resources/animations/shuffle2-2.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(v=ConstantValue(1))),
+                Distorter(vect_fun=from_center, darken=0.2),
+                portalIn,
+                Animation(npy_path="resources/animations/shuffle2-2.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
+            ]),
+            Visualization([
+                portalOut,
+                Animation(npy_path="resources/animations/shuffle3.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(v=ConstantValue(1))),
+                Distorter(vect_fun=from_center, darken=0.2),
+                portalIn,
+                Animation(npy_path="resources/animations/shuffle3.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
+            ]),
+
+        ]
+        """
+        # Visualizations
+        self.visualizations = [
             Visualization(
                 ColorBlinker(shape, coords = center),
                 Wave(shape, pred=from_center)),
             Visualization(
                 Blinker2(shape, coords = center, fun=lambda x:(1-x)**4),
                 Wave(shape, pred=from_center)),
+            Visualization(
+                Particles(shape, path=circle_big, n_particles=2, radius=2, speed=-1, fun=lambda x:1-(0.1+0.9*x)**2),
+                Wave(shape, pred=to_center, speed=2)),
+            Visualization(
+                Particles(shape, path=circle_small, n_particles=2, radius=1, speed=0.5),
+                Wave(shape, pred=from_center, speed=1)),
+            Visualization(
+                Animation("resources/animations/shuffle1.npy", shape, fun=lambda x:(0.5+0.5*(1-x))**2),
+                Wave(shape, pred=from_center, darken=0.4, speed=1)),
+            Visualization(
+                Animation("resources/animations/shuffle2.npy", shape, animation_cycle=2, fun=lambda x:(0.5+0.5*(1-x))**2),
+                Wave(shape, pred=from_center, darken=0.4, speed=1)),
+            Visualization(
+                Animation("resources/animations/shuffle3.npy", shape, animation_cycle=2, fun=lambda x:(0.5+0.5*(1-x))**2),
+                Wave(shape, pred=from_center, darken=0.4, speed=1)),
+            Visualization(
+                RandomBlinker(Blinker2(shape, color=Color(255, 100, 0)), n_active=10, change_interval=1),
+                Wave(shape, pred=up_wave, speed=4)),
 
         ]
+        """
         self.visualization_index = len(self.visualizations) - 1
 
     def update(self, io, delta):
@@ -279,7 +339,5 @@ class Milkdrop(core.Application):
 
         progression = (now - self.last_beats[0]) / self.beat_duration
         viz = self.visualizations[self.visualization_index]
-        animation = viz.provider.get_frame(delta, progression, self.beat)
-        distorted = viz.distorter.distort(delta, self.last_frame, animation, progression, self.beat)
-        self.last_frame = distorted
-        io.display.pixels = distorted
+        self.last_frame = viz.apply(self.last_frame, delta, progression, self.beat)
+        io.display.pixels = self.last_frame
