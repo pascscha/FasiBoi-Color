@@ -191,16 +191,39 @@ class Distorter(Content):
                 out[x, y] = bitmaputils.getAntialiasedColor(darkened, (px, py))
         
         return out
+    
 
 class Visualization:
-    def __init__(self, effects=[], energy=0.5):
+    REPEAT_TIME=30
+    def __init__(self, effects=[], name=None,  min_bpm=None, max_bpm=None, energy=0.5):
+        self.name = name
         self.effects = effects
+        self.min_bpm = min_bpm
+        self.max_bpm = max_bpm
         self.energy = energy
+        self.last_applied = time.time()-self.REPEAT_TIME
     
     def apply(self, frame, delta, progression, beat):
+        self.last_applied = time.time()
         for effect in self.effects:
             frame = effect.apply(frame, delta, progression, beat)
         return frame
+
+    @staticmethod
+    def gaussian(x, height=1, center=0, deviation=1):
+        return height * math.exp(-(x-center)**2 / (2*deviation**2))
+
+    def is_fitting(self, bpm, energy):
+        if self.min_bpm is not None and bpm < self.min_bpm:
+            return 0
+        elif self.max_bpm is not None and bpm > self.max_bpm:
+            return 0
+
+        now = time.time()
+        energy_fit = self.gaussian(self.energy, center=energy, deviation=0.3)
+        time_fit = 1-self.gaussian(now, center=self.last_applied, deviation=self.REPEAT_TIME)
+        print(f"{str(self.name):>20} {energy_fit * time_fit:.2f} (e: {energy_fit:.2f}, t: {time_fit:.2f})")
+        return energy_fit * time_fit
 
 class FrameHolder:
     def __init__(self):
@@ -234,6 +257,8 @@ class Milkdrop(core.Application):
         self.beat_duration = 0.5
         self.energy = 0.5
         now = time.time()
+        self.beat_count = 0
+        self.last_change = 0
         self.beat = False
         self.last_click = now
         self.last_beats = [now - i*self.beat_duration for i in range(self.BEAT_MEMORY_SIZE)]
@@ -259,91 +284,91 @@ class Milkdrop(core.Application):
 
         # Visualizations
         self.visualizations = [
-            Visualization([
-                Distorter(),
-                Drawer(coords=edge, color=AnimatedHSVColor()),
-            ]),
-            Visualization([
-                Distorter(vect_fun=swirl),
-                RandomDrawer(period=1),
-            ]),
-            Visualization([
+            Visualization(name="Tunnel",
+                energy=0.8,
+                effects = [
+                    Distorter(),
+                    Drawer(coords=edge, color=AnimatedHSVColor()),
+                ]),
+            Visualization(name="Galaxy", max_bpm=200,
+                energy=0.2,
+                effects = [
+                    Distorter(vect_fun=swirl),
+                    RandomDrawer(period=1),
+                ]),
+            Visualization(name="Stage Lights",
+            energy=0.6,
+            effects = [
                 Distorter(vect_fun=to_center),
                 Particles(path=edge, particles=5, radius=3, position=AnimatedValue(period=8)),
             ]),
-            Visualization([
-                Distorter(vect_fun=from_center),
-                RandomDrawer(period=1, particles=50, color=AnimatedHSVColor(h=ConstantValue(0), s=ConstantValue(0), v=AnimatedValue(fun1=lambda x:0 if x < 0.1 else 1))),
-            ]),
-            Visualization([
-                Distorter(vect_fun=up),
-                Particles(path=all_coords, particles=16, position=AnimatedValue(period=50)),
-            ]),
-            Visualization([
-                Distorter(vect_fun=down),
-                RandomDrawer(period=1, particles=10, color=AnimatedHSVColor(h=ConstantValue(0.6), s=ConstantValue(1))),
-            ]),
-            Visualization([
-                portalOut,
-                Animation(npy_path="resources/animations/shuffle1.npy", driver=AnimatedValue(fun1=lambda x:1-x), color=AnimatedHSVColor(v=ConstantValue(1))),
-                Distorter(vect_fun=from_center, darken=0.2),
-                portalIn,
-                Animation(npy_path="resources/animations/shuffle1.npy", driver=AnimatedValue(fun1=lambda x:1-x), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
-            ]),
-            Visualization([
-                portalOut,
-                Animation(npy_path="resources/animations/shuffle2-2.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(v=ConstantValue(1))),
-                Distorter(vect_fun=from_center, darken=0.2),
-                portalIn,
-                Animation(npy_path="resources/animations/shuffle2-2.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
-            ]),
-            Visualization([
-                portalOut,
-                Animation(npy_path="resources/animations/shuffle3.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(v=ConstantValue(1))),
-                Distorter(vect_fun=from_center, darken=0.2),
-                portalIn,
-                Animation(npy_path="resources/animations/shuffle3.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
-            ]),
-            Visualization([
-                Distorter(vect_fun=to_center, darken=0.5),
-                GameOfLife(),
-            ]),
-            Visualization([
-                Distorter(vect_fun=from_center ),
-                Drawer(color=AnimatedHSVColor()),
-            ]),
+            Visualization(name="Thunderstorm",
+                energy=1,
+                effects = [
+                    Distorter(vect_fun=from_center),
+                    RandomDrawer(period=1, particles=50, color=AnimatedHSVColor(h=ConstantValue(0), s=ConstantValue(0), v=AnimatedValue(fun1=lambda x:0 if x < 0.1 else 1))),
+                ]),
+            Visualization(name="Woven Colors",
+                energy=0.2,
+                effects = [
+                    Distorter(vect_fun=up),
+                    Particles(path=all_coords, particles=16, position=AnimatedValue(period=50)),
+                ]),
+            Visualization(name="Rain",
+                energy=0.1,
+                effects = [
+                    Distorter(vect_fun=down),
+                    RandomDrawer(period=1, particles=10, color=AnimatedHSVColor(h=ConstantValue(0.6), s=ConstantValue(1))),
+                ]),
+            Visualization(name="Shuffle 1", min_bpm=30, max_bpm=180,
+                energy=0.8,
+                effects = [
+                    portalOut,
+                    Animation(npy_path="resources/animations/shuffle1.npy", driver=AnimatedValue(fun1=lambda x:1-x), color=AnimatedHSVColor(v=ConstantValue(1))),
+                    Distorter(vect_fun=from_center, darken=0.2),
+                    portalIn,
+                    Animation(npy_path="resources/animations/shuffle1.npy", driver=AnimatedValue(fun1=lambda x:1-x), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
+                ]),
+            Visualization(name="Shuffle 2", min_bpm=30, max_bpm=180,
+                energy=0.8,
+                effects = [
+                    portalOut,
+                    Animation(npy_path="resources/animations/shuffle2-2.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(v=ConstantValue(1))),
+                    Distorter(vect_fun=from_center, darken=0.2),
+                    portalIn,
+                    Animation(npy_path="resources/animations/shuffle2-2.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
+                ]),
+            Visualization(name="Shuffle 3", min_bpm=30, max_bpm=180,
+                energy=0.8,
+                effects = [
+                    portalOut,
+                    Animation(npy_path="resources/animations/shuffle3.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(v=ConstantValue(1))),
+                    Distorter(vect_fun=from_center, darken=0.2),
+                    portalIn,
+                    Animation(npy_path="resources/animations/shuffle3.npy", driver=AnimatedValue(fun1=lambda x:1-x, period=2), color=AnimatedHSVColor(h=ConstantValue(1), s=ConstantValue(0), v=ConstantValue(1))),
+                ]),
+            Visualization(name="Game of Life",
+                effects = [
+                    Distorter(vect_fun=to_center, darken=0.5),
+                    GameOfLife(),
+                ]),
+            Visualization(name="Color Wave", max_bpm=180,
+                energy=0.4,
+                effects=[
+                    Distorter(vect_fun=from_center ),
+                    Drawer(color=AnimatedHSVColor()),
+                ]),
         ]
-        """
-        # Visualizations
-        self.visualizations = [
-            Visualization(
-                ColorBlinker(shape, coords = center),
-                Wave(shape, pred=from_center)),
-            Visualization(
-                Blinker2(shape, coords = center, fun=lambda x:(1-x)**4),
-                Wave(shape, pred=from_center)),
-            Visualization(
-                Particles(shape, path=circle_big, n_particles=2, radius=2, speed=-1, fun=lambda x:1-(0.1+0.9*x)**2),
-                Wave(shape, pred=to_center, speed=2)),
-            Visualization(
-                Particles(shape, path=circle_small, n_particles=2, radius=1, speed=0.5),
-                Wave(shape, pred=from_center, speed=1)),
-            Visualization(
-                Animation("resources/animations/shuffle1.npy", shape, fun=lambda x:(0.5+0.5*(1-x))**2),
-                Wave(shape, pred=from_center, darken=0.4, speed=1)),
-            Visualization(
-                Animation("resources/animations/shuffle2.npy", shape, animation_cycle=2, fun=lambda x:(0.5+0.5*(1-x))**2),
-                Wave(shape, pred=from_center, darken=0.4, speed=1)),
-            Visualization(
-                Animation("resources/animations/shuffle3.npy", shape, animation_cycle=2, fun=lambda x:(0.5+0.5*(1-x))**2),
-                Wave(shape, pred=from_center, darken=0.4, speed=1)),
-            Visualization(
-                RandomBlinker(Blinker2(shape, color=Color(255, 100, 0)), n_active=10, change_interval=1),
-                Wave(shape, pred=up_wave, speed=4)),
-
-        ]
-        """
         self.visualization_index = len(self.visualizations) - 1
+
+    def next_visualization(self):
+        bpm = 60 / self.beat_duration
+        probabilities = [vis.is_fitting(bpm, self.energy) for vis in self.visualizations]
+        idx = random.choices(range(len(self.visualizations)), weights=probabilities)[0]
+        print(f"Chosen {self.visualizations[idx].name}")
+        self.visualization_index = idx
+        self.last_change = self.beat_count
+
 
     def update(self, io, delta):
         if io.controller.up.get_fresh_value() == False:
@@ -360,7 +385,7 @@ class Milkdrop(core.Application):
 
 
         if io.controller.b.get_fresh_value() == True:
-            self.visualization_index = random.randint(0, len(self.visualizations)-1)
+            self.next_visualization()
 
         now = time.time()
 
@@ -394,7 +419,14 @@ class Milkdrop(core.Application):
                 self.last_beats = [self.last_beats[0] + self.beat_duration] + self.last_beats[:self.BEAT_MEMORY_SIZE - 1]
             else:
                 self.beat = False
+        if self.beat:
+            self.beat_count += 1
+        
+        beats_since_change = self.beat_count - self.last_change
+        if beats_since_change != 0 and beats_since_change % 16 == 0:
+            self.next_visualization()
 
+        print(f"\r{60/self.beat_duration:.2f} BPM ({self.beat_duration:.2f} s)", end="    ")
         progression = (now - self.last_beats[0]) / self.beat_duration
         viz = self.visualizations[self.visualization_index]
         self.last_frame = viz.apply(self.last_frame, delta, progression, self.beat)
