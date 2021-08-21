@@ -216,9 +216,9 @@ class AIPlayer(Strategy):
                 time_left = finish_time - time.time()
                 move = AlphaBeta(d, time_left)(self.color, field)
             except TimeoutError as e:
-                print("AI ran out of time at depth", d)
+                #print("AI ran out of time at depth", d)
                 return move
-        print("AI finished analysis with depth", d, self.max_depth, move)
+        #print("AI finished analysis with depth", d, self.max_depth, move)
         return move
 
     def make_move(self, io, delta, field, left, top):
@@ -312,19 +312,24 @@ class StrategyGame(core.Game):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.player1 = None
-        
+        self.player2 = None
+
         self.player1Choice = SlidingChoice([
             Choice("Hu", WHITE, Applyer(self, HumanPlayer(BitField.COLOR1)))
             ] + [Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR1))) for name, (color, t, d) in self.DIFFICULTIES.items()]
             , 8)
 
-        self.player2 = None
         self.player2Choice = SlidingChoice([
             Choice("Hu", WHITE, Applyer(self, HumanPlayer(BitField.COLOR2)))
             ] + [Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR2))) for name, (color, t, d) in self.DIFFICULTIES.items()]
             , 8)
-        
+        self.reset()
+
+    def reset(self):
+        self.player1 = None
+        self.player2 = None
         self.field = None
         self.active_color = BitField.COLOR1
         self.border_ticker = animations.Ticker(0.1)
@@ -364,6 +369,7 @@ class StrategyGame(core.Game):
         # Switch players if active player cannot move
         if len(list(self.field.possible_moves(self.active_color))) == 0:
             self.active_color = self.field.other(self.active_color)
+            self.border_color.set_value(self.COLOR_MAP[self.active_color])
             if len(list(self.field.possible_moves(self.active_color))) == 0:
                 self.state = self.GAME_OVER
                 return
@@ -387,6 +393,7 @@ class StrategyGame(core.Game):
 
     def _update_gameover(self, io, delta):
         if io.controller.a.get_fresh_value() == False:
+            self.reset()
             self.state = self.PRE_GAME
             self.field = None
             self.player1 = None

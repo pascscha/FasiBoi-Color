@@ -128,8 +128,8 @@ class Frat(core.Game):
                 self.border_color.set_value(Color(0, 255, 0))
                 for x in range(8):
                     for y in range(8):
-                        self.gameover_blinker[x][y].color1 = self.COLOR_MAP[self.field[x][y]]
-                        self.gameover_blinker[x][y].color2 = self.COLOR_MAP[self.solution[x][y]]
+                        self.gameover_blinker[x][y].value1 = self.COLOR_MAP[self.field[x][y]]
+                        self.gameover_blinker[x][y].value2 = self.COLOR_MAP[self.solution[x][y]]
                         if self.field[x][y] != self.solution[x][y]:
                             self.score = self.DEFAULT_SCORE
                             self.border_color.set_value(Color(255, 0, 0))
@@ -156,9 +156,9 @@ class Frat(core.Game):
                         blinker = self.guess_blinker[dx + 2*dy]
 
                     if self.field[x][y] == 0:
-                        blinker.color2 = Color(255, 255, 255)
+                        blinker.value2 = Color(255, 255, 255)
                     else:
-                        blinker.color2 = self.COLOR_MAP[self.field[x][y]]
+                        blinker.value2 = self.COLOR_MAP[self.field[x][y]]
                     color = blinker.tick(delta)
                 else:
                     if self.field[x][y] == 0:

@@ -88,7 +88,7 @@ class ReversiField(alphabeta.BitField):
                 238 * len(self.possible_moves(player)) + \
                 -166 * self.count_bits(bits & 0x4281000000008142) + \
                 -401 * self.count_bits(bits & 0x42000000004200) + \
-                -26 * self.count1
+                -26 * count
 
 
     @staticmethod
