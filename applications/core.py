@@ -14,13 +14,13 @@ class Application:
 
         if color is None:
             hue = int(hashlib.md5(self.name.encode()).hexdigest(), 16) % 255
-            self.color = tuple(
-                map(lambda x: int(x*255), colorsys.hsv_to_rgb(hue/255, 1, 1)))
+            self.color = tuple(map(lambda x: int(x * 255),
+                                   colorsys.hsv_to_rgb(hue / 255, 1, 1)))
         else:
             self.color = color
 
         self.save_path = os.path.join(
-            "resources", "appdata", self.name.replace(" ", "_")+".json")
+            "resources", "appdata", self.name.replace(" ", "_") + ".json")
 
     def load_data(self):
         """Loads application data from disk. The filename is automatically generated based on the application name.

@@ -2,17 +2,19 @@ from applications import core
 from helpers import textutils, bitmaputils
 import colorsys
 
+
 class Game(core.Application):
     PRE_GAME = 0
     MID_GAME = 1
     GAME_OVER = 2
 
-    DEFAULT_SCORE=0
-    MISERE=False
+    DEFAULT_SCORE = 0
+    MISERE = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.highscore = self.load_value("highscore", default=self.DEFAULT_SCORE)
+        self.highscore = self.load_value(
+            "highscore", default=self.DEFAULT_SCORE)
         self.score = None
 
         # The state of the game, used for the STATE machine
@@ -69,9 +71,18 @@ class Game(core.Application):
                 bitmaputils.applyBitmap(
                     highscore_bmp,
                     io.display,
-                    (io.display.width//2 -
-                     highscore_bmp.shape[1]//2, io.display.height//2-highscore_bmp.shape[0]//2),
-                    fg_color=(255, 255, 255))
+                    (io.display.width //
+                     2 -
+                     highscore_bmp.shape[1] //
+                     2,
+                     io.display.height //
+                     2 -
+                     highscore_bmp.shape[0] //
+                     2),
+                    fg_color=(
+                        255,
+                        255,
+                        255))
             else:
                 # Otherwise also show last score
                 score_bmp = textutils.getTextBitmap(str(self.score))
@@ -80,16 +91,24 @@ class Game(core.Application):
                 bitmaputils.applyBitmap(
                     highscore_bmp,
                     io.display,
-                    (io.display.width//2 -
-                     highscore_bmp.shape[1]//2, 4-highscore_bmp.shape[0]//2),
-                    fg_color=(255, 255, 0))
+                    (io.display.width //
+                     2 -
+                     highscore_bmp.shape[1] //
+                     2,
+                     4 -
+                     highscore_bmp.shape[0] //
+                     2),
+                    fg_color=(
+                        255,
+                        255,
+                        0))
 
                 # Make color rainbow if its a new highscore
                 if self.score == self.highscore:
                     score_hue = self.pulse_progression - \
                         int(self.pulse_progression)
                     score_color = tuple(
-                        map(lambda x: int(x*255), colorsys.hsv_to_rgb(score_hue, 1, 1)))
+                        map(lambda x: int(x * 255), colorsys.hsv_to_rgb(score_hue, 1, 1)))
                 else:
                     score_color = (0, 0, 255)
 
@@ -97,8 +116,8 @@ class Game(core.Application):
                 bitmaputils.applyBitmap(
                     score_bmp,
                     io.display,
-                    (io.display.width//2 -
-                     score_bmp.shape[1]//2, 10-score_bmp.shape[0]//2),
+                    (io.display.width // 2 -
+                     score_bmp.shape[1] // 2, 10 - score_bmp.shape[0] // 2),
                     fg_color=score_color)
 
     def _update_midgame(self, io, delta):
@@ -111,7 +130,7 @@ class Game(core.Application):
         raise NotImplementedError("Please Implement this Method!")
 
     def _update_gameover(self, io, delta):
-        """The screen shown when the game is over. Put death animations here. If 
+        """The screen shown when the game is over. Put death animations here. If
         this method is not implemented it will automatically go to the pregame screen.
 
         Args:

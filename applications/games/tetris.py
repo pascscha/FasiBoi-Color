@@ -58,7 +58,8 @@ class TetrominoList():
 
     def __init__(self):
         self.tetlist = []
-        for tet, (idx, color) in zip([self.I, self.O, self.L, self.J, self.T, self.Z, self.S], enumerate(self.COLORS)):
+        for tet, (idx, color) in zip(
+                [self.I, self.O, self.L, self.J, self.T, self.Z, self.S], enumerate(self.COLORS)):
             self.tetlist.append(Tetromino(tet, idx))
 
     def sample(self):
@@ -77,7 +78,7 @@ class Tetris(core.Game):
         self.tl = TetrominoList()
 
     def reset(self, io):
-        self.gb = np.ones((10, 18))*self.BG
+        self.gb = np.ones((10, 18)) * self.BG
         self.gb_shape = (10, 15)
         self.score = 0
         self.game_over_counter = 0
@@ -85,11 +86,12 @@ class Tetris(core.Game):
         self.tetromino = self.tl.sample()
         self.curr_rot = 0
         self.curr_pos_x, self.curr_pos_y = self.tetromino.get_rotation(0)
-        self.curr_shift_y = 3-max(self.curr_pos_y)
+        self.curr_shift_y = 3 - max(self.curr_pos_y)
         self.curr_shift_x = 3
         self.curr_pos_x += self.curr_shift_x
 
-        # Set speed and progression of Tetrominos. Progression accumulates the time that has passed since last movement.
+        # Set speed and progression of Tetrominos. Progression accumulates the
+        # time that has passed since last movement.
         self.ticker = animations.Ticker(3)
         self.move_ticker = animations.Ticker(12)
 
@@ -104,7 +106,10 @@ class Tetris(core.Game):
 
         if io.controller.left.get_value():
             d = self.LEFT[0]
-            if self.check(self.curr_pos_x+d, self.curr_pos_y, io) or pressed_l:
+            if self.check(
+                    self.curr_pos_x + d,
+                    self.curr_pos_y,
+                    io) or pressed_l:
                 if self.move_ticker.tick(delta):
                     self.curr_pos_x += d
                     self.curr_shift_x += d
@@ -113,7 +118,10 @@ class Tetris(core.Game):
                     pressed_l = True
         if io.controller.right.get_value():
             d = self.RIGHT[0]
-            if self.check(self.curr_pos_x+d, self.curr_pos_y, io) or pressed_r:
+            if self.check(
+                    self.curr_pos_x + d,
+                    self.curr_pos_y,
+                    io) or pressed_r:
                 if self.move_ticker.tick(delta):
                     self.curr_pos_x += d
                     self.curr_shift_x += d
@@ -122,7 +130,10 @@ class Tetris(core.Game):
                     pressed_r = True
         if io.controller.down.get_value():
             d = self.DOWN[1]
-            if self.check(self.curr_pos_x, self.curr_pos_y+d, io) or pressed_d:
+            if self.check(
+                    self.curr_pos_x,
+                    self.curr_pos_y + d,
+                    io) or pressed_d:
                 if self.move_ticker.tick(delta):
                     self.curr_pos_y += d
                     self.curr_shift_y += d
@@ -132,8 +143,8 @@ class Tetris(core.Game):
         if io.controller.a.get_fresh_value() == False:
             self.curr_rot = (self.curr_rot - 1) % self.tetromino.nrot
             new_pos_x, new_pos_y = self.tetromino.get_rotation(self.curr_rot)
-            new_pos_x += self.curr_shift_x-int(np.median(new_pos_x))
-            new_pos_y += self.curr_shift_y-int(np.median(new_pos_y))
+            new_pos_x += self.curr_shift_x - int(np.median(new_pos_x))
+            new_pos_y += self.curr_shift_y - int(np.median(new_pos_y))
             shift_x = 0
             while min(new_pos_x) < 0:
                 new_pos_x += 1
@@ -151,7 +162,7 @@ class Tetris(core.Game):
         # Move the Tetromino down if the time is ready
         if self.ticker.tick(delta):
             d = self.DOWN[1]
-            if self.check(self.curr_pos_x, self.curr_pos_y+d, io):
+            if self.check(self.curr_pos_x, self.curr_pos_y + d, io):
                 self.curr_pos_y += d
                 self.curr_shift_y += d
                 self.gb[self.curr_pos_x,
@@ -167,7 +178,7 @@ class Tetris(core.Game):
 
         # Draw Gameboard
         for x, y in np.ndindex(self.gb_shape):
-            io.display.update(x, y, self.tl.COLORS[int(self.gb[x, y+3])])
+            io.display.update(x, y, self.tl.COLORS[int(self.gb[x, y + 3])])
 
     def _update_gameover(self, io, delta):
         self.ticker.speed = 6
@@ -176,7 +187,7 @@ class Tetris(core.Game):
         if self.ticker.tick(delta):
             for x, y in np.ndindex(self.gb_shape):
                 col = self.tl.COLOR_B
-                if self.gb[x, y+3] != self.BG:
+                if self.gb[x, y + 3] != self.BG:
                     col = self.tl.COLOR_G
                 io.display.update(x, y, col)
             self.shift_rows(self.game_over_counter)
@@ -186,7 +197,7 @@ class Tetris(core.Game):
         for x, y in zip(new_x, new_y):
             if x >= io.display.width or x < 0:
                 return False
-            if y >= io.display.height+3 or y < 0:
+            if y >= io.display.height + 3 or y < 0:
                 return False
             if self.gb[x, y] != self.BG:
                 return False
@@ -208,7 +219,7 @@ class Tetris(core.Game):
         to_delete = list(to_delete[0])
         for idx in to_delete:
             self.shift_rows(idx, io)
-        self.score += 2**len(to_delete)-1
+        self.score += 2**len(to_delete) - 1
 
     def shift_rows(self, idx, io=None):
         if io is not None:
@@ -218,12 +229,12 @@ class Tetris(core.Game):
                 # Draw pulsating line
                 pulse = not pulse
                 for x in range(10):
-                    io.display.update(x, idx-3, (brightness*pulse,
-                                                 brightness*pulse, brightness*pulse))
+                    io.display.update(
+                        x, idx - 3, (brightness * pulse, brightness * pulse, brightness * pulse))
                 io.display.refresh()
                 time.sleep(0.1)
 
         top = np.ones([10]) * self.BG
         for i in range(idx, 0, -1):
-            self.gb[:, i] = self.gb[:, i-1]
+            self.gb[:, i] = self.gb[:, i - 1]
         self.gb[:, 0] = top

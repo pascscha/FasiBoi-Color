@@ -1,6 +1,7 @@
 from applications import core
 from helpers import textutils, bitmaputils
 
+
 class Slider(core.Application):
     def __init__(self, *args, start=0, end=1, steps=10, default=0.5, **kwargs):
         super().__init__(*args, **kwargs)
@@ -10,7 +11,7 @@ class Slider(core.Application):
 
         default = self.load_value("default", default=default)
         self.value_index = int(steps * (default - start) / (end - start))
-        self.delta = (end - start)/steps
+        self.delta = (end - start) / steps
 
     def update(self, io, delta):
         if io.controller.up.get_fresh_value():
@@ -25,8 +26,10 @@ class Slider(core.Application):
             for y in range(io.display.height):
                 io.display.update(x, y, (0, 0, 0))
 
-        for x in range(int(io.display.width/3), int(2*io.display.width/3)+1):
-            for y in range(int((1-self.value_index/self.steps)*io.display.height), io.display.height):
+        for x in range(int(io.display.width / 3),
+                       int(2 * io.display.width / 3) + 1):
+            for y in range(int((1 - self.value_index / self.steps)
+                           * io.display.height), io.display.height):
                 io.display.update(x, y, self.color)
 
     def get_value(self):
@@ -34,7 +37,14 @@ class Slider(core.Application):
 
 
 class NumberChoice(core.Application):
-    def __init__(self, *args, start=1, end=100, step_size=1, default=50, **kwargs):
+    def __init__(
+            self,
+            *args,
+            start=1,
+            end=100,
+            step_size=1,
+            default=50,
+            **kwargs):
         super().__init__(*args, **kwargs)
         self.start = start
         self.end = end
@@ -64,8 +74,8 @@ class NumberChoice(core.Application):
         bitmaputils.applyBitmap(
             bmp,
             io.display,
-            (io.display.width//2-bmp.shape[1]//2,
-             io.display.height//2-bmp.shape[0]//2),
+            (io.display.width // 2 - bmp.shape[1] // 2,
+             io.display.height // 2 - bmp.shape[0] // 2),
             fg_color=self.color)
 
 
@@ -73,6 +83,7 @@ class BrightnessSlider(Slider):
     def update(self, io, delta):
         super().update(io, delta)
         io.display.brightness = self.get_value()
+
 
 class FPSChoice(NumberChoice):
     def update(self, io, delta):

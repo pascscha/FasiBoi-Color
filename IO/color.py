@@ -1,13 +1,14 @@
 import numpy as np
 import colorsys
 
+
 class Color(np.ndarray):
     def __new__(cls, r, g, b):
         return np.array([r, g, b], dtype=np.uint8).view(cls)
 
     @classmethod
     def from_hsv(cls, h, s, v):
-        return cls(*map(lambda x: int(x*255), colorsys.hsv_to_rgb(h, s, v)))
+        return cls(*map(lambda x: int(x * 255), colorsys.hsv_to_rgb(h, s, v)))
 
     @staticmethod
     def convert(color):
@@ -34,7 +35,7 @@ class Color(np.ndarray):
     @property
     def r(self):
         return self[0]
-    
+
     @property
     def g(self):
         return self[1]
@@ -46,7 +47,7 @@ class Color(np.ndarray):
     @r.setter
     def r(self, value):
         self[0] = self.convert(value)
-    
+
     @g.setter
     def g(self, value):
         self[1] = self.convert(value)
@@ -55,8 +56,10 @@ class Color(np.ndarray):
     def b(self, value):
         self[2] = self.convert(value)
 
+
 def blend(color1, color2, progression):
-    return color1  * (1- progression) + color2 * progression
+    return color1 * (1 - progression) + color2 * progression
+
 
 BLACK = Color(0, 0, 0)
 WHITE = Color(255, 255, 255)

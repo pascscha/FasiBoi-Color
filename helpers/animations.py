@@ -1,7 +1,10 @@
 import numpy as np
 
+
 def blend_colors(color1, color2, prog):
-    return tuple(map(lambda c: c[0] * (1 - prog) + c[1] * prog, zip(color1, color2)))
+    return tuple(map(lambda c: c[0] * (1 - prog) +
+                 c[1] * prog, zip(color1, color2)))
+
 
 class TimedValue:
     def __init__(self, speed=1):
@@ -11,6 +14,7 @@ class TimedValue:
     def tick(self, delta):
         self.progression += delta * self.speed
         return self.progression
+
 
 class Ticker(TimedValue):
     def __init__(self, *args, **kwargs):
@@ -23,30 +27,32 @@ class Ticker(TimedValue):
             return True
         return False
 
+
 class Blinker(Ticker):
     def __init__(self, value1, value2, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.value1 = value1
         self.value2 = value2
-    
+
     @staticmethod
     def blend(value1, value2, prog):
         return value1 * (1 - prog) + value2 * prog
 
     def tick(self, delta):
         super().tick(delta)
-        prog = 2*abs(self.progression - 0.5)
+        prog = 2 * abs(self.progression - 0.5)
         return self.blend(self.value1, self.value2, prog)
 
+
 class AnimatedValue(TimedValue):
-    def __init__(self, value, speed=1, function=lambda x:x):
+    def __init__(self, value, speed=1, function=lambda x: x):
         self.old_value = value
         self.new_value = value
 
         self.speed = speed
         self.function = function
         self.progression = 0
-    
+
     def tick(self, delta):
         self.progression += delta * self.speed
         return self.get_value()
@@ -66,7 +72,12 @@ class AnimatedValue(TimedValue):
             self.old_value = self.new_value
             return self.new_value
         else:
-            return self.blend(self.old_value, self.new_value, self.function(self.progression))
+            return self.blend(
+                self.old_value,
+                self.new_value,
+                self.function(
+                    self.progression))
+
 
 class AnimatedColor(AnimatedValue):
     @staticmethod

@@ -36,8 +36,8 @@ class Tile:
         self.move_progression = 0
 
     def get_colors(self):
-        color_bright = self.COLORS[min(self.value-1, len(self.COLORS)-1)]
-        color_dark = tuple(map(lambda n: n*0.8, color_bright))
+        color_bright = self.COLORS[min(self.value - 1, len(self.COLORS) - 1)]
+        color_dark = tuple(map(lambda n: n * 0.8, color_bright))
 
         out = []
         mask = 1
@@ -59,7 +59,7 @@ class Tile:
                 if nx < 0 or nx >= 4 or ny < 0 or ny >= 4:
                     self.direction = (0, 0)
                     self.move_progression = 0
-                elif field[nx][ny] == None:
+                elif field[nx][ny] is None:
                     field[self.x][self.y] = None
                     field[nx][ny] = self
                     self.x = nx
@@ -86,11 +86,11 @@ class Tile:
         for x in range(2):
             for y in range(2):
                 display.update(
-                    int(1 + self.x*2 + x +
-                        self.direction[0]*self.move_progression),
-                    int(display.height-9 + self.y*2 + y +
-                        self.direction[1]*self.move_progression),
-                    colors[x + y*2]
+                    int(1 + self.x * 2 + x +
+                        self.direction[0] * self.move_progression),
+                    int(display.height - 9 + self.y * 2 + y +
+                        self.direction[1] * self.move_progression),
+                    colors[x + y * 2]
                 )
 
 
@@ -102,7 +102,7 @@ class G2048(core.Game):
     }
 
     def reset(self, io):
-        self.field = [[None]*4 for i in range(4)]
+        self.field = [[None] * 4 for i in range(4)]
         self.spawn_random()
         self.score = 1
         self.direction = (0, 0)
@@ -127,7 +127,7 @@ class G2048(core.Game):
     def is_full(self):
         for x in range(4):
             for y in range(4):
-                if self.field[x][y] == None:
+                if self.field[x][y] is None:
                     return False
         return True
 
@@ -137,15 +137,15 @@ class G2048(core.Game):
         else:
             for x in range(4):
                 for y in range(1, 3):
-                    if self.field[x][y].value == self.field[x][y-1].value:
+                    if self.field[x][y].value == self.field[x][y - 1].value:
                         return False
-                    if self.field[x][y].value == self.field[x][y+1].value:
+                    if self.field[x][y].value == self.field[x][y + 1].value:
                         return False
             for x in range(1, 3):
                 for y in range(4):
-                    if self.field[x][y].value == self.field[x-1][y].value:
+                    if self.field[x][y].value == self.field[x - 1][y].value:
                         return False
-                    if self.field[x][y].value == self.field[x+1][y].value:
+                    if self.field[x][y].value == self.field[x + 1][y].value:
                         return False
         return True
 
@@ -161,7 +161,8 @@ class G2048(core.Game):
     def any_moving(self):
         for x in range(4):
             for y in range(4):
-                if self.field[x][y] is not None and self.field[x][y].direction != (0, 0):
+                if self.field[x][y] is not None and self.field[x][y].direction != (
+                        0, 0):
                     return True
         return False
 
@@ -199,7 +200,7 @@ class G2048(core.Game):
                     self.score += self.field[x][y].update(self.field, delta)
 
         if self.is_game_over():
-            self.score = round(math.log(self.score,2))
+            self.score = round(math.log(self.score, 2))
             self.state = self.GAME_OVER
 
         io.display.fill((0, 0, 0))
@@ -220,11 +221,12 @@ class G2048(core.Game):
                 if self.field[x][y] is not None:
                     self.field[x][y].draw(io.display)
 
-        score_bmp = textutils.getTextBitmap(str(round(math.log(self.score,2))))
+        score_bmp = textutils.getTextBitmap(
+            str(round(math.log(self.score, 2))))
 
         bitmaputils.applyBitmap(
             score_bmp,
             io.display,
-            (io.display.width//2 -
-             score_bmp.shape[1]//2, 0),
+            (io.display.width // 2 -
+             score_bmp.shape[1] // 2, 0),
             fg_color=(255, 255, 255))

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def getCharBitmap(char):
     """Gets the bitmap for a single char
 
@@ -27,7 +28,7 @@ def getTextBitmap(text):
     Returns:
         2D boolean array: A bitmap representing the given string
     """
-    out = np.zeros((5, 4*len(text) - 1), np.bool)
+    out = np.zeros((5, 4 * len(text) - 1), np.bool)
     for i, char in enumerate(text):
-        out[:, i*4:i*4+3] = getCharBitmap(char)
+        out[:, i * 4:i * 4 + 3] = getCharBitmap(char)
     return out

@@ -6,7 +6,13 @@ import cv2
 
 
 class BeatAnimation(core.Application):
-    def __init__(self, npy_path, *args, beats_per_loop=1, duration=0.5, **kwargs):
+    def __init__(
+            self,
+            npy_path,
+            *args,
+            beats_per_loop=1,
+            duration=0.5,
+            **kwargs):
         super().__init__(*args, **kwargs)
         self.animation = load(npy_path)
         self.animation_length = len(self.animation)
@@ -24,14 +30,18 @@ class BeatAnimation(core.Application):
             self.duration = now - self.last_beat
             self.last_beat = now
 
-        frame = self.animation[int((self.beat_count + (now - self.last_beat) /
-                                    self.duration)*self.beat_frames) % self.animation_length]
+        frame = self.animation[int((self.beat_count +
+                                    (now -
+                                     self.last_beat) /
+                                    self.duration) *
+                                   self.beat_frames) %
+                               self.animation_length]
 
         self.last = now
 
-        self.hue += delta/2
+        self.hue += delta / 2
         self.hue = self.hue % 255
-        color = tuple(map(lambda x: int(x*255),
+        color = tuple(map(lambda x: int(x * 255),
                           colorsys.hsv_to_rgb(self.hue, 1, 1)))
 
         for x in range(frame.shape[0]):
@@ -77,14 +87,14 @@ class VideoPlayer(core.Application):
     def update(self, io, delta):
         ret, frame = self.get_frame(delta)
         if ret:
-            max_width = frame.shape[0]*io.display.width/io.display.height
+            max_width = frame.shape[0] * io.display.width / io.display.height
             if max_width < frame.shape[1]:
-                cut = int((frame.shape[1] - max_width)/2)
+                cut = int((frame.shape[1] - max_width) / 2)
                 frame = frame[:, cut:-cut]
 
-            max_height = frame.shape[1]*io.display.height/io.display.width
+            max_height = frame.shape[1] * io.display.height / io.display.width
             if max_height < frame.shape[0]:
-                cut = int((frame.shape[0] - max_height)/2)
+                cut = int((frame.shape[0] - max_height) / 2)
                 frame = frame[cut:-cut, :]
 
             resized = cv2.resize(frame, (io.display.width, io.display.height))

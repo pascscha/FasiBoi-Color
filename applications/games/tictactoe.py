@@ -2,12 +2,13 @@ from applications.games import alphabeta
 from IO.color import *
 import random
 
+
 class TicTacToeMove(alphabeta.Move):
     def __init__(self, x, y, color):
         self.x = x
         self.y = y
         self.color = color
-    
+
     def __repr__(self):
         return f"Move({self.x}, {self.y}, {self.color})"
 
@@ -16,22 +17,23 @@ class TicTacToeMove(alphabeta.Move):
         clone.set_value(self.x, self.y, self.color)
         return clone
 
+
 class TicTacToeField(alphabeta.BitField):
     ROWS = [
-        [(0,0),(0,1),(0,2)],
-        [(1,0),(1,1),(1,2)],
-        [(2,0),(2,1),(2,2)],
-        [(0,0),(1,0),(2,0)],
-        [(0,1),(1,1),(2,1)],
-        [(0,2),(1,2),(2,2)],
-        [(0,0),(1,1),(2,2)],
-        [(0,2),(1,1),(2,0)]
+        [(0, 0), (0, 1), (0, 2)],
+        [(1, 0), (1, 1), (1, 2)],
+        [(2, 0), (2, 1), (2, 2)],
+        [(0, 0), (1, 0), (2, 0)],
+        [(0, 1), (1, 1), (2, 1)],
+        [(0, 2), (1, 2), (2, 2)],
+        [(0, 0), (1, 1), (2, 2)],
+        [(0, 2), (1, 1), (2, 0)]
     ]
 
     ORDER = [
-        [(1,1)],
-        [(0,0),(2,2),(0,2),(2,0)],
-        [(0,1),(1,0),(1,2),(2,1)]
+        [(1, 1)],
+        [(0, 0), (2, 2), (0, 2), (2, 0)],
+        [(0, 1), (1, 0), (1, 2), (2, 1)]
     ]
 
     def __init__(self, *args, **kwargs):
@@ -42,8 +44,8 @@ class TicTacToeField(alphabeta.BitField):
         other = self.other(player)
         for row in self.ROWS:
             rowscore = 0
-            for x,y in row:
-                col = self.get_value(x,y)
+            for x, y in row:
+                col = self.get_value(x, y)
                 if col == player:
                     rowscore += 1
                 elif col == other:
@@ -57,7 +59,7 @@ class TicTacToeField(alphabeta.BitField):
         return score
 
     def possible_moves(self, player):
-        for x,y in self.ORDER[0] + self.ORDER[1] + self.ORDER[2]:
+        for x, y in self.ORDER[0] + self.ORDER[1] + self.ORDER[2]:
             if self.get_value(x, y) == self.EMPTY:
                 yield TicTacToeMove(x, y, player)
 
@@ -66,7 +68,7 @@ class TicTacToeField(alphabeta.BitField):
             if all(self.get_value(x, y) == player for x, y in row):
                 return True
         return False
-    
+
     def game_over(self):
         return self.is_full() or self.has_won(self.COLOR1) or self.has_won(self.COLOR2)
 
@@ -88,6 +90,7 @@ class TicTacToe(alphabeta.StrategyGame):
         "Di": (RED, 5, 9)
     }
 
+
 if __name__ == "__main__":
     field = TicTacToeField()
     random.shuffle(field.ORDER[0])
@@ -104,12 +107,12 @@ if __name__ == "__main__":
             while True:
                 try:
                     i = int(input())
-                    x = (i-1) % 3
-                    y = 2-(i-1)//3
+                    x = (i - 1) % 3
+                    y = 2 - (i - 1) // 3
                     move = TicTacToeMove(x, y, player)
                     print(move)
                     break
-                except:
+                except BaseException:
                     import time
                     time.sleep(1)
                     print("try again")

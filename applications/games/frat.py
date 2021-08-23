@@ -4,6 +4,7 @@ from helpers import animations, textutils, bitmaputils
 import random
 import time
 
+
 class Frat(core.Game):
     MISERE = True
     DEFAULT_SCORE = 99
@@ -14,7 +15,7 @@ class Frat(core.Game):
         3: Color(0, 0, 255),
         4: Color(255, 255, 0)
     }
-    
+
     MODE_GUESS = 0
     MODE_DRAW = 1
     COLOR_GUESS = Color(0, 255, 255)
@@ -28,16 +29,27 @@ class Frat(core.Game):
         self.both_down_ts = 0
 
         self.selected = [0, 0]
-        self.guess_blinker = [animations.Blinker(Color(32, 32, 32), Color(255, 255, 255)) for i in range(4)]
-        self.draw_blinker = animations.Blinker(Color(32, 32, 32), Color(255, 255, 255))
+        self.guess_blinker = [
+            animations.Blinker(
+                Color(
+                    32, 32, 32), Color(
+                    255, 255, 255)) for i in range(4)]
+        self.draw_blinker = animations.Blinker(
+            Color(32, 32, 32), Color(255, 255, 255))
 
         self.score = 0
         self.field = [[0 for _ in range(8)] for _ in range(8)]
-        self.counts = {0:64, 1:0, 2:0, 3:0, 4:0}
+        self.counts = {0: 64, 1: 0, 2: 0, 3: 0, 4: 0}
 
         self.guessed = [[False for _ in range(7)] for _ in range(7)]
 
-        self.hint_colors = [animations.AnimatedColor(Color(64, 64, 64), speed=4) for _ in range(4)]        
+        self.hint_colors = [
+            animations.AnimatedColor(
+                Color(
+                    64,
+                    64,
+                    64),
+                speed=4) for _ in range(4)]
 
         # TODO: Auto Generate
         self.solution = [[1, 1, 1, 1, 1, 4, 4, 2],
@@ -49,9 +61,8 @@ class Frat(core.Game):
                          [1, 1, 3, 2, 2, 2, 2, 2],
                          [3, 3, 3, 3, 3, 3, 3, 3]]
 
-        self.gameover_blinker = [[animations.Blinker(Color(0, 0, 0), Color(0, 0, 0)) for _ in range(8)] for _ in range(8)]
-
-
+        self.gameover_blinker = [[animations.Blinker(
+            Color(0, 0, 0), Color(0, 0, 0)) for _ in range(8)] for _ in range(8)]
 
     def draw_border(self, io, delta):
         if self.state == self.MID_GAME:
@@ -59,7 +70,7 @@ class Frat(core.Game):
                 self.border_color.set_value(self.COLOR_GUESS)
             else:
                 self.border_color.set_value(self.COLOR_DRAW)
-            
+
         self.border_ticker.tick(delta)
         self.border_color.tick(delta)
         color = self.border_color.get_value()
@@ -70,12 +81,13 @@ class Frat(core.Game):
             [(0, y) for y in range(9, -1, -1)]
 
         for i, coord in enumerate(coordinates):
-            prog = 1-self.border_ticker.progression + i/len(coordinates)
+            prog = 1 - self.border_ticker.progression + i / len(coordinates)
             prog = prog - int(prog)
             if prog < 0.1:
-                prog = (0.1-prog)/0.1
+                prog = (0.1 - prog) / 0.1
 
-            io.display.update(*coord, tuple(map(lambda c:c*(0.5 + 0.5*prog), color)))
+            io.display.update(
+                *coord, tuple(map(lambda c: c * (0.5 + 0.5 * prog), color)))
 
     def get_background_color(self, x, y):
         if (x + y) % 2 == 0:
@@ -90,13 +102,13 @@ class Frat(core.Game):
                     return False
         return True
 
-    def _update_midgame(self, io, delta):        
+    def _update_midgame(self, io, delta):
         if io.controller.b.get_fresh_value() == False:
             if self.mode == self.MODE_GUESS:
                 self.mode = self.MODE_DRAW
             else:
                 self.mode = self.MODE_GUESS
-        
+
         if io.controller.left.get_fresh_value():
             self.selected[0] -= 1
         if io.controller.right.get_fresh_value():
@@ -105,11 +117,11 @@ class Frat(core.Game):
             self.selected[1] -= 1
         if io.controller.down.get_fresh_value():
             self.selected[1] += 1
-        
+
         if self.mode == self.MODE_GUESS:
             limit = 6
         else:
-            limit = 7        
+            limit = 7
         self.selected[0] = max(0, min(limit, self.selected[0]))
         self.selected[1] = max(0, min(limit, self.selected[1]))
 
@@ -119,10 +131,13 @@ class Frat(core.Game):
                     self.score += 1
                     self.guessed[self.selected[0]][self.selected[1]] = True
             else:
-                self.counts[self.field[self.selected[0]][self.selected[1]]] -= 1
-                self.field[self.selected[0]][self.selected[1]] = (self.field[self.selected[0]][self.selected[1]] + 1) % 5
-                self.counts[self.field[self.selected[0]][self.selected[1]]] += 1
-                
+                self.counts[self.field[self.selected[0]]
+                            [self.selected[1]]] -= 1
+                self.field[self.selected[0]][self.selected[1]] = (
+                    self.field[self.selected[0]][self.selected[1]] + 1) % 5
+                self.counts[self.field[self.selected[0]]
+                            [self.selected[1]]] += 1
+
         if io.controller.a.get_value() and io.controller.b.get_value():
             if time.time() - self.both_down_ts > self.SUBMIT_TIME and self.is_finished():
                 self.border_color.set_value(Color(0, 255, 0))
@@ -138,22 +153,20 @@ class Frat(core.Game):
         else:
             self.both_down_ts = time.time()
 
-
-
         io.display.fill(Color(0, 0, 0))
         self.draw_border(io, delta)
         highlight_size = 1 if self.mode == self.MODE_DRAW else 2
 
         for x in range(8):
-            for y in range(8):                    
+            for y in range(8):
                 dx = x - self.selected[0]
                 dy = y - self.selected[1]
-                
-                if 0 <= dx <= highlight_size-1 and 0 <= dy <= highlight_size-1:
+
+                if 0 <= dx <= highlight_size - 1 and 0 <= dy <= highlight_size - 1:
                     if self.mode == self.MODE_DRAW:
                         blinker = self.draw_blinker
                     else:
-                        blinker = self.guess_blinker[dx + 2*dy]
+                        blinker = self.guess_blinker[dx + 2 * dy]
 
                     if self.field[x][y] == 0:
                         blinker.value2 = Color(255, 255, 255)
@@ -165,8 +178,8 @@ class Frat(core.Game):
                         color = self.get_background_color(x, y)
                     else:
                         color = self.COLOR_MAP[self.field[x][y]]
-                
-                io.display.update(1+x, 1+y, color)
+
+                io.display.update(1 + x, 1 + y, color)
 
         # self.guess_bmp = textutils.getTextBitmap(str(self.guesses))
         # bitmaputils.applyBitmap(self.guess_bmp, io.display, (3, 9))
@@ -175,9 +188,9 @@ class Frat(core.Game):
             if self.guessed[self.selected[0]][self.selected[1]]:
                 values = [
                     self.solution[self.selected[0]][self.selected[1]],
-                    self.solution[self.selected[0]+1][self.selected[1]],
-                    self.solution[self.selected[0]][self.selected[1]+1],
-                    self.solution[self.selected[0]+1][self.selected[1]+1]
+                    self.solution[self.selected[0] + 1][self.selected[1]],
+                    self.solution[self.selected[0]][self.selected[1] + 1],
+                    self.solution[self.selected[0] + 1][self.selected[1] + 1]
                 ]
                 colors = [self.COLOR_MAP[c] for c in sorted(values)]
             else:
@@ -189,7 +202,7 @@ class Frat(core.Game):
             h.set_value(c)
             h.tick(delta)
             io.display.update(3 + i, 12, h.get_value())
-        
+
         for color in range(1, 5):
             count = self.counts[color]
             mask = 1
@@ -208,7 +221,8 @@ class Frat(core.Game):
 
         for x in range(8):
             for y in range(8):
-                io.display.update(x + 1, y + 1, self.gameover_blinker[x][y].tick(delta))
+                io.display.update(
+                    x + 1, y + 1, self.gameover_blinker[x][y].tick(delta))
 
         if io.controller.a.get_fresh_value():
             self.state = self.PRE_GAME

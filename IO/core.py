@@ -4,8 +4,9 @@ import cv2
 from IO.effects import *
 from IO.color import Color
 
+
 class ControllerValue:
-    def __init__(self,  dtype=bool, default=False):
+    def __init__(self, dtype=bool, default=False):
         self._value = default
         self.fresh = False
         self.dtype = dtype
@@ -130,10 +131,12 @@ class Display:
         since last call to this function.
         """
         # Only update pixels that have changed
-        for x, y in zip(*np.where(np.any(self.pixels != self.last_pixels, axis=2))):
+        for x, y in zip(
+                *np.where(np.any(self.pixels != self.last_pixels, axis=2))):
             self._update(x, y, self.pixels[x][y])
         self.last_pixels = self.pixels.copy()
         self._refresh()
+
 
 class IOManager:
     def __init__(self, controller, display, fps=30, animation_duration=0.25):
@@ -150,15 +153,15 @@ class IOManager:
         self.teppich = 0
         self.teppich_animations = [
             None,
-            EffectCombination([VerticalDistort(frequency=1/60), StripedNoise(limit=50)]),
+            EffectCombination([VerticalDistort(frequency=1 / 60), StripedNoise(limit=50)]),
             EffectCombination([VerticalDistort(), StripedNoise(limit=100)]),
-            EffectCombination([VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1/2)]),
+            EffectCombination([VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1 / 2)]),
             Black()
-        ] #Noise(level=50), Noise(level=200), Noise(level=20000)]
+        ]  # Noise(level=50), Noise(level=200), Noise(level=20000)]
 
     def run(self, application):
         """Runs an application. Should only be invoked with the root
-        application, all further applications can then be called with 
+        application, all further applications can then be called with
         `openApplication`.
 
         Args:
@@ -183,7 +186,8 @@ class IOManager:
 
             # Apply Drunkguard
             if self.controller.teppich.get_fresh_value():
-                self.teppich = (self.teppich + 1) % len(self.teppich_animations)
+                self.teppich = (
+                    self.teppich + 1) % len(self.teppich_animations)
 
             if self.teppich_animations[self.teppich] is not None:
                 self.teppich_animations[self.teppich].apply(self.display)
@@ -191,7 +195,7 @@ class IOManager:
             self.display.refresh()
             if self.controller.menu.get_fresh_value():
                 self.closeApplication()
-            time.sleep(max(0, min(delta, 1/self.fps)))
+            time.sleep(max(0, min(delta, 1 / self.fps)))
 
     def __enter__(self):
         return self
@@ -208,7 +212,8 @@ class IOManager:
         Args:
             application (application.core.Application): The application to be opened
         """
-        self.current_animation = SlideDown(self.display, self.animation_duration)
+        self.current_animation = SlideDown(
+            self.display, self.animation_duration)
         self.applications.append(application)
 
     def closeApplication(self):
@@ -216,7 +221,8 @@ class IOManager:
         If none exists quits the Program
         """
         if len(self.applications) > 0:
-            self.current_animation = SlideUp(self.display, self.animation_duration)
+            self.current_animation = SlideUp(
+                self.display, self.animation_duration)
             self.applications[-1].destroy()
             self.applications = self.applications[:-1]
         if len(self.applications) == 0:

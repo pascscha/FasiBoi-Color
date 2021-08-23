@@ -1,6 +1,7 @@
 import curses
 from IO import core
 
+
 class CursesController(core.Controller):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -22,6 +23,7 @@ class CursesController(core.Controller):
             else:
                 button.update(False)
 
+
 class CursesDisplay(core.Display):
     def __init__(self, win, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,9 +32,9 @@ class CursesDisplay(core.Display):
 
     def _update(self, x, y, color):
         if tuple(color) != (0, 0, 0):
-            self.win.addstr(y+2, x*2+2, f"##")
+            self.win.addstr(y + 2, x * 2 + 2, f"##")
         else:
-            self.win.addstr(y+2, x*2+2, "  ")
+            self.win.addstr(y + 2, x * 2 + 2, "  ")
 
     def _refresh(self):
         if self.first:
@@ -45,7 +47,8 @@ class CursesIOManager(core.IOManager):
     def __init__(self, screen_res=(10, 15), **kwargs):
         screen = curses.initscr()
 
-        self.win = curses.newwin(screen_res[1] + 4, screen_res[0]*2 + 4, 2, 2)
+        self.win = curses.newwin(
+            screen_res[1] + 4, screen_res[0] * 2 + 4, 2, 2)
         curses.noecho()
         self.win.nodelay(1)
 

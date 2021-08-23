@@ -2,6 +2,7 @@ from applications import core
 from helpers import textutils, bitmaputils
 import datetime
 
+
 class Clock(core.Application):
     def update(self, io, delta):
         time = datetime.datetime.now()
@@ -12,13 +13,13 @@ class Clock(core.Application):
         bitmaputils.applyBitmap(
             hour_bmp,
             io.display,
-            (io.display.width//2 - hour_bmp.shape[1]//2,
-             4-hour_bmp.shape[0]//2),
+            (io.display.width // 2 - hour_bmp.shape[1] // 2,
+             4 - hour_bmp.shape[0] // 2),
             fg_color=(255, 255, 255))
 
         bitmaputils.applyBitmap(
             minute_bmp,
             io.display,
-            (io.display.width//2 - hour_bmp.shape[1]//2,
-             10-hour_bmp.shape[0]//2),
+            (io.display.width // 2 - hour_bmp.shape[1] // 2,
+             10 - hour_bmp.shape[0] // 2),
             fg_color=(255, 255, 255))

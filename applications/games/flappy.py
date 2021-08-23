@@ -5,6 +5,7 @@ import random
 
 class Pipe:
     COLOR = (116, 190, 46)
+
     def __init__(self, height, gap, x):
         self.height = height
         self.gap = gap
@@ -13,26 +14,27 @@ class Pipe:
     def draw(self, display, progression):
         display_x = int(self.x - progression)
 
-        for x in range(display_x-1, display_x+1):
+        for x in range(display_x - 1, display_x + 1):
             if x < 0 or x >= display.width:
                 continue
-            for y in range(0, self.height-self.gap//2):
+            for y in range(0, self.height - self.gap // 2):
                 display.update(x, y, self.COLOR)
-            for y in range(self.height+(self.gap+1)//2, display.height):
+            for y in range(self.height + (self.gap + 1) // 2, display.height):
                 display.update(x, y, self.COLOR)
 
     def is_passed(self, progression):
         return progression > self.x
 
     def collides(self, x, y, progression):
-        return self.x-progression-2 < x < self.x-progression and not self.height - self.gap/2 < y < self.height + self.gap/2
+        return self.x - progression - 2 < x < self.x - \
+            progression and not self.height - self.gap / 2 < y < self.height + self.gap / 2
 
 
 class Flappy(core.Game):
     def get_random_pipe(self, screen_height):
         score = self.score + len(self.pipes)
-        gap = screen_height//2-min(3, score//10)
-        height = random.randint(gap//2+2, screen_height-gap//2-2)
+        gap = screen_height // 2 - min(3, score // 10)
+        height = random.randint(gap // 2 + 2, screen_height - gap // 2 - 2)
         if len(self.pipes) > 0:
             x = self.pipes[-1].x + gap
         else:
@@ -51,7 +53,8 @@ class Flappy(core.Game):
         self.score = 0
         self.pipes = []
         for i in range(10):
-            self.pipes.append(self.get_random_pipe(int(io.display.width*1.5)))
+            self.pipes.append(self.get_random_pipe(
+                int(io.display.width * 1.5)))
 
     def _update_midgame(self, io, delta):
         if io.controller.up.get_fresh_value():
@@ -60,14 +63,16 @@ class Flappy(core.Game):
 
         self.y_velocity += self.gravity * delta
         self.y_location += self.y_velocity * delta
-        self.pipe_progression += delta*self.pipe_speed
+        self.pipe_progression += delta * self.pipe_speed
 
         if self.y_location > io.display.height:
             self.y_velocity = -10
             self.state = self.GAME_OVER
             return
 
-        while len(self.pipes) > 0 and self.pipes[0].is_passed(self.pipe_progression):
+        while len(
+                self.pipes) > 0 and self.pipes[0].is_passed(
+                self.pipe_progression):
             self.score += 1
             self.pipes = self.pipes[1:]
             self.pipes.append(self.get_random_pipe(io.display.height))
@@ -88,7 +93,10 @@ class Flappy(core.Game):
             io.display.update(1, round(self.y_location), (255, 255, 0))
 
     def _update_gameover(self, io, delta):
-        io.openApplication(VideoPlayer("resources/animations/flappy-death.gif", loop=False))
+        io.openApplication(
+            VideoPlayer(
+                "resources/animations/flappy-death.gif",
+                loop=False))
         self.state = self.PRE_GAME
         """
         self.y_velocity += self.gravity * delta

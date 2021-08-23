@@ -2,12 +2,13 @@ from applications.games import alphabeta
 import random
 import numpy as np
 
+
 class Connect4Move(alphabeta.Move):
     def __init__(self, x, y, color):
         self.x = x
         self.y = y
         self.color = color
-    
+
     def __repr__(self):
         return f"Move({self.x}, {self.y}, {self.color})"
 
@@ -15,6 +16,7 @@ class Connect4Move(alphabeta.Move):
         clone = Connect4Field(bits1=field.bits1, bits2=field.bits2)
         clone.set_value(self.x, self.y, self.color)
         return clone
+
 
 class Connect4Field(alphabeta.BitField):
     # All directions 4 in a row could appear
@@ -36,14 +38,14 @@ class Connect4Field(alphabeta.BitField):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, width=8, height=8, **kwargs)
-    
+
     def score(self, player):
         return self.count3(player) - self.count3(self.other(player))
 
     def possible_moves(self, player):
         out = []
         for x in [3, 2, 4, 5, 1, 0, 6]:
-            for y in range(self.height-3, -1, -1):
+            for y in range(self.height - 3, -1, -1):
                 if self.get_value(x, y) == 0:
                     out.append(Connect4Move(x, y, player))
                     break
@@ -76,7 +78,7 @@ class Connect4Field(alphabeta.BitField):
             return True
 
         return False
-    
+
     def count3(self, player):
         if player == self.COLOR1:
             board = self.bits1
@@ -163,12 +165,13 @@ class Connect4Field(alphabeta.BitField):
         out |= y3 | y3 << 1
 
         for x in range(7):
-            for y in range(self.height-3, -1, -1):
+            for y in range(self.height - 3, -1, -1):
                 if self.get_bitmask(x, y) & out:
                     yield Connect4Move(x, y, player)
 
     def winning_moves(self):
         return list(self.rows(self.COLOR1)) + list(self.rows(self.COLOR2))
+
 
 class Connect4(alphabeta.StrategyGame):
     FIELD_SIZE = (7, 6)

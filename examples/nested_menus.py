@@ -22,8 +22,8 @@ if __name__ == "__main__":
     for letter in "ABCDEFG":
         submenus = []
         for number in "0123456789":
-            submenus.append(Menu(animations, name=letter+number))
-        menus.append(Menu(submenus, name=letter+letter))
+            submenus.append(Menu(animations, name=letter + number))
+        menus.append(Menu(submenus, name=letter + letter))
 
     with PygameIOManager() as ioManager:
         ioManager.run(Menu(menus))

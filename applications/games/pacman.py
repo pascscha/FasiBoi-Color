@@ -31,19 +31,31 @@ class Position:
 
     def __add__(self, other):
         if isinstance(other, Position):
-            return Position(self.x + other.x, self.y + other.y, width=self.width, height=self.height)
+            return Position(
+                self.x + other.x,
+                self.y + other.y,
+                width=self.width,
+                height=self.height)
         else:
             raise ValueError(f"Can't add {type(other)} to {type(self)}")
 
     def __sub__(self, other):
         if isinstance(other, Position):
-            return Position(self.x - other.x, self.y - other.y, width=self.width, height=self.height)
+            return Position(
+                self.x - other.x,
+                self.y - other.y,
+                width=self.width,
+                height=self.height)
         else:
             raise ValueError(f"Can't add {type(other)} to {type(self)}")
 
     def __mul__(self, other):
         if isinstance(other, int):
-            return Position(self.x * other, self.y * other, width=self.width, height=self.height)
+            return Position(
+                self.x * other,
+                self.y * other,
+                width=self.width,
+                height=self.height)
         else:
             raise ValueError(f"Can't add {type(other)} to {type(self)}")
 
@@ -60,7 +72,7 @@ class Position:
         return f"Position({self.x}, {self.y})"
 
     def squared_distance(self, other):
-        return (self.x-other.x)**2 + (self.y-other.y)**2
+        return (self.x - other.x)**2 + (self.y - other.y)**2
 
 
 class Field:
@@ -88,13 +100,16 @@ class Field:
         self.field[pos.x][pos.y] = value
 
     def completed(self):
-        return not (np.any(self.field == self.FOOD) or np.any(self.field == self.SUPER_FOOD))
+        return not (
+            np.any(
+                self.field == self.FOOD) or np.any(
+                self.field == self.SUPER_FOOD))
 
     def draw(self, display, pulse_progression):
-        prog1 = pulse_progression*2
+        prog1 = pulse_progression * 2
         prog2 = pulse_progression
-        bright1 = int(255 * (abs(prog1 - int(prog1) - 0.5)*0.5+0.5))
-        bright2 = int(128 * (abs(prog2 - int(prog2) - 0.5)*0.5+0.5))
+        bright1 = int(255 * (abs(prog1 - int(prog1) - 0.5) * 0.5 + 0.5))
+        bright2 = int(128 * (abs(prog2 - int(prog2) - 0.5) * 0.5 + 0.5))
 
         display.fill((0, 0, 0))
         for x in range(display.width):
@@ -111,7 +126,19 @@ class Field:
 
 
 class Entity:
-    def __init__(self, field, pos, speed=5, color=(255, 255, 255), direction=Field.LEFT, obstacles=[Field.WALL, Field.GHOST_DOOR]):
+    def __init__(
+        self,
+        field,
+        pos,
+        speed=5,
+        color=(
+            255,
+            255,
+            255),
+        direction=Field.LEFT,
+        obstacles=[
+            Field.WALL,
+            Field.GHOST_DOOR]):
         self.field = field
         self.pos = pos
         self.ticker = animations.Ticker(speed)
@@ -171,7 +198,18 @@ class Ghost(Entity):
     FRIGHTENED = 2
     EATEN = 3
 
-    def __init__(self, field, idle_target, *args, release=2, frighten_duration=5, release_after_eaten=2, target_speed=4, frightened_speed=3, eaten_speed=6, **kwargs):
+    def __init__(
+            self,
+            field,
+            idle_target,
+            *args,
+            release=2,
+            frighten_duration=5,
+            release_after_eaten=2,
+            target_speed=4,
+            frightened_speed=3,
+            eaten_speed=6,
+            **kwargs):
         super().__init__(field, random.choice(field.base),
                          *args, speed=target_speed, **kwargs)
         self.state = self.UNRELEASED
@@ -268,10 +306,10 @@ class Pacman(core.Game):
         self.pac = Pac(self.field, Position(4, 11),
                        speed=5, direction=Field.RIGHT)
 
-        frighten_duration = max(2, 6 - level/2)
-        release_after_eaten = max(0, 3 - level/2)
-        target_speed = 3 + level/4
-        release = max(0.5, 2 - level/4)
+        frighten_duration = max(2, 6 - level / 2)
+        release_after_eaten = max(0, 3 - level / 2)
+        target_speed = 3 + level / 4
+        release = max(0.5, 2 - level / 4)
 
         self.blinky = Ghost(self.field, Position(9, 0),
                             color=(255, 0, 38),
@@ -284,19 +322,19 @@ class Pacman(core.Game):
                            frighten_duration=frighten_duration,
                            release_after_eaten=release_after_eaten,
                            target_speed=target_speed,
-                           release=2*release)
+                           release=2 * release)
         self.inky = Ghost(self.field, Position(9, 14),
                           color=(0, 255, 253),
                           frighten_duration=frighten_duration,
                           release_after_eaten=release_after_eaten,
                           target_speed=target_speed,
-                          release=3*release)
+                          release=3 * release)
         self.clyde = Ghost(self.field, Position(0, 14),
                            color=(255, 181, 97),
                            frighten_duration=frighten_duration,
                            release_after_eaten=release_after_eaten,
                            target_speed=target_speed,
-                           release=4*release)
+                           release=4 * release)
         self.ghosts = [self.clyde, self.inky, self.pinky, self.blinky]
         self.level_age = 0
 
@@ -329,7 +367,8 @@ class Pacman(core.Game):
                         ghost.target = ghost.idle_target
 
             elif self.mode == self.ATTACK:
-                if len(self.defenses) > 0 and self.level_age > self.defenses[0]:
+                if len(
+                        self.defenses) > 0 and self.level_age > self.defenses[0]:
                     self.mode = self.SPREAD
                     print("spread")
                     self.defenses = self.defenses[1:]
@@ -373,14 +412,23 @@ class Pacman(core.Game):
         self.pac.draw(io.display)
 
         if time.time() < self.level_start + self.NEW_LEVEL_WAIT:
-            if int(self.pulse_progression*3) % 2 == 0:
+            if int(self.pulse_progression * 3) % 2 == 0:
                 level_text = textutils.getTextBitmap(str(self.level))
                 bitmaputils.applyBitmap(
                     level_text,
                     io.display,
-                    (io.display.width//2 -
-                     level_text.shape[1]//2, io.display.height//2-level_text.shape[0]//2),
-                    fg_color=(255, 255, 255))
+                    (io.display.width //
+                     2 -
+                     level_text.shape[1] //
+                     2,
+                     io.display.height //
+                     2 -
+                     level_text.shape[0] //
+                     2),
+                    fg_color=(
+                        255,
+                        255,
+                        255))
 
         if next_level:
             self.reset_level(io, self.level + 1)

@@ -17,7 +17,13 @@ class LEDDisplay(core.Display):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.strip = Adafruit_NeoPixel(
-            LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+            LED_COUNT,
+            LED_PIN,
+            LED_FREQ_HZ,
+            LED_DMA,
+            LED_INVERT,
+            LED_BRIGHTNESS,
+            LED_CHANNEL)
         self.strip.begin()
 
     def _update(self, x, y, color):
