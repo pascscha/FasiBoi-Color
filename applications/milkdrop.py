@@ -508,14 +508,31 @@ class Milkdrop(core.Application):
                               TextDrawer(text="FASNACHT", loc=(5, 5), driver=AnimatedValue(fun2=lambda x:x, period=8), color=AnimatedHSVColor(s=ConstantValue(0))),
                           ]
                           ),
-            Visualization(name="counter",
-                          energy=0.2,
+            # Visualization(name="counter",
+            #               energy=0.2,
+            #               effects=[
+            #                   Distorter(vect_fun=swirl2, darken=0),
+            #                   TextDrawer(text="EINS", loc=(0, 0), driver=AnimatedValue(fun2=lambda x:x, period=4), color=AnimatedHSVColor(h=AnimatedValue(period=4), v=AnimatedValue(period=1))),
+            #                   TextDrawer(text="ZWEI", loc=(7, 0), driver=AnimatedValue(fun2=lambda x:x, period=8), color=AnimatedHSVColor(h=AnimatedValue(period=8), v=AnimatedValue(period=2))),
+            #                   TextDrawer(text="DREI", loc=(0, 9), driver=AnimatedValue(fun2=lambda x:x, period=12), color=AnimatedHSVColor(h=AnimatedValue(period=12), v=AnimatedValue(period=3))),
+            #                   TextDrawer(text="VIER", loc=(7, 9), driver=AnimatedValue(fun2=lambda x:x, period=16), color=AnimatedHSVColor(h=AnimatedValue(period=16), v=AnimatedValue(period=4))),
+            #               ]
+            #               ),
+            Visualization(name="UNZ", min_bpm=100,
+                          energy=0.9,
                           effects=[
-                              Distorter(vect_fun=swirl2, darken=0),
-                              TextDrawer(text="EINS", loc=(0, 0), driver=AnimatedValue(fun2=lambda x:x, period=4), color=AnimatedHSVColor(h=AnimatedValue(period=4), v=AnimatedValue(period=1))),
-                              TextDrawer(text="ZWEI", loc=(7, 0), driver=AnimatedValue(fun2=lambda x:x, period=8), color=AnimatedHSVColor(h=AnimatedValue(period=8), v=AnimatedValue(period=2))),
-                              TextDrawer(text="DREI", loc=(0, 9), driver=AnimatedValue(fun2=lambda x:x, period=12), color=AnimatedHSVColor(h=AnimatedValue(period=12), v=AnimatedValue(period=3))),
-                              TextDrawer(text="VIER", loc=(7, 9), driver=AnimatedValue(fun2=lambda x:x, period=16), color=AnimatedHSVColor(h=AnimatedValue(period=16), v=AnimatedValue(period=4))),
+                              Distorter(vect_fun=from_center),
+                              Distorter(vect_fun=to_center),
+                              Distorter(vect_fun=swirl2, darken=0.5),
+                              TextDrawer(text="U  ",  loc=(0, 0), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(fun2=lambda x:x-0.5 if x > 0.5 else x+0.5, period=8), v=AnimatedValue(fun1=lambda x:x/2))),
+                              TextDrawer(text="N  ",  loc=(3, 0), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(period=8), v=AnimatedValue(fun1=lambda x:x/2))),
+                              TextDrawer(text="Z  ",  loc=(6, 0), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(fun2=lambda x:x-0.5 if x > 0.5 else x+0.5, period=8), v=AnimatedValue(fun1=lambda x:x/2))),
+                              TextDrawer(text=" U ",  loc=(0, 5), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(fun2=lambda x:x-0.5 if x > 0.5 else x+0.5, period=8), v=AnimatedValue(fun1=lambda x:x/2))),
+                              TextDrawer(text=" N ",  loc=(3, 5), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(period=8), v=AnimatedValue(fun1=lambda x:x/2))),
+                              TextDrawer(text=" Z ",  loc=(6, 5), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(fun2=lambda x:x-0.5 if x > 0.5 else x+0.5, period=8), v=AnimatedValue(fun1=lambda x:x/2))),
+                              TextDrawer(text="  U",  loc=(0, 10), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(period=8), v=AnimatedValue(fun1=lambda x:x/2))),
+                              TextDrawer(text="  N",  loc=(3, 10), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(fun2=lambda x:x-0.5 if x > 0.5 else x+0.5, period=8), v=AnimatedValue(fun1=lambda x:x/2))),
+                              TextDrawer(text="  Z",  loc=(6, 10), driver=AnimatedValue(fun2=lambda x:x, period=3), color=AnimatedHSVColor(h=AnimatedValue(period=8), v=AnimatedValue(fun1=lambda x:x/2))),
                           ]
                           )
         ]
