@@ -2,7 +2,7 @@ import math
 import numpy as np
 
 
-def applyBitmap(bmp, display, loc, bg_color=None, fg_color=(255, 255, 255)):
+def apply_bitmap(bmp, display, loc, bg_color=None, fg_color=(255, 255, 255)):
     """Applies a bitmap to a display. Cuts away any parts that are out of bounds for the display
 
     Args:
@@ -23,7 +23,7 @@ def applyBitmap(bmp, display, loc, bg_color=None, fg_color=(255, 255, 255)):
                     pass
 
 
-def getColor(image, loc, default=np.array((0, 0, 0))):
+def get_color(image, loc, default=np.array((0, 0, 0))):
     x, y = loc
     if 0 <= x < image.shape[0] and 0 <= y < image.shape[1]:
         return image[x][y]
@@ -31,7 +31,7 @@ def getColor(image, loc, default=np.array((0, 0, 0))):
         return default
 
 
-def getAntialiasedColor(image, loc):
+def get_antialiased_color(image, loc):
     x, y = loc
 
     if int(x) == x:
@@ -56,7 +56,7 @@ def getAntialiasedColor(image, loc):
         py1 = 1 - abs(y - y1)
         py2 = 1 - abs(y - y2)
 
-    return (getColor(image, (x1, y1)) * px1 * py1 +
-            getColor(image, (x1, y2)) * px1 * py2 +
-            getColor(image, (x2, y1)) * px2 * py1 +
-            getColor(image, (x2, y2)) * px2 * py2).astype(np.uint8)
+    return (get_color(image, (x1, y1)) * px1 * py1 +
+            get_color(image, (x1, y2)) * px1 * py2 +
+            get_color(image, (x2, y1)) * px2 * py1 +
+            get_color(image, (x2, y2)) * px2 * py2).astype(np.uint8)

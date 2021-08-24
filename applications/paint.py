@@ -27,10 +27,10 @@ class Paint(core.Application):
     def update(self, io, delta):
         if io.controller.b.get_fresh_value():
             self.selected_index = (
-                self.selected_index + 1) % len(self.color_pallette)
+                                          self.selected_index + 1) % len(self.color_pallette)
         if io.controller.a.get_fresh_value():
             self.pixels[self.cursor[0]][self.cursor[1]
-                                        ] = self.color_pallette[self.selected_index]
+            ] = self.color_pallette[self.selected_index]
             self.save_value("pixels", self.pixels)
 
         if io.controller.left.get_fresh_value():
@@ -48,8 +48,7 @@ class Paint(core.Application):
         for x in range(len(self.pixels)):
             for y in range(len(self.pixels[x])):
                 if [x, y] == self.cursor:
-                    color = tuple(map(lambda color: int(
-                        (255 - color) * (1 - pulser) + color * pulser), self.pixels[x][y]))
+                    color = tuple(map(lambda c: int((255 - c) * (1 - pulser) + c * pulser), self.pixels[x][y]))
                     io.display.update(x, y, color)
                 else:
                     io.display.update(x, y, self.pixels[x][y])

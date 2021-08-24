@@ -40,9 +40,8 @@ class BeatAnimation(core.Application):
         self.last = now
 
         self.hue += delta / 2
-        self.hue = self.hue % 255
-        color = tuple(map(lambda x: int(x * 255),
-                          colorsys.hsv_to_rgb(self.hue, 1, 1)))
+        self.hue %= 255
+        color = tuple(map(lambda c: int(c * 255), colorsys.hsv_to_rgb(self.hue, 1, 1)))
 
         for x in range(frame.shape[0]):
             for y in range(frame.shape[1]):
@@ -103,7 +102,7 @@ class VideoPlayer(core.Application):
                 for y in range(io.display.height):
                     io.display.update(x, y, converted[y][x])
         else:
-            io.closeApplication()
+            io.close_application()
 
 
 class Webcam(VideoPlayer):

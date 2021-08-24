@@ -44,7 +44,7 @@ class CursesDisplay(core.Display):
 
 
 class CursesIOManager(core.IOManager):
-    def __init__(self, screen_res=(10, 15), **kwargs):
+    def __init__(self, screen_res=(10, 15)):
         curses.initscr()
 
         self.win = curses.newwin(

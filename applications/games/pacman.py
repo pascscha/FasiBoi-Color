@@ -102,8 +102,7 @@ class Field:
     def completed(self):
         return not (
                 np.any(
-                    self.field == self.FOOD) or np.any(
-            self.field == self.SUPER_FOOD))
+                    self.field == self.FOOD) or np.any(self.field == self.SUPER_FOOD))
 
     def draw(self, display, pulse_progression):
         prog1 = pulse_progression * 2
@@ -150,8 +149,7 @@ class Entity:
     def get_walkable_directions(self, backtrack=False):
         return [
             direction for direction in Field.DIRECTIONS
-            if self.is_walkable(self.pos + direction)
-               and (backtrack or direction != -self.direction)
+            if self.is_walkable(self.pos + direction) and (backtrack or direction != -self.direction)
         ]
 
     def update(self, delta):
@@ -410,8 +408,8 @@ class Pacman(core.Game):
 
         if time.time() < self.level_start + self.NEW_LEVEL_WAIT:
             if int(self.pulse_progression * 3) % 2 == 0:
-                level_text = textutils.getTextBitmap(str(self.level))
-                bitmaputils.applyBitmap(
+                level_text = textutils.get_text_bitmap(str(self.level))
+                bitmaputils.apply_bitmap(
                     level_text,
                     io.display,
                     (io.display.width //
@@ -431,6 +429,6 @@ class Pacman(core.Game):
             self.reset_level(io, self.level + 1)
 
     def _update_gameover(self, io, delta):
-        io.openApplication(VideoPlayer(
+        io.open_application(VideoPlayer(
             "resources/animations/pacman-death.gif", loop=False))
         self.state = self.PRE_GAME

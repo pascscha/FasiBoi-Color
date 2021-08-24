@@ -178,7 +178,7 @@ class TextDrawer(Drawer):
             **kwargs):
         super().__init__(*args, **kwargs)
         self.loc = np.array(loc)
-        bitmaps = [textutils.getCharBitmap(c) for c in text]
+        bitmaps = [textutils.get_char_bitmap(c) for c in text]
         unmoved_coords = [list(zip(*reversed(np.where(bmp))))
                           for bmp in bitmaps]
         self.frame_coords = [
@@ -295,7 +295,7 @@ class Distorter(Content):
                 vx, vy = self.vectors[x][y]
                 px = x + vx * self.speed * delta
                 py = y + vy * self.speed * delta
-                out[x, y] = bitmaputils.getAntialiasedColor(darkened, (px, py))
+                out[x, y] = bitmaputils.get_antialiased_color(darkened, (px, py))
 
         return out
 

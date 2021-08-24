@@ -1,3 +1,6 @@
+"""Example program to test cycled animations
+"""
+
 from IO.gui import PygameIOManager
 from applications.animations import BeatAnimation, AnimationCycler
 

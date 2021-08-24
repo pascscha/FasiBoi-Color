@@ -1,3 +1,6 @@
+"""Example program to test 2048 Game
+"""
+
 from IO.gui import PygameIOManager
 from applications.games.g2048 import G2048
 

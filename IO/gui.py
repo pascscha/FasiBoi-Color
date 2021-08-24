@@ -1,6 +1,7 @@
 import pygame
 from IO import core
 from os import environ
+
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 
@@ -38,9 +39,9 @@ class PygameDisplay(core.Display):
 
         # Recenter screen
         new_pos_x = screen_pos[0] + \
-            (screen_size[0] - self.pixel_size * self.width) // 2
+                    (screen_size[0] - self.pixel_size * self.width) // 2
         new_pos_y = screen_pos[1] + \
-            (screen_size[1] - self.pixel_size * self.height) // 2
+                    (screen_size[1] - self.pixel_size * self.height) // 2
         self.screen_pos = (new_pos_x, new_pos_y)
 
         pygame.draw.rect(
@@ -54,8 +55,7 @@ class PygameDisplay(core.Display):
     def _update(self, x, y, color):
         left = self.screen_pos[0] + self.pixel_size * x
         top = self.screen_pos[1] + self.pixel_size * y
-        pygame.draw.rect(self.win, color, (left, top,
-                                        self.pixel_size, self.pixel_size))
+        pygame.draw.rect(self.win, color, (left, top, self.pixel_size, self.pixel_size))
 
 
 class PygameIOManager(core.IOManager):

@@ -220,10 +220,10 @@ class G2048(core.Game):
                 if self.field[x][y] is not None:
                     self.field[x][y].draw(io.display)
 
-        score_bmp = textutils.getTextBitmap(
+        score_bmp = textutils.get_text_bitmap(
             str(round(math.log(self.score, 2))))
 
-        bitmaputils.applyBitmap(
+        bitmaputils.apply_bitmap(
             score_bmp,
             io.display,
             (io.display.width // 2 -

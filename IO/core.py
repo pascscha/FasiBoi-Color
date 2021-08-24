@@ -62,7 +62,7 @@ class Display:
         self.last_pixels = np.ones((width, height, 3), dtype=np.uint8)
         self.brightness = brightness
 
-    def checkCoordinates(self, x, y):
+    def check_coordinates(self, x, y):
         """Checks wether the given coordinates are valid
 
         Args:
@@ -77,7 +77,8 @@ class Display:
         elif y < 0 or y >= self.height:
             raise ValueError("y Coordinates out of bounds!")
 
-    def checkColor(self, color):
+    @staticmethod
+    def check_color(color):
         """Checks wether a color is valid
 
         Args:
@@ -99,7 +100,7 @@ class Display:
             y (int): The y coordinate of that pixel
             color ((int, int, int)): The new rgb color of that pixel
         """
-        self.checkCoordinates(x, y)
+        self.check_coordinates(x, y)
         if not isinstance(color, Color):
             color = Color(*color)
         self.pixels[x][y] = color * self.brightness
@@ -190,7 +191,7 @@ class IOManager:
 
             self.display.refresh()
             if self.controller.menu.get_fresh_value():
-                self.closeApplication()
+                self.close_application()
             time.sleep(max(0, min(delta, 1 / self.fps)))
 
     def __enter__(self):
@@ -199,10 +200,10 @@ class IOManager:
     def __exit__(self, *args, **kwargs):
         self.running = False
         while len(self.applications) > 0:
-            self.closeApplication()
+            self.close_application()
         self.destroy()
 
-    def openApplication(self, application):
+    def open_application(self, application):
         """Opens a new application
 
         Args:
@@ -212,7 +213,7 @@ class IOManager:
             self.display, self.animation_duration)
         self.applications.append(application)
 
-    def closeApplication(self):
+    def close_application(self):
         """Closes the topmost application and returns to the previously opened appplication.
         If none exists quits the Program
         """

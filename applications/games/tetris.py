@@ -23,25 +23,25 @@ class Tetromino():
 
 
 class TetrominoList():
-    I = [(np.array([0, 1, 2, 3]), np.array([1, 1, 1, 1])),
-         (np.array([0, 0, 0, 0]), np.array([0, 1, 2, 3]))]
-    O = [(np.array([0, 0, 1, 1]), np.array([1, 2, 1, 2]))]
-    L = [(np.array([0, 1, 2, 2]), np.array([1, 1, 1, 2])),
-         (np.array([1, 1, 1, 0]), np.array([0, 1, 2, 2])),
-         (np.array([0, 0, 1, 2]), np.array([1, 2, 2, 2])),
-         (np.array([0, 0, 0, 1]), np.array([0, 1, 2, 0]))]
-    J = [(np.array([0, 1, 2, 2]), np.array([2, 2, 2, 1])),
-         (np.array([0, 0, 0, 1]), np.array([0, 1, 2, 2])),
-         (np.array([0, 0, 1, 2]), np.array([1, 2, 1, 1])),
-         (np.array([1, 1, 1, 0]), np.array([0, 1, 2, 0]))]
-    T = [(np.array([0, 0, 0, 1]), np.array([0, 1, 2, 1])),
-         (np.array([0, 1, 1, 2]), np.array([1, 1, 2, 1])),
-         (np.array([1, 1, 1, 0]), np.array([0, 1, 2, 1])),
-         (np.array([0, 1, 1, 2]), np.array([2, 2, 1, 2]))]
-    Z = [(np.array([0, 0, 1, 1]), np.array([0, 1, 1, 2])),
-         (np.array([0, 1, 1, 2]), np.array([2, 1, 2, 1]))]
-    S = [(np.array([0, 0, 1, 1]), np.array([2, 1, 1, 0])),
-         (np.array([0, 1, 1, 2]), np.array([1, 2, 1, 2]))]
+    SHAPE_I = [(np.array([0, 1, 2, 3]), np.array([1, 1, 1, 1])),
+               (np.array([0, 0, 0, 0]), np.array([0, 1, 2, 3]))]
+    SHAPE_O = [(np.array([0, 0, 1, 1]), np.array([1, 2, 1, 2]))]
+    SHAPE_L = [(np.array([0, 1, 2, 2]), np.array([1, 1, 1, 2])),
+               (np.array([1, 1, 1, 0]), np.array([0, 1, 2, 2])),
+               (np.array([0, 0, 1, 2]), np.array([1, 2, 2, 2])),
+               (np.array([0, 0, 0, 1]), np.array([0, 1, 2, 0]))]
+    SHAPE_J = [(np.array([0, 1, 2, 2]), np.array([2, 2, 2, 1])),
+               (np.array([0, 0, 0, 1]), np.array([0, 1, 2, 2])),
+               (np.array([0, 0, 1, 2]), np.array([1, 2, 1, 1])),
+               (np.array([1, 1, 1, 0]), np.array([0, 1, 2, 0]))]
+    SHAPE_T = [(np.array([0, 0, 0, 1]), np.array([0, 1, 2, 1])),
+               (np.array([0, 1, 1, 2]), np.array([1, 1, 2, 1])),
+               (np.array([1, 1, 1, 0]), np.array([0, 1, 2, 1])),
+               (np.array([0, 1, 1, 2]), np.array([2, 2, 1, 2]))]
+    SHAPE_Z = [(np.array([0, 0, 1, 1]), np.array([0, 1, 1, 2])),
+               (np.array([0, 1, 1, 2]), np.array([2, 1, 2, 1]))]
+    SHAPE_S = [(np.array([0, 0, 1, 1]), np.array([2, 1, 1, 0])),
+               (np.array([0, 1, 1, 2]), np.array([1, 2, 1, 2]))]
 
     COLOR_I = (0, 255, 255)
     COLOR_O = (255, 255, 0)
@@ -59,7 +59,8 @@ class TetrominoList():
     def __init__(self):
         self.tetlist = []
         for tet, (idx, color) in zip(
-                [self.I, self.O, self.L, self.J, self.T, self.Z, self.S], enumerate(self.COLORS)):
+                [self.SHAPE_I, self.SHAPE_O, self.SHAPE_L, self.SHAPE_J, self.SHAPE_T, self.SHAPE_Z, self.SHAPE_S],
+                enumerate(self.COLORS)):
             self.tetlist.append(Tetromino(tet, idx))
 
     def sample(self):
@@ -210,7 +211,7 @@ class Tetris(core.Game):
         to_delete = list(to_delete[0])
         for idx in to_delete:
             self.shift_rows(idx, io)
-        self.score += 2**len(to_delete) - 1
+        self.score += 2 ** len(to_delete) - 1
 
     def shift_rows(self, idx, io=None):
         if io is not None:

@@ -127,10 +127,10 @@ class VerticalDistort(WindowEffect):
 
             if amount > 0:
                 display.pixels[amount:, y] = display.pixels[:-amount, y]
-                #display.pixels[:amount, y] = 0
+                # display.pixels[:amount, y] = 0
             elif amount < 0:
                 display.pixels[:amount, y] = display.pixels[-amount:, y]
-                #display.pixels[-amount:, y] = 0
+                # display.pixels[-amount:, y] = 0
 
 
 class Dropout(WindowEffect):

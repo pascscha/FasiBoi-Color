@@ -1,7 +1,6 @@
 from IO.color import *
 from applications.games import core
 from helpers import animations
-import random
 import time
 
 
@@ -33,7 +32,7 @@ class Frat(core.Game):
             animations.Blinker(
                 Color(
                     32, 32, 32), Color(
-                    255, 255, 255)) for i in range(4)]
+                    255, 255, 255)) for _ in range(4)]
         self.draw_blinker = animations.Blinker(
             Color(32, 32, 32), Color(255, 255, 255))
 
@@ -82,14 +81,15 @@ class Frat(core.Game):
 
         for i, coord in enumerate(coordinates):
             prog = 1 - self.border_ticker.progression + i / len(coordinates)
-            prog = prog - int(prog)
+            prog -= int(prog)
             if prog < 0.1:
                 prog = (0.1 - prog) / 0.1
 
             io.display.update(
                 *coord, tuple(map(lambda c: c * (0.5 + 0.5 * prog), color)))
 
-    def get_background_color(self, x, y):
+    @staticmethod
+    def get_background_color(x, y):
         if (x + y) % 2 == 0:
             return Color(0, 0, 0)
         else:
@@ -213,7 +213,7 @@ class Frat(core.Game):
                     else:
                         x = color + 5
                     io.display.update(x, 10 + bit, self.COLOR_MAP[color])
-                mask = mask << 1
+                mask <<= 1
 
     def _update_gameover(self, io, delta):
         io.display.fill(Color(0, 0, 0))

@@ -1,3 +1,5 @@
+"""Example program to test animations
+"""
 from IO.gui import PygameIOManager
 from applications.animations import BeatAnimation
 

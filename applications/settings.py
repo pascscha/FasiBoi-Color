@@ -70,8 +70,8 @@ class NumberChoice(core.Application):
                     color = (0, 0, 0)
                 io.display.update(x, y, color)
 
-        bmp = textutils.getTextBitmap(str(self.value))
-        bitmaputils.applyBitmap(
+        bmp = textutils.get_text_bitmap(str(self.value))
+        bitmaputils.apply_bitmap(
             bmp,
             io.display,
             (io.display.width // 2 - bmp.shape[1] // 2,

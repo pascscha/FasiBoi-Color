@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def getCharBitmap(char):
+def get_char_bitmap(char):
     """Gets the bitmap for a single char
 
     Args:
@@ -19,7 +19,7 @@ def getCharBitmap(char):
     return np.load(file_path)[letters.index(char)]
 
 
-def getTextBitmap(text):
+def get_text_bitmap(text):
     """Gets a bitmap of a string. Distance between two characters is 1 pixel
 
     Args:
@@ -30,5 +30,5 @@ def getTextBitmap(text):
     """
     out = np.zeros((5, 4 * len(text) - 1), np.bool)
     for i, char in enumerate(text):
-        out[:, i * 4:i * 4 + 3] = getCharBitmap(char)
+        out[:, i * 4:i * 4 + 3] = get_char_bitmap(char)
     return out

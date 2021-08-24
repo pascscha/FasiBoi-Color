@@ -49,7 +49,7 @@ class SlidingChoice:
 
         progression = self.prog - choice_2
 
-        bmp = textutils.getTextBitmap(" ".join([
+        bmp = textutils.get_text_bitmap(" ".join([
             self.choices[choice_1].text[:2],
             self.choices[choice_2].text[:2],
             self.choices[choice_3].text[:2]
@@ -62,11 +62,11 @@ class SlidingChoice:
             color2 = self.choices[choice_3].color
             self.color = tuple(map(
                 lambda c: c[0] * (1 - progression) + c[1] * progression, zip(color1, color2)))
-        bitmaputils.applyBitmap(bmp,
-                                io.display,
-                                (int(-11 + progression * -12),
+        bitmaputils.apply_bitmap(bmp,
+                                 io.display,
+                                 (int(-11 + progression * -12),
                                  self.height),
-                                fg_color=self.color)
+                                 fg_color=self.color)
 
 
 class ApplicationOpener:
@@ -74,7 +74,7 @@ class ApplicationOpener:
         self.application = application
 
     def __call__(self, io):
-        io.openApplication(self.application)
+        io.open_application(self.application)
 
 
 class Menu(core.Application):
