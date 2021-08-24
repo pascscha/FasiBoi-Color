@@ -86,7 +86,7 @@ class VideoPlayer(core.Application):
 
     def update(self, io, delta):
         ret, frame = self.get_frame(delta)
-        if ret:
+        if ret and frame is not None:
             max_width = frame.shape[0] * io.display.width / io.display.height
             if max_width < frame.shape[1]:
                 cut = int((frame.shape[1] - max_width) / 2)

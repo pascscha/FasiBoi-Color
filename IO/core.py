@@ -1,6 +1,3 @@
-import time
-import numpy as np
-import cv2
 from IO.effects import *
 from IO.color import Color
 
@@ -169,7 +166,6 @@ class IOManager:
         """
         self.applications = [application]
         last = time.time()
-        delta = 0
         while len(self.applications) > 0:
             now = time.time()
             delta = now - last

@@ -9,8 +9,9 @@ def applyBitmap(bmp, display, loc, bg_color=None, fg_color=(255, 255, 255)):
         bmp (2D boolean array): The bitmap to apply
         display (IO.core.Display): The display to apply the bitmap to
         loc ((int, int)): The top left coordinates where the bitmap should be applied
-        color0 ((int, int, int), optional): The color of the background. Defaults to None, which leaves it transparent
-        color1 ((int, int, int), optional): The color of the foreground. Defaults to (255, 255, 255). None would leave it transparent.
+        bg_color ((int, int, int), optional): The color of the background. Defaults to None, which leaves it transparent
+        fg_color ((int, int, int), optional): The color of the foreground. Defaults to (255, 255, 255). None would leave
+         it transparent.
     """
     for x in range(bmp.shape[1]):
         for y in range(bmp.shape[0]):

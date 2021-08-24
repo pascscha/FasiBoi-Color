@@ -55,7 +55,7 @@ class PygameDisplay(core.Display):
         left = self.screen_pos[0] + self.pixel_size * x
         top = self.screen_pos[1] + self.pixel_size * y
         pygame.draw.rect(self.win, color, (left, top,
-                                           self.pixel_size, self.pixel_size))
+                                        self.pixel_size, self.pixel_size))
 
 
 class PygameIOManager(core.IOManager):

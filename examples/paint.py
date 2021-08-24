@@ -1,4 +1,4 @@
-from IO.pygame import PygameIOManager
+from IO.gui import PygameIOManager
 from applications.paint import Paint
 
 if __name__ == "__main__":

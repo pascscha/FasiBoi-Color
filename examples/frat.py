@@ -1,4 +1,4 @@
-from IO.pygame import PygameIOManager
+from IO.gui import PygameIOManager
 from applications.games.frat import Frat
 
 if __name__ == "__main__":

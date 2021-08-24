@@ -3,8 +3,8 @@ from IO import core
 
 
 class CursesController(core.Controller):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
         self.keymap = {
             106: self.left,  # J
             105: self.up,  # I
@@ -45,16 +45,16 @@ class CursesDisplay(core.Display):
 
 class CursesIOManager(core.IOManager):
     def __init__(self, screen_res=(10, 15), **kwargs):
-        screen = curses.initscr()
+        curses.initscr()
 
         self.win = curses.newwin(
             screen_res[1] + 4, screen_res[0] * 2 + 4, 2, 2)
         curses.noecho()
-        self.win.nodelay(1)
+        self.win.nodelay(True)
 
-        self.win.keypad(1)
-        self.win.border(1)
-        self.win.nodelay(1)
+        self.win.keypad(True)
+        self.win.border(True)
+        self.win.nodelay(True)
         self.win.refresh()
 
         controller = CursesController()

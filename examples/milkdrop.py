@@ -1,4 +1,4 @@
-from IO.pygame import PygameIOManager
+from IO.gui import PygameIOManager
 from applications.milkdrop import Milkdrop
 
 if __name__ == "__main__":

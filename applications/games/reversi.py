@@ -1,6 +1,4 @@
 from applications.games import alphabeta
-import random
-import numpy as np
 
 
 class ReversiMove(alphabeta.Move):
@@ -33,13 +31,11 @@ class ReversiMove(alphabeta.Move):
 class ReversiField(alphabeta.BitField):
     def __init__(
             self,
-            *args,
             count1=2,
             count2=2,
             bits1=0x18000000,
-            bits2=0x1800000000,
-            **kwargs):
-        super().__init__(*args, width=8, height=8, bits1=bits1, bits2=bits2, **kwargs)
+            bits2=0x1800000000):
+        super().__init__(width=8, height=8, bits1=bits1, bits2=bits2)
         self.possible = [None, None]
         self.count1 = count1
         self.count2 = count2
@@ -93,10 +89,10 @@ class ReversiField(alphabeta.BitField):
             count = self.count2
 
         return 1000 * self.count_bits(bits & 0x8100000000000081) + \
-            238 * len(self.possible_moves(player)) + \
-            -166 * self.count_bits(bits & 0x4281000000008142) + \
-            -401 * self.count_bits(bits & 0x42000000004200) + \
-            -26 * count
+               238 * len(self.possible_moves(player)) + \
+               -166 * self.count_bits(bits & 0x4281000000008142) + \
+               -401 * self.count_bits(bits & 0x42000000004200) + \
+               -26 * count
 
     @staticmethod
     def possible_dir(player, opponent, possible, move_function):
@@ -152,21 +148,21 @@ class ReversiField(alphabeta.BitField):
                 opponent_bits,
                 free,
                 self.move_se) | self.possible_dir(
-                    player_bits,
-                    opponent_bits,
-                    free,
-                    self.move_s) | self.possible_dir(
-                        player_bits,
-                        opponent_bits,
-                        free,
-                        self.move_sw) | self.possible_dir(
-                            player_bits,
-                            opponent_bits,
-                            free,
-                            self.move_w) | self.possible_dir(
-                                player_bits,
-                                opponent_bits,
-                                free,
+                player_bits,
+                opponent_bits,
+                free,
+                self.move_s) | self.possible_dir(
+                player_bits,
+                opponent_bits,
+                free,
+                self.move_sw) | self.possible_dir(
+                player_bits,
+                opponent_bits,
+                free,
+                self.move_w) | self.possible_dir(
+                player_bits,
+                opponent_bits,
+                free,
                 self.move_nw)
 
             self.possible[index] = [
@@ -191,8 +187,8 @@ class ReversiField(alphabeta.BitField):
             y2 = y + dy
             if not (
                     0 <= x2 < self.width and 0 <= y2 < self.height) or self.get_value(
-                    x2,
-                    y2) != other:
+                x2,
+                y2) != other:
                 continue
 
             flips_dir = self.get_bitmask(x2, y2)
@@ -243,7 +239,7 @@ class ReversiField(alphabeta.BitField):
                 color) for x in range(
                 self.width) for y in range(
                 self.height) if bits & self.get_bitmask(
-                    x,
+                x,
                 y) != 0]
 
 

@@ -4,7 +4,6 @@ from helpers import textutils, bitmaputils, animations
 from applications.menu import SlidingChoice, Choice
 from IO.color import *
 import threading
-import numpy as np
 
 
 class Move:
@@ -57,9 +56,9 @@ class BitField(Field):
     @classmethod
     def count_bits(self, x):
         return bin(x).count("1")
-        #x -= (x >> 1) & self.M1
-        #x = (x & self.M2) + ((x >> 2) & self.M2)
-        #x = (x + (x >> 4)) & self.M4
+        # x -= (x >> 1) & self.M1
+        # x = (x & self.M2) + ((x >> 2) & self.M2)
+        # x = (x + (x >> 4)) & self.M4
         # return (x * self.H01) >> 56
 
     def get_bitmask(self, x, y):
@@ -102,7 +101,8 @@ class BitField(Field):
 
     def __str__(self):
         out = [
-            f"{self.__class__.__name__} -  X: {self.score(self.COLOR1)} ({self.has_won(self.COLOR1)}) O: {self.score(self.COLOR2)} ({self.has_won(self.COLOR2)})"]
+            f"{self.__class__.__name__} -  X: {self.score(self.COLOR1)} ({self.has_won(self.COLOR1)}) "
+            f"O: {self.score(self.COLOR2)} ({self.has_won(self.COLOR2)})"]
         for y in range(self.height):
             line = []
             for x in range(self.width):
@@ -132,8 +132,8 @@ class AlphaBeta:
         self.other = field.other(self.player)
         self.time_over = time.time() + self.timeout
 
-        bestScore = self.ALPHA_INIT - 1
-        bestMove = None
+        best_score = self.ALPHA_INIT - 1
+        best_move = None
         for move in field.possible_moves(self.player):
             next_field = move.apply(field)
             score = self.get_min(
@@ -141,10 +141,10 @@ class AlphaBeta:
                 AlphaBeta.ALPHA_INIT,
                 AlphaBeta.BETA_INIT,
                 self.depth - 1)
-            if score > bestScore:
-                bestScore = score
-                bestMove = move
-        return bestMove
+            if score > best_score:
+                best_score = score
+                best_move = move
+        return best_move
 
     def get_max(self, field, alpha, beta, depth):
         if self.time_over < time.time():
@@ -154,16 +154,16 @@ class AlphaBeta:
         elif field.is_full() or depth <= 0:
             return field.score(self.player)
 
-        bestScore = self.ALPHA_INIT
+        best_score = self.ALPHA_INIT
         for move in field.possible_moves(self.player):
             next_field = move.apply(field)
             score = self.get_min(next_field, alpha, beta, depth - 1)
-            if score > bestScore:
+            if score > best_score:
                 alpha = score
-                bestScore = score
+                best_score = score
             if alpha >= beta:
                 return alpha
-        return bestScore
+        return best_score
 
     def get_min(self, field, alpha, beta, depth):
         if self.time_over < time.time():
@@ -173,23 +173,23 @@ class AlphaBeta:
         elif field.is_full() or depth <= 0:
             return field.score(self.player)
 
-        bestScore = self.BETA_INIT
+        best_score = self.BETA_INIT
         for move in field.possible_moves(self.other):
             next_field = move.apply(field)
             score = self.get_max(next_field, alpha, beta, depth - 1)
-            if score < bestScore:
+            if score < best_score:
                 beta = score
-                bestScore = score
+                best_score = score
             if alpha >= beta:
                 return beta
-        return bestScore
+        return best_score
 
 
 class Strategy:
     def __init__(self, color):
         self.color = color
 
-    def make_move(self, io, delta, field):
+    def make_move(self, io, delta, field, left, top):
         raise NotImplementedError("Please Implement this method")
 
 
@@ -206,14 +206,19 @@ class Applyer:
 class TreadWithResult(threading.Thread):
     def __init__(
             self,
-            *threadArgs,
+            *thread_args,
             target=None,
             args=(),
-            kwargs={},
-            **threadKwargs):
+            kwargs=None,
+            **thread_kwargs):
+        if kwargs is None:
+            kwargs = {}
+        self.result = None
+
         def function():
             self.result = target(*args, **kwargs)
-        super().__init__(*threadArgs, target=function, **threadKwargs)
+
+        super().__init__(*thread_args, target=function, **thread_kwargs)
 
 
 class AIPlayer(Strategy):
@@ -222,7 +227,6 @@ class AIPlayer(Strategy):
         self.time_limit = time_limit
         self.max_depth = max_depth
         self.thread = None
-        move = None
 
     def _make_move(self, field):
         finish_time = time.time() + self.time_limit
@@ -231,10 +235,10 @@ class AIPlayer(Strategy):
             try:
                 time_left = finish_time - time.time()
                 move = AlphaBeta(d, time_left)(self.color, field)
-            except TimeoutError as e:
-                #print("AI ran out of time at depth", d)
+            except TimeoutError as _:
+                # print("AI ran out of time at depth", d)
                 return move
-        #print("AI finished analysis with depth", d, self.max_depth, move)
+        # print("AI finished analysis with depth", d, self.max_depth, move)
         return move
 
     def make_move(self, io, delta, field, left, top):
@@ -289,15 +293,12 @@ class HumanPlayer(Strategy):
                     score += field.width - abs(delta_x)
                 else:
                     sign = 1 if direction[0] * delta_x > 0 else -1
-                    score += 100 * \
-                        (field.width - abs(delta_x)) * sign
+                    score += 100 * (field.width - abs(delta_x)) * sign
 
                 if direction[1] == 0:
                     score += field.height - abs(delta_y)
                 else:
                     sign = 1 if direction[1] * delta_y > 0 else -1
-                    score += 100 * \
-                        (field.height - abs(delta_y)) * sign
 
                 if best_score is None or score > best_score:
                     best_score = score
@@ -336,36 +337,18 @@ class StrategyGame(core.Game):
         self.player1 = None
         self.player2 = None
 
-        self.player1Choice = SlidingChoice([Choice("Hu",
-                                                   WHITE,
-                                                   Applyer(self,
-                                                           HumanPlayer(BitField.COLOR1)))] + [Choice(name,
-                                                                                                     color,
-                                                                                                     Applyer(self,
-                                                                                                             AIPlayer(t,
-                                                                                                                      d,
-                                                                                                                      BitField.COLOR1))) for name,
-                                                                                              (color,
-                                                                                               t,
-                                                                                               d) in self.DIFFICULTIES.items()],
-                                           8)
+        self.player1Choice = SlidingChoice([
+                                               Choice("Hu", WHITE, Applyer(self, HumanPlayer(BitField.COLOR1)))] + [
+                                               Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR1)))
+                                               for name, (color, t, d) in self.DIFFICULTIES.items()], 8)
 
-        self.player2Choice = SlidingChoice([Choice("Hu",
-                                                   WHITE,
-                                                   Applyer(self,
-                                                           HumanPlayer(BitField.COLOR2)))] + [Choice(name,
-                                                                                                     color,
-                                                                                                     Applyer(self,
-                                                                                                             AIPlayer(t,
-                                                                                                                      d,
-                                                                                                                      BitField.COLOR2))) for name,
-                                                                                              (color,
-                                                                                               t,
-                                                                                               d) in self.DIFFICULTIES.items()],
-                                           8)
+        self.player2Choice = SlidingChoice([
+                                               Choice("Hu", WHITE, Applyer(self, HumanPlayer(BitField.COLOR2)))] + [
+                                               Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR2)))
+                                               for name, (color, t, d) in self.DIFFICULTIES.items()], 8)
         self.reset()
 
-    def reset(self):
+    def reset(self, *args):
         self.player1 = None
         self.player2 = None
         self.field = None
@@ -394,7 +377,7 @@ class StrategyGame(core.Game):
         io.display.fill((0, 0, 0))
         idx = [BitField.COLOR1, BitField.COLOR2].index(color)
 
-        bmp = textutils.getTextBitmap(f"P{idx+1}")
+        bmp = textutils.getTextBitmap(f"P{idx + 1}")
         bitmaputils.applyBitmap(
             bmp, io.display, (1, 1), fg_color=self.COLOR_MAP[color])
         [self.player1Choice, self.player2Choice][idx].update(io, delta)
@@ -495,9 +478,9 @@ class StrategyGame(core.Game):
         color = self.border_color.get_value()
 
         coordinates = [(x, top - 1) for x in range(left - 1, right + 1)] + \
-            [(right, y) for y in range(top, bottom + 1)] + \
-            [(x, bottom) for x in range(right, left - 1, -1)] + \
-            [(left - 1, y) for y in range(bottom, top - 1, -1)]
+                      [(right, y) for y in range(top, bottom + 1)] + \
+                      [(x, bottom) for x in range(right, left - 1, -1)] + \
+                      [(left - 1, y) for y in range(bottom, top - 1, -1)]
 
         for i, coord in enumerate(coordinates):
             prog = 1 - self.border_ticker.progression + i / len(coordinates)

@@ -26,8 +26,8 @@ class Position:
         self._x = new_x % self.width
 
     @y.setter
-    def y(self):
-        return self.y % self.height
+    def y(self, new_y):
+        self._y = new_y % self.height
 
     def __add__(self, other):
         if isinstance(other, Position):
@@ -72,7 +72,7 @@ class Position:
         return f"Position({self.x}, {self.y})"
 
     def squared_distance(self, other):
-        return (self.x - other.x)**2 + (self.y - other.y)**2
+        return (self.x - other.x) ** 2 + (self.y - other.y) ** 2
 
 
 class Field:
@@ -101,9 +101,9 @@ class Field:
 
     def completed(self):
         return not (
-            np.any(
-                self.field == self.FOOD) or np.any(
-                self.field == self.SUPER_FOOD))
+                np.any(
+                    self.field == self.FOOD) or np.any(
+            self.field == self.SUPER_FOOD))
 
     def draw(self, display, pulse_progression):
         prog1 = pulse_progression * 2
@@ -127,18 +127,15 @@ class Field:
 
 class Entity:
     def __init__(
-        self,
-        field,
-        pos,
-        speed=5,
-        color=(
-            255,
-            255,
-            255),
-        direction=Field.LEFT,
-        obstacles=[
-            Field.WALL,
-            Field.GHOST_DOOR]):
+            self,
+            field,
+            pos,
+            speed=5.,
+            color=(255, 255, 255),
+            direction=Field.LEFT,
+            obstacles=None):
+        if obstacles is None:
+            obstacles = [Field.WALL, Field.GHOST_DOOR]
         self.field = field
         self.pos = pos
         self.ticker = animations.Ticker(speed)
@@ -154,7 +151,7 @@ class Entity:
         return [
             direction for direction in Field.DIRECTIONS
             if self.is_walkable(self.pos + direction)
-            and (backtrack or direction != -self.direction)
+               and (backtrack or direction != -self.direction)
         ]
 
     def update(self, delta):
@@ -203,12 +200,12 @@ class Ghost(Entity):
             field,
             idle_target,
             *args,
-            release=2,
-            frighten_duration=5,
-            release_after_eaten=2,
-            target_speed=4,
-            frightened_speed=3,
-            eaten_speed=6,
+            release=2.,
+            frighten_duration=5.,
+            release_after_eaten=2.,
+            target_speed=4.,
+            frightened_speed=3.,
+            eaten_speed=6.,
             **kwargs):
         super().__init__(field, random.choice(field.base),
                          *args, speed=target_speed, **kwargs)
@@ -298,7 +295,7 @@ class Pacman(core.Game):
         self.score = 0
         self.reset_level(io, 1)
 
-    def reset_level(self, io, level):
+    def reset_level(self, _, level):
         self.level = level
         self.level_start = time.time()
 

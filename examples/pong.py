@@ -1,4 +1,4 @@
-from IO.pygame import PygameIOManager
+from IO.gui import PygameIOManager
 from applications.games.pong import Pong
 
 if __name__ == "__main__":

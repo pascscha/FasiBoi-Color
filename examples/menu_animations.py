@@ -1,4 +1,4 @@
-from IO.pygame import PygameIOManager
+from IO.gui import PygameIOManager
 from applications.animations import BeatAnimation
 from applications.menu import Menu
 

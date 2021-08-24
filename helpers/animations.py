@@ -46,15 +46,15 @@ class Blinker(Ticker):
 
 class AnimatedValue(TimedValue):
     def __init__(self, value, speed=1, function=lambda x: x):
+        super().__init__(speed)
         self.old_value = value
         self.new_value = value
 
-        self.speed = speed
         self.function = function
         self.progression = 0
 
     def tick(self, delta):
-        self.progression += delta * self.speed
+        super().tick(delta)
         return self.get_value()
 
     def set_value(self, value):
@@ -65,7 +65,7 @@ class AnimatedValue(TimedValue):
 
     @staticmethod
     def blend(value1, value2, prog):
-        return self.old_value * (1 - prog) + self.new_value * prog
+        return value1 * (1 - prog) + value2 * prog
 
     def get_value(self):
         if self.progression >= 1:

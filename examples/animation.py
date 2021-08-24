@@ -1,5 +1,5 @@
-from IO.pygame import PygameIOManager
-from applications.animations import BeatAnimation, AnimationCycler
+from IO.gui import PygameIOManager
+from applications.animations import BeatAnimation
 
 
 if __name__ == "__main__":

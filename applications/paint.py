@@ -21,7 +21,7 @@ class Paint(core.Application):
         self.progression = 0
 
         self.pixels = self.load_value(
-            "pixels", default=[[(0, 0, 0) for y in range(12)] for x in range(10)])
+            "pixels", default=[[(0, 0, 0) for _ in range(12)] for _ in range(10)])
         self.cursor = [0, 0]
 
     def update(self, io, delta):

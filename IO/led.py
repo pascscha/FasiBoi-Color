@@ -1,5 +1,5 @@
 from IO import core
-from IO.curses import CursesController
+from IO.commandline import CursesController
 from rpi_ws281x.rpi_ws281x import *
 
 # LED strip configuration:

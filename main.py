@@ -1,4 +1,4 @@
-from IO.pygame import PygameIOManager
+from IO.gui import PygameIOManager
 from applications.settings import BrightnessSlider, FPSChoice
 from applications.menu import Menu
 from applications.animations import AnimationCycler, BeatAnimation, SolidColor, VideoPlayer, Webcam

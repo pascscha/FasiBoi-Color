@@ -1,5 +1,4 @@
 from applications.games import core
-import numpy as np
 import random
 from helpers import textutils, bitmaputils
 import math
@@ -102,7 +101,7 @@ class G2048(core.Game):
     }
 
     def reset(self, io):
-        self.field = [[None] * 4 for i in range(4)]
+        self.field = [[None] * 4 for _ in range(4)]
         self.spawn_random()
         self.score = 1
         self.direction = (0, 0)

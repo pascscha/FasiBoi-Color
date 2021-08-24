@@ -1,6 +1,6 @@
 from IO.color import *
 from applications.games import core
-from helpers import animations, textutils, bitmaputils
+from helpers import animations
 import random
 import time
 

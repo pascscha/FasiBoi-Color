@@ -1,5 +1,4 @@
 from applications.games import alphabeta
-import random
 import numpy as np
 
 

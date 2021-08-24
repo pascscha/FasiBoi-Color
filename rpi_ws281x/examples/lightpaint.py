@@ -58,7 +58,7 @@ def lightpaint(
     input_image = img.load()
     image_width = img.size[0]
 
-    column = [0 for x in range(image_width)]
+    column = [0 for _ in range(image_width)]
     for x in range(image_width):
         column[x] = [None] * (LED_COUNT)
 

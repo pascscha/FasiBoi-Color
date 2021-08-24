@@ -30,7 +30,7 @@ class Color(np.ndarray):
         return Color(*map(self.convert, super().__mul__(other)))
 
     def __div__(self, other):
-        return Color(*map(self.convert, super().__div__(other)))
+        return Color(*map(self.convert, super() / other))
 
     @property
     def r(self):
