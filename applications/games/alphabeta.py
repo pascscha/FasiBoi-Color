@@ -407,7 +407,6 @@ class StrategyGame(core.Game):
     def reset(self, *args):
         """Resets the strategy game
         """
-        super().reset(*args)
         self.player1 = None
         self.player2 = None
         self.field = None
