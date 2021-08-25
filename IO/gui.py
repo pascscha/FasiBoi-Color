@@ -1,25 +1,34 @@
+"""IO Management for pygame interfaces
+"""
 import pygame
-from IO import core
 from os import environ
+from IO import core
 
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 
 class PygameController(core.Controller):
+    """A Controller for pygame inputs
+    """
     def __init__(self):
         super().__init__()
         self.keymap = {
-            pygame.K_LEFT: self.left,
-            pygame.K_UP: self.up,
-            pygame.K_RIGHT: self.right,
-            pygame.K_DOWN: self.down,
-            pygame.K_a: self.a,
-            pygame.K_b: self.b,
-            pygame.K_ESCAPE: self.menu,
-            pygame.K_t: self.teppich
+            pygame.K_LEFT: self.button_left,
+            pygame.K_UP: self.button_up,
+            pygame.K_RIGHT: self.button_right,
+            pygame.K_DOWN: self.button_down,
+            pygame.K_a: self.button_a,
+            pygame.K_b: self.button_b,
+            pygame.K_ESCAPE: self.button_menu,
+            pygame.K_t: self.button_teppich
         }
 
     def update(self, event):
+        """
+        Updates its button according to the pressed key
+        Args:
+            char: The character representation of the pressed key
+        """
         if event.type == pygame.KEYDOWN:
             if event.key in self.keymap:
                 self.keymap[event.key].update(True)
@@ -29,6 +38,8 @@ class PygameController(core.Controller):
 
 
 class PygameDisplay(core.Display):
+    """A Display for pygame gui windows
+    """
     def __init__(self, win, screen_pos, screen_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.win = win
@@ -59,6 +70,8 @@ class PygameDisplay(core.Display):
 
 
 class PygameIOManager(core.IOManager):
+    """Pygame IO Manager
+    """
     def __init__(self,
                  bg_path="resources/images/bg.png",
                  title="FasiBoi-Color",
@@ -80,6 +93,8 @@ class PygameIOManager(core.IOManager):
         super().__init__(controller, display)
 
     def update(self):
+        """Update function that gets called every frame
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -89,4 +104,6 @@ class PygameIOManager(core.IOManager):
         super().update()
 
     def destroy(self):
+        """Cleanup function that gets called after all applications are closed
+        """
         pygame.quit()

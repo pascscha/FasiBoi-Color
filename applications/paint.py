@@ -25,21 +25,21 @@ class Paint(core.Application):
         self.cursor = [0, 0]
 
     def update(self, io, delta):
-        if io.controller.b.get_fresh_value():
+        if io.controller.button_b.get_fresh_value():
             self.selected_index = (
                                           self.selected_index + 1) % len(self.color_pallette)
-        if io.controller.a.get_fresh_value():
+        if io.controller.button_a.get_fresh_value():
             self.pixels[self.cursor[0]][self.cursor[1]
             ] = self.color_pallette[self.selected_index]
             self.save_value("pixels", self.pixels)
 
-        if io.controller.left.get_fresh_value():
+        if io.controller.button_left.get_fresh_value():
             self.cursor[0] = max(0, self.cursor[0] - 1)
-        if io.controller.right.get_fresh_value():
+        if io.controller.button_right.get_fresh_value():
             self.cursor[0] = min(len(self.pixels) - 1, self.cursor[0] + 1)
-        if io.controller.up.get_fresh_value():
+        if io.controller.button_up.get_fresh_value():
             self.cursor[1] = max(0, self.cursor[1] - 1)
-        if io.controller.down.get_fresh_value():
+        if io.controller.button_down.get_fresh_value():
             self.cursor[1] = min(len(self.pixels[0]) - 1, self.cursor[1] + 1)
 
         self.progression += delta * self.pulse_speed

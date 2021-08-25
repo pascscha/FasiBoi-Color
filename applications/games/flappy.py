@@ -57,7 +57,7 @@ class Flappy(core.Game):
                 int(io.display.width * 1.5)))
 
     def _update_midgame(self, io, delta):
-        if io.controller.up.get_fresh_value():
+        if io.controller.button_up.get_fresh_value():
             self.y_velocity -= 7
             self.y_velocity = min(-10, self.y_velocity)
 

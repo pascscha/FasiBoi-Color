@@ -43,7 +43,7 @@ def lightpaint(
         reverse_x=False,
         reverse_y=False,
         loop=False):
-    img = Image.open(filename).convert("RGB")
+    img = Image.open(filename)._convert("RGB")
 
     # Check that the height of the image is greater than or equal the number
     # of LEDs on the strip

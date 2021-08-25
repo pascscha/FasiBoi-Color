@@ -1,7 +1,7 @@
 from IO.gui import PygameIOManager
 from applications.settings import BrightnessSlider, FPSChoice
 from applications.menu import Menu
-from applications.animations import AnimationCycler, BeatAnimation, SolidColor, VideoPlayer, Webcam
+from applications.animations import SolidColor, VideoPlayer, Webcam
 from applications.paint import Paint
 from applications.games.snake import Snake
 from applications.games.flappy import Flappy
@@ -48,20 +48,6 @@ if __name__ == "__main__":
                     ], name="Strategy")
                 ], name="Games"),
                 Milkdrop(),
-                AnimationCycler([
-                    BeatAnimation(
-                        "resources/animations/shuffle1.npy",
-                        beats_per_loop=1,
-                        name="Moonwalk"),
-                    BeatAnimation(
-                        "resources/animations/shuffle2-2.npy",
-                        beats_per_loop=2,
-                        name="Charleston"),
-                    BeatAnimation(
-                        "resources/animations/shuffle3.npy",
-                        beats_per_loop=2,
-                        name="Little Big")
-                ]),
                 Clock(),
                 VideoPlayer("resources/videos/wave.gif"),
                 Webcam(),

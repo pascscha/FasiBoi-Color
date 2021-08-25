@@ -341,13 +341,13 @@ class Pacman(core.Game):
         next_level = False
         if time.time() > self.level_start + self.NEW_LEVEL_WAIT:
             self.level_age += delta
-            if io.controller.left.get_fresh_value():
+            if io.controller.button_left.get_fresh_value():
                 self.pac.change_direction(Field.LEFT)
-            if io.controller.right.get_fresh_value():
+            if io.controller.button_right.get_fresh_value():
                 self.pac.change_direction(Field.RIGHT)
-            if io.controller.up.get_fresh_value():
+            if io.controller.button_up.get_fresh_value():
                 self.pac.change_direction(Field.UP)
-            if io.controller.down.get_fresh_value():
+            if io.controller.button_down.get_fresh_value():
                 self.pac.change_direction(Field.DOWN)
 
             if self.mode == self.SPREAD:

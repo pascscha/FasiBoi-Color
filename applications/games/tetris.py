@@ -105,7 +105,7 @@ class Tetris(core.Game):
         pressed_r = False
         pressed_d = False
 
-        if io.controller.left.get_value():
+        if io.controller.button_left.get_value():
             d = self.LEFT[0]
             if self.check(
                     self.curr_pos_x + d,
@@ -114,7 +114,7 @@ class Tetris(core.Game):
                 if self.move_ticker.tick(delta):
                     self.curr_pos_x += d
                     self.curr_shift_x += d
-        if io.controller.right.get_value():
+        if io.controller.button_right.get_value():
             d = self.RIGHT[0]
             if self.check(
                     self.curr_pos_x + d,
@@ -123,7 +123,7 @@ class Tetris(core.Game):
                 if self.move_ticker.tick(delta):
                     self.curr_pos_x += d
                     self.curr_shift_x += d
-        if io.controller.down.get_value():
+        if io.controller.button_down.get_value():
             d = self.DOWN[1]
             if self.check(
                     self.curr_pos_x,
@@ -132,7 +132,7 @@ class Tetris(core.Game):
                 if self.move_ticker.tick(delta):
                     self.curr_pos_y += d
                     self.curr_shift_y += d
-        if io.controller.a.get_fresh_value() == False:
+        if io.controller.button_a.get_fresh_value() == False:
             self.curr_rot = (self.curr_rot - 1) % self.tetromino.nrot
             new_pos_x, new_pos_y = self.tetromino.get_rotation(self.curr_rot)
             new_pos_x += self.curr_shift_x - int(np.median(new_pos_x))

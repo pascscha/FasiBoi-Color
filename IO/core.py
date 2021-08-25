@@ -1,8 +1,16 @@
-from IO.effects import *
+"""Core IO Management
+"""
+import time
+import numpy as np
+from IO.effects import EffectCombination, VerticalDistort, StripedNoise, Dropout, Black, SlideUp, \
+    SlideDown
 from IO.color import Color
 
 
 class ControllerValue:
+    """The value of a controller
+    """
+
     def __init__(self, dtype=bool, default=False):
         self._value = default
         self.fresh = False
@@ -29,32 +37,60 @@ class ControllerValue:
         return self._value
 
     def get_fresh_value(self):
-        """Gets the current value of that button/input, if it has not been accessed yet (if it's fresh).
+        """Gets the current value of that button/input, if it has not been accessed yet (if it's
+        fresh).
         Otherwise returns None
 
         Returns:
-            self.dtype: The value of the button/input if it has not been accessed yet, otherwise None
+            self.dtype: The value of the button/input if it has not been accessed yet, otherwise
+            None
         """
         if self.fresh:
             self.fresh = False
             return self._value
-        else:
-            return None
+        return None
+
+
+class BooleanControllerValue(ControllerValue):
+    """A Controller value that only has a boolean state, e.g. a Button
+    """
+
+    def fresh_press(self):
+        """Checks if the button has freshly been pressed
+        """
+        if self._value and self.fresh:
+            self.fresh = False
+            return True
+        return False
+
+    def fresh_release(self):
+        """Checks if the button has freshly been released
+        """
+        if self._value and self.fresh:
+            self.fresh = False
+            return True
+        return False
 
 
 class Controller:
+    """The Base class for a controller, holding several controller values
+    """
+
     def __init__(self):
-        self.up = ControllerValue()
-        self.right = ControllerValue()
-        self.down = ControllerValue()
-        self.left = ControllerValue()
-        self.a = ControllerValue()
-        self.b = ControllerValue()
-        self.menu = ControllerValue()
-        self.teppich = ControllerValue()
+        self.button_up = BooleanControllerValue()
+        self.button_right = BooleanControllerValue()
+        self.button_down = BooleanControllerValue()
+        self.button_left = BooleanControllerValue()
+        self.button_a = BooleanControllerValue()
+        self.button_b = BooleanControllerValue()
+        self.button_menu = BooleanControllerValue()
+        self.button_teppich = BooleanControllerValue()
 
 
 class Display:
+    """The Base class for a display, showing the current state of the application
+    """
+
     def __init__(self, width, height, brightness=1):
         self.width = width
         self.height = height
@@ -74,7 +110,7 @@ class Display:
         """
         if x < 0 or x >= self.width:
             raise ValueError("x Coordinates out of bounds!")
-        elif y < 0 or y >= self.height:
+        if y < 0 or y >= self.height:
             raise ValueError("y Coordinates out of bounds!")
 
     @staticmethod
@@ -89,7 +125,7 @@ class Display:
         """
         if min(color) < 0 or max(color) >= 256:
             raise ValueError("Colors have to be between 0 and 255")
-        elif len(color) != 3:
+        if len(color) != 3:
             raise ValueError("Colors must have 3 channels")
 
     def update(self, x, y, color):
@@ -137,6 +173,10 @@ class Display:
 
 
 class IOManager:
+    """The IOManager, that controls the applications and provides them with access to controler and
+    display
+    """
+
     def __init__(self, controller, display, fps=30, animation_duration=0.25):
         self.controller = controller
         self.display = display
@@ -153,7 +193,8 @@ class IOManager:
             None,
             EffectCombination([VerticalDistort(frequency=1 / 60), StripedNoise(limit=50)]),
             EffectCombination([VerticalDistort(), StripedNoise(limit=100)]),
-            EffectCombination([VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1 / 2)]),
+            EffectCombination(
+                [VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1 / 2)]),
             Black()
         ]  # Noise(level=50), Noise(level=200), Noise(level=20000)]
 
@@ -182,15 +223,14 @@ class IOManager:
                     self.current_animation.apply(self.display)
 
             # Apply Drunkguard
-            if self.controller.teppich.get_fresh_value():
-                self.teppich = (
-                    self.teppich + 1) % len(self.teppich_animations)
+            if self.controller.button_teppich.get_fresh_value():
+                self.teppich = (self.teppich + 1) % len(self.teppich_animations)
 
             if self.teppich_animations[self.teppich] is not None:
                 self.teppich_animations[self.teppich].apply(self.display)
 
             self.display.refresh()
-            if self.controller.menu.get_fresh_value():
+            if self.controller.button_menu.get_fresh_value():
                 self.close_application()
             time.sleep(max(0, min(delta, 1 / self.fps)))
 
@@ -226,7 +266,9 @@ class IOManager:
             self.running = False
 
     def update(self):
-        pass
+        """Update function that gets called every frame
+        """
 
     def destroy(self):
-        pass
+        """Cleanup function that gets called after all applications are closed
+        """

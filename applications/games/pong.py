@@ -21,11 +21,11 @@ class Pong(core.Game):
         self.score = 0
 
     def _update_midgame(self, io, delta):
-        if io.controller.left.get_value():
+        if io.controller.button_left.get_value():
             self.platform_pos -= self.platform_speed * delta
             if self.platform_pos - self.platform_width / 2 < 0:
                 self.platform_pos = self.platform_width / 2
-        if io.controller.right.get_value():
+        if io.controller.button_right.get_value():
             self.platform_pos += self.platform_speed * delta
             if self.platform_pos + self.platform_width / 2 > io.display.width:
                 self.platform_pos = io.display.width - self.platform_width / 2

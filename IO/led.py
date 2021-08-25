@@ -1,19 +1,27 @@
-from IO import core
+"""IO Management for led interfaces
+"""
+import curses
+
+import IO.core
+from IO import core, commandline
 from IO.commandline import CursesController
 from rpi_ws281x.rpi_ws281x import *
 
 # LED strip configuration:
-LED_COUNT = 149      # Number of LED pixels.
-LED_PIN = 18      # GPIO pin connected to the pixels (18 uses PWM!).
+LED_COUNT = 149  # Number of LED pixels.
+LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
-LED_DMA = 10      # DMA channel to use for generating signal (try 10)
-LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
+LED_DMA = 10  # DMA channel to use for generating signal (try 10)
+LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
 # True to invert the signal (when using NPN transistor level shift)
 LED_INVERT = False
-LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
+LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 
 class LEDDisplay(core.Display):
+    """A Display for showing the output on the LED screen
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.strip = Adafruit_NeoPixel(
@@ -29,7 +37,7 @@ class LEDDisplay(core.Display):
     def _update(self, x, y, color):
         if y == 13 and x <= 1:
             return
-        elif y == 14:
+        if y == 14:
             index = y * 10 + x - 2
         elif y % 2 == 0:
             index = y * 10 + x
@@ -42,13 +50,22 @@ class LEDDisplay(core.Display):
 
 
 class LEDIOManager(core.IOManager):
+    """LED Screen IO Manager
+    """
+
     def __init__(self, screen_res=(10, 15)):
+        self.win = curses.newwin(
+            screen_res[1] + 4, screen_res[0] * 2 + 4, 2, 2)
         controller = CursesController()
         display = LEDDisplay(*screen_res, lazy=False)
         super().__init__(controller, display)
 
     def update(self):
+        """Update function that gets called every frame
+        """
         self.controller.update(self.win.getch())
 
     def destroy(self):
+        """Cleanup function that gets called after all applications are closed
+        """
         curses.endwin()

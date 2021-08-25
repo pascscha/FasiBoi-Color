@@ -1,9 +1,13 @@
+"""Effects that can be applied on entire display, regardles of current application
+"""
 import time
 import numpy as np
 import cv2
 
 
 class WindowEffect:
+    """An Effect that can be applied on the entire display, regardless of the current application
+    """
     def __init__(self, display=None, duration=None):
         if display is not None:
             self.start_pixels = display.pixels
@@ -13,29 +17,51 @@ class WindowEffect:
             self.start_time = time.time()
 
     def is_finished(self):
+        """Checks whether the effect has finished
+        """
         if self.duration is None:
             return False
-        else:
-            return time.time() >= self.start_time + self.duration
+        return time.time() >= self.start_time + self.duration
 
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         raise NotImplementedError("Please Implement this method")
 
 
 class EffectCombination:
+    """A combination of multiple effects
+    """
     def __init__(self, effects):
         self.effects = effects
 
     def is_finished(self):
+        """Checks whether the effects have finished
+        """
         return all([a.is_finished for a in self.effects])
 
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         for a in self.effects:
             a.apply(display)
 
 
 class SlideDown(WindowEffect):
+    """Slides the initial screen down and reveals the current screen
+    """
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         progression = (time.time() - self.start_time) / self.duration
         if progression > 1:
             return
@@ -47,7 +73,14 @@ class SlideDown(WindowEffect):
 
 
 class SlideUp(WindowEffect):
+    """Slides the initial screen up and reveals the current screen
+    """
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         progression = (time.time() - self.start_time) / self.duration
         if progression > 1:
             return
@@ -59,7 +92,14 @@ class SlideUp(WindowEffect):
 
 
 class Squeeze(WindowEffect):
+    """Squeezes the initial screen horizontally and reveals the current screen
+    """
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         progression = (time.time() - self.start_time) / self.duration
         if progression > 1:
             return
@@ -74,11 +114,18 @@ class Squeeze(WindowEffect):
 
 
 class Noise(WindowEffect):
+    """Adds noise to the screen
+    """
     def __init__(self, *args, level=20, **kwargs):
         super().__init__(*args, **kwargs)
         self.level = level
 
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         noise = (np.random.random((10, 15)) - 0.5) * 2 * self.level
         noisy = display.pixels.astype(np.float32)
         noisy[:, :, 0] += noise
@@ -90,6 +137,8 @@ class Noise(WindowEffect):
 
 
 class StripedNoise(WindowEffect):
+    """Adds striped noise to the screen
+    """
     def __init__(self, *args, coarseness=0.02, limit=100, **kwargs):
         super().__init__(*args, **kwargs)
         self.coarseness = coarseness
@@ -97,6 +146,11 @@ class StripedNoise(WindowEffect):
         self.noise = 0
 
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         img = display.pixels.astype(np.float)
         for y in range(display.height):
             for x in range(display.width):
@@ -113,12 +167,19 @@ class StripedNoise(WindowEffect):
 
 
 class VerticalDistort(WindowEffect):
+    """Randomly offsets vertical rows
+    """
     def __init__(self, *args, amount=2, frequency=1 / 10, **kwargs):
         super().__init__(*args, **kwargs)
         self.amount = amount
         self.frequency = frequency
 
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         amount = 0
         for y in range(display.height):
             rand = np.random.random()
@@ -134,11 +195,18 @@ class VerticalDistort(WindowEffect):
 
 
 class Dropout(WindowEffect):
+    """Randomly makes some pixels black
+    """
     def __init__(self, *args, frequency=1 / 2, **kwargs):
         super().__init__(*args, **kwargs)
         self.frequency = frequency
 
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         for y in range(display.height):
             rand = np.random.random()
             if rand < self.frequency:
@@ -146,5 +214,12 @@ class Dropout(WindowEffect):
 
 
 class Black(WindowEffect):
+    """Makes entire screen black
+    """
     def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
         display.pixels[:] = 0
