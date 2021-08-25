@@ -42,6 +42,17 @@ class Game(core.Application):
         """
         pass
 
+    @staticmethod
+    def score_str(score):
+        if int(score) == score:
+            return str(score)
+        elif score >= 10:
+            return str(score)
+        elif score >= 1:
+            return str(round(score, 1))
+        else:
+            return str(round(score, 2))[1:]
+
     def _update_pregame(self, io, delta):
         """Start screen of the game which shows highscore and last score
 
@@ -65,7 +76,7 @@ class Game(core.Application):
             io.display.fill((0, 0, 0))
 
             # Generate bitmap of highscore text
-            highscore_bmp = textutils.get_text_bitmap(str(self.highscore))
+            highscore_bmp = textutils.get_text_bitmap(self.score_str(self.highscore))
             if self.score is None:
                 # If we have no last score yet, just display highscore
                 bitmaputils.apply_bitmap(
@@ -85,7 +96,7 @@ class Game(core.Application):
                         255))
             else:
                 # Otherwise also show last score
-                score_bmp = textutils.get_text_bitmap(str(self.score))
+                score_bmp = textutils.get_text_bitmap(self.score_str(self.score))
 
                 # Draw highscore
                 bitmaputils.apply_bitmap(
