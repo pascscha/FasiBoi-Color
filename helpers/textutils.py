@@ -21,7 +21,7 @@ def get_char_bitmap(char):
     letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?:.><="
     char = char.upper()
     if char not in letters:
-        return np.zeros((5, 1), dtype=np.bool)
+        return np.zeros((5, 3), dtype=np.bool)
 
     bmp = letter_bmps[letters.index(char)]
     while np.all(bmp[:,0]==False):

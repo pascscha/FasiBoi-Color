@@ -14,6 +14,7 @@ from applications.games.connect4 import Connect4
 from applications.games.reversi import Reversi
 from applications.games.frat import Frat
 from applications.games.g2048 import G2048
+from applications.games.maze import Maze
 from applications.milkdrop import Milkdrop
 
 if __name__ == "__main__":
@@ -39,6 +40,7 @@ if __name__ == "__main__":
                     Pacman(color=(255, 255, 0)),
                     G2048(name="20"),
                     Frat(),
+                    Maze(),
                     Menu([
                         TicTacToe(),
                         Connect4(name="C4"),
