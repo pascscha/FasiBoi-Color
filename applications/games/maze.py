@@ -102,7 +102,7 @@ class Maze(core.Game):
     MISERE = True
 
     def reset(self, io):
-        self.maze, self.distances = MazeUtils.generate_maze(io.display.width, io.display.height)
+        self.maze, _ = MazeUtils.generate_maze(io.display.width, io.display.height)
         self.pos = (self.maze.width // 2, 0)
         self.pos_blinker = animations.Blinker(Color(32, 0, 0), RED, speed=2)
         self.score = 0
@@ -130,8 +130,11 @@ class Maze(core.Game):
         for x in range(io.display.width):
             for y in range(io.display.height):
                 if self.maze.get_value(x, y) == BitField.EMPTY:
-                    io.display.update(x, y, (255, 255, 255))
-
+                    if (x + y) % 2 == 0:
+                        io.display.update(x, y, (0, 128, 0))
+                    else:
+                        io.display.update(x, y, (0, 64, 0))
+                        
         io.display.update(*self.pos, self.pos_blinker.tick(delta))
         
 

@@ -1,4 +1,5 @@
 from applications import core
+from applications.games.maze import MazeUtils
 from helpers import bitmaputils, textutils
 from IO.color import *
 import time
@@ -249,6 +250,80 @@ class GameOfLife(Drawer):
                 self.field = next_field
         return super().apply(frame, delta, progression, beat)
 
+class Maze(Content):
+    def __init__(self, background_color=AnimatedHSVColor(), color1=AnimatedHSVColor(v=ConstantValue(0)), color2=AnimatedHSVColor(s=ConstantValue(0), v=ConstantValue(1))):
+        self.beat_count = 0
+        self.maze = None
+        self.distances1 = None
+        self.distances2 = None
+
+        self.background_color = background_color
+        self.color1 = color1
+        self.color2 = color2
+
+        self.max1 = 0
+        self.max2 = 0
+        
+
+    def apply(self, frame, delta, progression, beat):
+        if beat:
+            self.beat_count += 1
+
+        if beat and self.beat_count % 4 == 0 or self.maze is None:
+            self.maze, (self.distances1, self.distances2) = MazeUtils.generate_maze(*frame.shape[:2])
+            self.max1 = max([d for row in self.distances1 for d in row if d != MazeUtils.INFINITY])
+            self.max2 = max([d for row in self.distances2 for d in row if d != MazeUtils.INFINITY])
+
+            center = None
+            for x in range(frame.shape[0]):
+                if center is None:
+                    for y in range(frame.shape[1]):
+                        if self.maze.get_value(x, y) == self.maze.COLOR1 and self.distances1[x][y] == MazeUtils.INFINITY and self.distances2[x][y] == MazeUtils.INFINITY:
+                            center = (x, y)
+                            break
+            self.path = [center]
+
+            p1 = center
+            while p1[1] != 0:
+                for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]:
+                    if self.distances1[p1[0]+dx][p1[1]+dy] < self.distances1[p1[0]][p1[1]]:
+                        p1 = (p1[0]+dx, p1[1]+dy)
+                        self.path.append(p1)
+
+            p2 = center
+            while p2[1] != frame.shape[1]-1:
+                for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]:
+                    if self.distances2[p2[0]+dx][p2[1]+dy] < self.distances2[p2[0]][p2[1]]:
+                        p2 = (p2[0]+dx, p2[1]+dy)
+                        self.path.append(p2)
+
+        bg = self.background_color.get_value(delta, progression, beat)
+        #frame[:,:] = (0,0,0)
+        c1 = self.color1.get_value(delta, progression, beat)
+        c2 = self.color2.get_value(delta, progression, beat)
+
+        if self.beat_count % 2 == 0:
+            max_distance1 = self.max1*progression+1
+            max_distance2 = self.max2*progression+1
+
+            for x in range(frame.shape[0]):
+                for y in range(frame.shape[1]):
+                    if self.distances1[x][y] != MazeUtils.INFINITY and self.distances1[x][y] < max_distance1:
+                        frame[x][y] = bg * (self.distances1[x][y] / max_distance1)
+                    elif self.distances2[x][y] != MazeUtils.INFINITY and self.distances2[x][y] < max_distance2:
+                        frame[x][y] = bg * (self.distances2[x][y] / max_distance2)
+
+        else:
+            for x in range(frame.shape[0]):
+                for y in range(frame.shape[1]):
+                    if self.distances1[x][y] != MazeUtils.INFINITY:
+                        frame[x][y] = bg * (0.2)# * self.distances1[x][y] / self.max1)
+                    if self.distances2[x][y] != MazeUtils.INFINITY:
+                        frame[x][y] = bg * (0.2)# * self.distances2[x][y] / self.max2)
+            for x, y in self.path:
+                frame[x][y] = bg
+
+        return frame
 
 def down(w, h, x, y):
     return (0, -1)
@@ -600,7 +675,13 @@ class Milkdrop(core.Application):
                                                                 v=AnimatedValue(
                                                                     fun1=lambda x: x / 2))),
                           ]
-                          )
+                          ),
+            Visualization(name="maze",
+                effects=[
+                    Distorter(vect_fun=swirl2, darken=1),
+                    Maze()
+                ]
+            )
         ]
         self.visualization_index = len(self.visualizations) - 1
 
