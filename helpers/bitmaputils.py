@@ -13,14 +13,29 @@ def apply_bitmap(bmp, display, loc, bg_color=None, fg_color=(255, 255, 255)):
         fg_color ((int, int, int), optional): The color of the foreground. Defaults to (255, 255, 255). None would leave
          it transparent.
     """
-    for x in range(bmp.shape[1]):
-        for y in range(bmp.shape[0]):
-            color = fg_color if bmp[y][x] else bg_color
-            if color is not None:
-                try:
-                    display.update(loc[0] + x, loc[1] + y, color)
-                except ValueError:
-                    pass
+    x, y = loc
+    h, w = bmp.shape
+
+    
+    bmp_left = max(0, -x)
+    bmp_top = max(0, -y)
+    bmp_right =  min(w, display.width - x)
+    bmp_bottom = min(h, display.height - y)
+
+    dsp_left = max(0, x)    
+    dsp_top = max(0, y)    
+    dsp_right = dsp_left + bmp_right - bmp_left
+    dsp_bottom = dsp_top + bmp_bottom - bmp_top
+
+    cut_dsp = display.pixels[dsp_left:dsp_right, dsp_top:dsp_bottom]
+    cut_bmp = bmp.T[bmp_left:bmp_right, bmp_top:bmp_bottom]
+
+    if fg_color is not None:
+        cut_dsp[np.where(cut_bmp)] = fg_color
+    if bg_color is not None:
+        cut_dsp[np.where(1-cut_bmp)] = bg_color
+
+    print(cut_bmp)
 
 
 def get_color(image, loc, default=np.array((0, 0, 0))):
