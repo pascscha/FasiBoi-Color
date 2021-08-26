@@ -45,9 +45,9 @@ class Game(core.Application):
     @staticmethod
     def score_str(score):
         if int(score) == score:
-            return str(score)
+            return str(int(score))
         elif score >= 10:
-            return str(score)
+            return str(int(score))
         elif score >= 1:
             return str(round(score, 1))
         else:
