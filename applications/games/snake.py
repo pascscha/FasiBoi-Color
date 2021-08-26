@@ -53,13 +53,13 @@ class Snake(core.Game):
     def _update_midgame(self, io, delta):
         # Check controller values. We look for fresh_values, because we only care
         # about button presses and not if the button is held down
-        if io.controller.button_left.get_fresh_value():
+        if io.controller.button_left.fresh_press():
             self.button_press_queue.append(self.LEFT)
-        if io.controller.button_right.get_fresh_value():
+        if io.controller.button_right.fresh_press():
             self.button_press_queue.append(self.RIGHT)
-        if io.controller.button_up.get_fresh_value():
+        if io.controller.button_up.fresh_press():
             self.button_press_queue.append(self.UP)
-        if io.controller.button_down.get_fresh_value():
+        if io.controller.button_down.fresh_press():
             self.button_press_queue.append(self.DOWN)
 
         # Pulser value, that goes back and forth from 0 to 1, used to set

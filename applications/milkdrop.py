@@ -696,30 +696,30 @@ class Milkdrop(core.Application):
         self.last_change = self.beat_count
 
     def update(self, io, delta):
-        if io.controller.button_up.get_fresh_value() == False:
+        if io.controller.button_up.fresh_press():
             self.energy = min(1., self.energy + 1 / self.ENERGY_GRANULARITY)
 
-        if io.controller.button_down.get_fresh_value() == False:
+        if io.controller.button_down.fresh_press():
             self.energy = max(0., self.energy - 1 / self.ENERGY_GRANULARITY)
 
-        if io.controller.button_right.get_fresh_value():
+        if io.controller.button_right.fresh_press():
             self.last_change = self.beat_count
             self.visualization_index = (
                                                self.visualization_index + 1) % len(
                 self.visualizations)
 
-        if io.controller.button_left.get_fresh_value():
+        if io.controller.button_left.fresh_press():
             self.last_change = self.beat_count
             self.visualization_index = (
                                                self.visualization_index - 1) % len(
                 self.visualizations)
 
-        if io.controller.button_b.get_fresh_value():
+        if io.controller.button_b.fresh_press():
             self.next_visualization()
 
         now = time.time()
 
-        if io.controller.button_a.get_fresh_value():
+        if io.controller.button_a.fresh_press():
             self.last_change = self.beat_count
             click_duration = now - self.last_click
             # Check if last click was recently

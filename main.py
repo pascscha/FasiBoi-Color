@@ -1,3 +1,4 @@
+from cv2 import INTER_NEAREST
 from IO.gui import PygameIOManager
 from applications.settings import BrightnessSlider, FPSChoice
 from applications.menu import Menu
@@ -49,7 +50,13 @@ if __name__ == "__main__":
                 ], name="Games"),
                 Milkdrop(),
                 Clock(),
-                VideoPlayer("resources/videos/wave.gif"),
+                Menu([
+                    VideoPlayer("resources/videos/pattern.gif", name="Pattern", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/eye.gif", name="Eye", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/walk.gif", name="Walk", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/spin.gif", name="Spin", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/evil.gif", name="Evil", interpolation=INTER_NEAREST),
+                ], name="Video"),
                 Webcam(),
                 Menu([
                     SolidColor(

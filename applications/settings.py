@@ -14,10 +14,10 @@ class Slider(core.Application):
         self.delta = (end - start) / steps
 
     def update(self, io, delta):
-        if io.controller.button_up.get_fresh_value():
+        if io.controller.button_up.fresh_press():
             self.value_index += 1
             self.value_index = min(self.steps, self.value_index)
-        if io.controller.button_down.get_fresh_value():
+        if io.controller.button_down.fresh_press():
             self.value_index -= 1
             self.value_index = max(0, self.value_index)
 
@@ -53,10 +53,10 @@ class NumberChoice(core.Application):
         self.value = min(end, max(start, default))
 
     def update(self, io, delta):
-        if io.controller.button_up.get_fresh_value():
+        if io.controller.button_up.fresh_press():
             self.value += self.step_size
             self.value = min(self.end, self.value)
-        if io.controller.button_down.get_fresh_value():
+        if io.controller.button_down.fresh_press():
             self.value -= self.step_size
             self.value = max(self.start, self.value)
 

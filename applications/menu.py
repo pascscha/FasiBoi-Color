@@ -19,11 +19,11 @@ class SlidingChoice:
         self.color = (255, 255, 255)
 
     def update(self, io, delta):
-        if io.controller.button_right.get_fresh_value():
+        if io.controller.button_right.fresh_press():
             self.index = (self.index + 1) % len(self.choices)
-        if io.controller.button_left.get_fresh_value():
+        if io.controller.button_left.fresh_press():
             self.index = (self.index - 1) % len(self.choices)
-        if io.controller.button_a.get_fresh_value() == False:
+        if io.controller.button_a.fresh_release():
             self.choices[self.index].fun(io)
 
         diff = self.index - self.prog

@@ -14,6 +14,7 @@ class ControllerValue:
     def __init__(self, dtype=bool, default=False):
         self._value = default
         self.fresh = False
+        self.last_change = time.time()
         self.dtype = dtype
 
     def update(self, value):
@@ -26,6 +27,7 @@ class ControllerValue:
         if new_value != self._value:
             self._value = new_value
             self.fresh = True
+            self.last_change = time.time()
 
     def get_value(self):
         """Gets the current value of the button/input
@@ -54,11 +56,12 @@ class ControllerValue:
 class BooleanControllerValue(ControllerValue):
     """A Controller value that only has a boolean state, e.g. a Button
     """
+    TIMEOUT=2
 
     def fresh_press(self):
         """Checks if the button has freshly been pressed
         """
-        if self._value and self.fresh:
+        if self._value and self.fresh and self.last_change + self.TIMEOUT > time.time():
             self.fresh = False
             return True
         return False
@@ -66,7 +69,7 @@ class BooleanControllerValue(ControllerValue):
     def fresh_release(self):
         """Checks if the button has freshly been released
         """
-        if self._value and self.fresh:
+        if not self._value and self.fresh  and self.last_change + self.TIMEOUT > time.time():
             self.fresh = False
             return True
         return False
@@ -223,14 +226,14 @@ class IOManager:
                     self.current_animation.apply(self.display)
 
             # Apply Drunkguard
-            if self.controller.button_teppich.get_fresh_value():
+            if self.controller.button_teppich.fresh_press():
                 self.teppich = (self.teppich + 1) % len(self.teppich_animations)
 
             if self.teppich_animations[self.teppich] is not None:
                 self.teppich_animations[self.teppich].apply(self.display)
 
             self.display.refresh()
-            if self.controller.button_menu.get_fresh_value():
+            if self.controller.button_menu.fresh_press():
                 self.close_application()
             time.sleep(max(0, min(delta, 1 / self.fps)))
 

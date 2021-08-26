@@ -103,19 +103,19 @@ class Frat(core.Game):
         return True
 
     def _update_midgame(self, io, delta):
-        if io.controller.button_b.get_fresh_value() == False:
+        if io.controller.button_b.fresh_release():
             if self.mode == self.MODE_GUESS:
                 self.mode = self.MODE_DRAW
             else:
                 self.mode = self.MODE_GUESS
 
-        if io.controller.button_left.get_fresh_value():
+        if io.controller.button_left.fresh_press():
             self.selected[0] -= 1
-        if io.controller.button_right.get_fresh_value():
+        if io.controller.button_right.fresh_press():
             self.selected[0] += 1
-        if io.controller.button_up.get_fresh_value():
+        if io.controller.button_up.fresh_press():
             self.selected[1] -= 1
-        if io.controller.button_down.get_fresh_value():
+        if io.controller.button_down.fresh_press():
             self.selected[1] += 1
 
         if self.mode == self.MODE_GUESS:
@@ -125,7 +125,7 @@ class Frat(core.Game):
         self.selected[0] = max(0, min(limit, self.selected[0]))
         self.selected[1] = max(0, min(limit, self.selected[1]))
 
-        if io.controller.button_a.get_fresh_value() == False:
+        if io.controller.button_a.fresh_release():
             if self.mode == self.MODE_GUESS:
                 if not self.guessed[self.selected[0]][self.selected[1]]:
                     self.score += 1
@@ -224,5 +224,5 @@ class Frat(core.Game):
                 io.display.update(
                     x + 1, y + 1, self.gameover_blinker[x][y].tick(delta))
 
-        if io.controller.button_a.get_fresh_value():
+        if io.controller.button_a.fresh_press():
             self.state = self.PRE_GAME

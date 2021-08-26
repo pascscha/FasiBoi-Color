@@ -111,13 +111,13 @@ class Maze(core.Game):
         new_pos = self.pos
         self.score += delta
 
-        if io.controller.button_left.get_fresh_value():
+        if io.controller.button_left.fresh_press():
             new_pos = (self.pos[0]-1, self.pos[1])
-        if io.controller.button_right.get_fresh_value():
+        if io.controller.button_right.fresh_press():
             new_pos = (self.pos[0]+1, self.pos[1])
-        if io.controller.button_up.get_fresh_value():
+        if io.controller.button_up.fresh_press():
             new_pos = (self.pos[0], self.pos[1]-1)
-        if io.controller.button_down.get_fresh_value():
+        if io.controller.button_down.fresh_press():
             new_pos = (self.pos[0], self.pos[1]+1)
 
         if 0 <= new_pos[0] < self.maze.width and 0 <= new_pos[1] < self.maze.height and self.maze.get_value(*new_pos) == BitField.COLOR1:

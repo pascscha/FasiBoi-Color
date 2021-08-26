@@ -169,13 +169,13 @@ class G2048(core.Game):
         # if not self.is_full():
         #    self.spawn_random()
 
-        if io.controller.button_left.get_fresh_value():
+        if io.controller.button_left.fresh_press():
             self.direction_queue.append((-1, 0))
-        if io.controller.button_right.get_fresh_value():
+        if io.controller.button_right.fresh_press():
             self.direction_queue.append((1, 0))
-        if io.controller.button_up.get_fresh_value():
+        if io.controller.button_up.fresh_press():
             self.direction_queue.append((0, -1))
-        if io.controller.button_down.get_fresh_value():
+        if io.controller.button_down.fresh_press():
             self.direction_queue.append((0, 1))
 
         moving = self.any_moving()

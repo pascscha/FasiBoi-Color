@@ -323,13 +323,13 @@ class HumanPlayer(Strategy):
             self.selected_move = possible_moves[0]
 
         direction = None
-        if io.controller.button_left.get_fresh_value():
+        if io.controller.button_left.fresh_press():
             direction = (1, 0)
-        if io.controller.button_right.get_fresh_value():
+        if io.controller.button_right.fresh_press():
             direction = (-1, 0)
-        if io.controller.button_up.get_fresh_value():
+        if io.controller.button_up.fresh_press():
             direction = (0, 1)
-        if io.controller.button_down.get_fresh_value():
+        if io.controller.button_down.fresh_press():
             direction = (0, -1)
 
         if direction is not None:
@@ -365,7 +365,7 @@ class HumanPlayer(Strategy):
                 top + self.selected_move.y,
                 self.select_blinker.tick(delta))
 
-        if io.controller.button_a.get_fresh_value() == False:
+        if io.controller.button_a.fresh_release():
             return self.selected_move
         else:
             return None
@@ -480,7 +480,7 @@ class StrategyGame(core.Game):
                 self.border_color.set_value(self.COLOR_MAP[self.active_color])
 
     def _update_gameover(self, io, delta):
-        if io.controller.button_a.get_fresh_value() == False:
+        if io.controller.button_a.fresh_release():
             self.reset()
             self.state = self.PRE_GAME
             self.field = None

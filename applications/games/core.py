@@ -68,7 +68,7 @@ class Game(core.Application):
                 self.save_value("highscore", self.highscore)
 
         # If A is pressed we start the game
-        if io.controller.button_a.get_fresh_value() == False:
+        if io.controller.button_a.fresh_release():
             self.reset(io)
             self.state = self.MID_GAME
         else:

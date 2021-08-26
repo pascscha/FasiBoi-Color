@@ -4,13 +4,14 @@ import cv2
 
 
 class VideoPlayer(core.Application):
-    def __init__(self, path, *args, loop=True, **kwargs):
+    def __init__(self, path, *args, loop=True, interpolation=cv2.INTER_LINEAR,**kwargs):
         super().__init__(*args, **kwargs)
         self.cap = cv2.VideoCapture(path)
         self.video_fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.video_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
         self.loop = loop
         self.progression = 0
+        self.interpolation = interpolation
 
     def get_frame(self, delta):
         self.progression += delta
@@ -36,7 +37,7 @@ class VideoPlayer(core.Application):
                 cut = int((frame.shape[0] - max_height) / 2)
                 frame = frame[cut:-cut, :]
 
-            resized = cv2.resize(frame, (io.display.width, io.display.height))
+            resized = cv2.resize(frame, (io.display.width, io.display.height), interpolation=self.interpolation)
             converted = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
             for x in range(io.display.width):
                 for y in range(io.display.height):
