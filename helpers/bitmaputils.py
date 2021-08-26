@@ -35,8 +35,6 @@ def apply_bitmap(bmp, display, loc, bg_color=None, fg_color=(255, 255, 255)):
     if bg_color is not None:
         cut_dsp[np.where(1-cut_bmp)] = bg_color
 
-    print(cut_bmp)
-
 
 def get_color(image, loc, default=np.array((0, 0, 0))):
     x, y = loc
