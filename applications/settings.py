@@ -108,21 +108,21 @@ class ColorPaletteChoice(core.Application):
             (0x0f, 0x38, 0x0f)
         ]),
         "G2": effects.ColorPalette(colors=[
+            (0xe0, 0xf8, 0xd0),
             (0x88, 0xc0, 0x70),
-            (0x08, 0x18, 0x20),
             (0x34, 0x68, 0x56),
-            (0xe0, 0xf8, 0xd0)
+            (0x08, 0x18, 0x20),
         ]),
         "BY": effects.ColorPalette(colors=[
+            (0xf0, 0xf0, 0xf0),
+            (0x8f, 0x9b, 0xf6),
             (0xab, 0x46, 0x46),
             (0x16, 0x16, 0x16),
-            (0x8f, 0x9b, 0xf6),
-            (0xf0, 0xf0, 0xf0)
         ]),
         "GR": effects.ColorPalette(colors=[
             (255,255,255),
-            (85,85,85),
             (170,170,170),
+            (85,85,85),
             (0,0,0)
         ])
     }
