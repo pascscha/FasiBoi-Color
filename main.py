@@ -51,11 +51,16 @@ if __name__ == "__main__":
                 Milkdrop(),
                 Clock(),
                 Menu([
+                    VideoPlayer("resources/videos/world.gif", name="World", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/evil.gif", name="Evil", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/smiley2.gif", name="Smiley", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/moon.gif", name="Moon", interpolation=INTER_NEAREST),
                     VideoPlayer("resources/videos/pattern.gif", name="Pattern", interpolation=INTER_NEAREST),
                     VideoPlayer("resources/videos/eye.gif", name="Eye", interpolation=INTER_NEAREST),
                     VideoPlayer("resources/videos/walk.gif", name="Walk", interpolation=INTER_NEAREST),
                     VideoPlayer("resources/videos/spin.gif", name="Spin", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/evil.gif", name="Evil", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/bat.gif", name="Bat", interpolation=INTER_NEAREST),
+                    VideoPlayer("resources/videos/emo.gif", name="Emo", interpolation=INTER_NEAREST),
                 ], name="Video"),
                 Webcam(),
                 Menu([
