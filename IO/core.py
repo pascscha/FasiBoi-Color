@@ -142,7 +142,7 @@ class Display:
         self.check_coordinates(x, y)
         if not isinstance(color, Color):
             color = Color(*color)
-        self.pixels[x][y] = color * self.brightness
+        self.pixels[x][y] = color
 
     def fill(self, color):
         """Fills the entire screen with one color
@@ -155,7 +155,7 @@ class Display:
         color = tuple(color)
 
         self.pixels = np.ones((self.width, self.height, 3),
-                              dtype=np.uint8) * color * self.brightness
+                              dtype=np.uint8) * color 
 
     def _update(self, x, y, color):
         raise NotImplementedError("Please implement this method!")
@@ -169,8 +169,8 @@ class Display:
         """
         # Only update pixels that have changed
         for x, y in zip(
-                *np.where(np.any(self.pixels != self.last_pixels, axis=2))):
-            self._update(x, y, self.pixels[x][y])
+                *np.where(np.any(self.pixels * self.brightness != self.last_pixels, axis=2))):
+            self._update(x, y, self.pixels[x][y] * self.brightness)
         self.last_pixels = self.pixels.copy()
         self._refresh()
 
