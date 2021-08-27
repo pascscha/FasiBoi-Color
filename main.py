@@ -1,6 +1,6 @@
 from cv2 import INTER_NEAREST
 from IO.gui import PygameIOManager
-from applications.settings import BrightnessSlider, FPSChoice
+from applications.settings import BrightnessSlider, FPSChoice, ColorPaletteChoice
 from applications.menu import Menu
 from applications.animations import SolidColor, VideoPlayer, Webcam
 from applications.paint import Paint
@@ -21,7 +21,8 @@ from applications.milkdrop import Milkdrop
 if __name__ == "__main__":
     settings = [
         BrightnessSlider(start=0.1, end=1, default=1, name="Brightness"),
-        FPSChoice(default=30, name="FPS")
+        FPSChoice(default=30, name="FPS"),
+        ColorPaletteChoice()
     ]
 
     with PygameIOManager(bg_path=None, screen_pos=(0, 0), screen_size=(500, 750)) as ioManager:

@@ -86,10 +86,7 @@ class Menu(core.Application):
                 application.name,
                 application.color,
                 ApplicationOpener(application)) for application in applications]
-        self.chooser = SlidingChoice(choices, 5)
-        self.choice_index = 0
-        self.choice_current = 0
-        self.speed = speed
+        self.chooser = SlidingChoice(choices, 5, speed=speed)
 
     def update(self, io, delta):
         io.display.fill((0, 0, 0))

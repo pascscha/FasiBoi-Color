@@ -223,3 +223,25 @@ class Black(WindowEffect):
             display: The current state of the display
         """
         display.pixels[:] = 0
+
+
+class ColorPalette(WindowEffect):
+    def __init__(self, *args, colors=[(0,0,0), (255,255,255)], **kwargs):
+        super().__init__(*args, **kwargs)
+        self.colors = colors
+    
+    @staticmethod
+    def squared_distances(frame, color):
+        d1 = frame[:,:,0]-color[0]
+        d2 = frame[:,:,1]-color[1]
+        d3 = frame[:,:,2]-color[2]
+        return np.sqrt(d1**2 + d2**2 + d3**2)
+    
+    def apply(self, display):
+        scores = [self.squared_distances(display.pixels.astype(np.int32), color) for color in self.colors]
+        # min_distances = [np.min(d) for d in distances]
+        # max_distances = [np.max(d) for d in distances]
+        # scores = np.array([(distance - min_distance) / (max_distance - min_distance) for distance, min_distance, max_distance in zip(distances, min_distances, max_distances)])
+        indices = np.argmin(scores, axis=0)
+        for i, c in enumerate(self.colors):
+            display.pixels[np.where(indices==i)] = c

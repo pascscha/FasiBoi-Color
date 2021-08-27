@@ -3,7 +3,7 @@
 import time
 import numpy as np
 from IO.effects import EffectCombination, VerticalDistort, StripedNoise, Dropout, Black, SlideUp, \
-    SlideDown
+    SlideDown, ColorPalette
 from IO.color import Color
 
 
@@ -190,6 +190,7 @@ class IOManager:
         self.last_update = time.time()
         self.animation_duration = animation_duration
         self.current_animation = None
+        self.color_palette = None
 
         self.teppich = 0
         self.teppich_animations = [
@@ -231,6 +232,10 @@ class IOManager:
 
             if self.teppich_animations[self.teppich] is not None:
                 self.teppich_animations[self.teppich].apply(self.display)
+            
+            # Apply Color Palette
+            if self.color_palette is not None:
+                self.color_palette.apply(self.display)
 
             self.display.refresh()
             if self.controller.button_menu.fresh_press():
