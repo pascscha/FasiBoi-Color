@@ -8,7 +8,7 @@ class VideoPlayer(core.Application):
         super().__init__(*args, **kwargs)
         self.cap = cv2.VideoCapture(path)
         self.video_fps = self.cap.get(cv2.CAP_PROP_FPS)
-        self.video_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        self.video_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         self.loop = loop
         self.progression = 0
         self.interpolation = interpolation

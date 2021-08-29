@@ -25,7 +25,7 @@ if __name__ == "__main__":
         ColorPaletteChoice()
     ]
 
-    with PygameIOManager(bg_path=None, screen_pos=(0, 0), screen_size=(500, 750)) as ioManager:
+    with PygameIOManager(bg_path=None, screen_pos=(0, 0), screen_size=(670, 1005)) as ioManager:
 
         # Hack, this makes sure settings are loaded even without opening them,
         # by letting them run for 1 frame
@@ -52,6 +52,9 @@ if __name__ == "__main__":
                 Milkdrop(),
                 Clock(),
                 Menu([
+                    VideoPlayer("resources/videos/spinning_alien.gif", name="A1"),
+                    VideoPlayer("resources/videos/walking_alien.mp4", name="A2"),
+                    VideoPlayer("resources/videos/walking2_alien.mp4", name="A3"),
                     VideoPlayer("resources/videos/world.gif", name="World", interpolation=INTER_NEAREST),
                     VideoPlayer("resources/videos/evil.gif", name="Evil", interpolation=INTER_NEAREST),
                     VideoPlayer("resources/videos/smiley2.gif", name="Smiley", interpolation=INTER_NEAREST),

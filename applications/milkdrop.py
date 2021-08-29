@@ -93,14 +93,14 @@ class Drawer(Content):
 
 
 class RandomDrawer(Drawer):
-    def __init__(self, *args, period=4, particles=10, **kwargs):
+    def __init__(self, *args, coords=None, period=4, particles=10, **kwargs):
         super().__init__(*args, **kwargs)
         self.period = period
         self.particles = particles
         self.beat_count = 0
 
     def apply(self, frame, delta, progression, beat):
-        if beat:
+        if beat or self.beat_count==0:
             self.beat_count += 1
             if self.beat_count % self.period == 0:
                 self.coords = [
@@ -350,8 +350,8 @@ def swirl(w, h, x, y):
 
 
 def swirl2(w, h, x, y, f=0.7):
-    tx = w / 2 - x
-    ty = h / 2 - y
+    tx = (w / 2 - x)/2
+    ty = (h / 2 - y)/2
     return ty * f - tx * (1 - f), - tx * f - ty * (1 - f)
 
 
@@ -618,7 +618,7 @@ class Milkdrop(core.Application):
                           effects=[
                               Distorter(vect_fun=from_center),
                               Distorter(vect_fun=to_center),
-                              Distorter(vect_fun=swirl2, darken=0.5),
+                              Distorter(vect_fun=swirl2, darken=0.2),
                               TextDrawer(text="U  ", loc=(0, 0),
                                          driver=AnimatedValue(fun2=lambda x: x, period=3),
                                          color=AnimatedHSVColor(
@@ -678,10 +678,42 @@ class Milkdrop(core.Application):
                           ),
             Visualization(name="maze",
                 effects=[
-                    Distorter(vect_fun=swirl2, darken=1),
+                    Distorter(darken=1),
                     Maze()
                 ]
-            )
+            ),
+            Visualization(name="circle",
+                energy=0.8,
+                effects=[
+                    Particles(path=circle_big, particles=4, radius=2, position=AnimatedValue(period=4, fun1=lambda x:x, fun2=lambda x:x), color=AnimatedHSVColor(
+                                             h=AnimatedValue(
+                                                 fun2=lambda x: x,
+                                                 period=8),
+                                             v=AnimatedValue(fun1=lambda x: x / 2))),
+                    Distorter(vect_fun=from_center, darken=0.01),
+                    Particles(path=circle_medium, particles=2),
+                ]
+            ),
+            Visualization(name="Circling",
+                effects=[
+                    Distorter(vect_fun=to_center),
+                    Distorter(vect_fun=from_center),
+                    Distorter(vect_fun=to_center),
+                    Distorter(vect_fun=from_center),
+                    RandomDrawer(particles=4, radius=2, period=1, color=AnimatedHSVColor(h=AnimatedValue(period=2))),
+                    Distorter(vect_fun=to_center),
+                    Distorter(vect_fun=from_center),
+                    Distorter(vect_fun=to_center),
+                    Distorter(vect_fun=from_center),
+                    Particles(path=circle_big, particles=4, position=AnimatedValue(period=16, fun1=lambda x:x), color=AnimatedHSVColor(s=ConstantValue(1), v=AnimatedValue(period=4))),
+                    Particles(path=circle_medium, particles=4, position=AnimatedValue(period=16, fun1=lambda x:x, fun2=lambda x:x), color=AnimatedHSVColor(s=ConstantValue(1), v=AnimatedValue(period=4))),
+                ]),
+            Visualization(name="Strobo",
+                energy=1,
+                effects=[
+                    Drawer(coords=all_coords, color=AnimatedHSVColor(s=ConstantValue(0), v=AnimatedValue(fun1=lambda x:int(x*16)%2, period=1)))
+                ])
+
         ]
         self.visualization_index = len(self.visualizations) - 1
 

@@ -124,6 +124,14 @@ class ColorPaletteChoice(core.Application):
             (170,170,170),
             (85,85,85),
             (0,0,0)
+        ]),
+        "MA": effects.ColorPalette(colors=[
+            (255,255,255),
+            (0,0,0),
+            (255,0,0),
+            (255,255,0),
+            (0,0,255),
+            (0,255,0),
         ])
     }
 
