@@ -16,6 +16,7 @@ from applications.games.reversi import Reversi
 from applications.games.frat import Frat
 from applications.games.g2048 import G2048
 from applications.games.maze import Maze
+from applications.games.pushy import Pushy
 from applications.milkdrop import Milkdrop
 
 if __name__ == "__main__":
@@ -43,6 +44,7 @@ if __name__ == "__main__":
                     G2048(name="20"),
                     Frat(),
                     Maze(),
+                    Pushy(),
                     Menu([
                         TicTacToe(),
                         Connect4(name="C4"),
