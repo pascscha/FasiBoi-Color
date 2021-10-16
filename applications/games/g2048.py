@@ -36,7 +36,7 @@ class Tile:
 
     def get_colors(self):
         color_bright = self.COLORS[min(self.value - 1, len(self.COLORS) - 1)]
-        color_dark = tuple(map(lambda n: n * 0.8, color_bright))
+        color_dark = tuple(map(lambda n: n * 0.5, color_bright))
 
         out = []
         mask = 1
