@@ -25,6 +25,9 @@ class Color(np.ndarray):
         """
         return cls(*map(lambda x: int(x * 255), colorsys.hsv_to_rgb(h, s, v)))
 
+    def to_hsv(self):
+        return colorsys.rgb_to_hsv(self.r, self.g, self.b)
+
     @staticmethod
     def _convert(color):
         return max(0, min(255, int(color)))
