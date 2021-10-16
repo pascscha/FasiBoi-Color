@@ -169,7 +169,7 @@ class Display:
         """
         # Only update pixels that have changed
         for x, y in zip(
-                *np.where(np.any(self.pixels * self.brightness != self.last_pixels, axis=2))):
+                *np.where(np.any(self.pixels != self.last_pixels, axis=2))):
             self._update(x, y, self.pixels[x][y] * self.brightness)
         self.last_pixels = self.pixels.copy()
         self._refresh()
@@ -212,6 +212,7 @@ class IOManager:
         """
         self.applications = [application]
         last = time.time()
+        mfps = self.fps
         while len(self.applications) > 0:
             now = time.time()
             delta = now - last
@@ -232,7 +233,7 @@ class IOManager:
 
             if self.teppich_animations[self.teppich] is not None:
                 self.teppich_animations[self.teppich].apply(self.display)
-            
+
             # Apply Color Palette
             if self.color_palette is not None:
                 self.color_palette.apply(self.display)
@@ -240,7 +241,11 @@ class IOManager:
             self.display.refresh()
             if self.controller.button_menu.fresh_press():
                 self.close_application()
-            time.sleep(max(0, min(delta, 1 / self.fps)))
+            calc_duration = time.time() - last
+            mfps = (20*mfps + 1/calc_duration)/21
+            print("\rmax FPS", int(mfps))
+            time.sleep(max(0, 1 / self.fps - calc_duration))
+
 
     def __enter__(self):
         return self
