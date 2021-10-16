@@ -42,7 +42,7 @@ class AnimatedValue(MilkdropValue):
         return self.fun2(
             (self.beat_count +
              self.fun1(progression)) /
-            self.period)
+             self.period)
 
 
 class AnimatedHSVColor():
@@ -707,11 +707,6 @@ class Milkdrop(core.Application):
                     Distorter(vect_fun=from_center),
                     Particles(path=circle_big, particles=4, position=AnimatedValue(period=16, fun1=lambda x:x), color=AnimatedHSVColor(s=ConstantValue(1), v=AnimatedValue(period=4))),
                     Particles(path=circle_medium, particles=4, position=AnimatedValue(period=16, fun1=lambda x:x, fun2=lambda x:x), color=AnimatedHSVColor(s=ConstantValue(1), v=AnimatedValue(period=4))),
-                ]),
-            Visualization(name="Strobo",
-                energy=1,
-                effects=[
-                    Drawer(coords=all_coords, color=AnimatedHSVColor(s=ConstantValue(0), v=AnimatedValue(fun1=lambda x:int(x*16)%2, period=1)))
                 ])
 
         ]
