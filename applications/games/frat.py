@@ -86,7 +86,7 @@ class Frat(core.Game):
                 prog = (0.1 - prog) / 0.1
 
             io.display.update(
-                *coord, tuple(map(lambda c: c * (0.5 + 0.5 * prog), color)))
+                *coord, tuple(map(lambda c: c * (0.2 + 0.8 * prog), color)))
 
     @staticmethod
     def get_background_color(x, y):

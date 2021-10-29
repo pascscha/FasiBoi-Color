@@ -556,7 +556,7 @@ class StrategyGame(core.Game):
                 prog = (0.1 - prog) / 0.1
 
             io.display.update(
-                *coord, tuple(map(lambda c: c * (0.5 + 0.5 * prog), color)))
+                *coord, tuple(map(lambda c: c * (0.2 + 0.8 * prog), color)))
 
     def draw_stones(self, io, delta, left, top):
         """Draws the stones on the field
