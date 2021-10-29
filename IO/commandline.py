@@ -60,7 +60,7 @@ class CursesIOManager(core.IOManager):
     """Command Line IO Manager
     """
 
-    def __init__(self, screen_res=(10, 15)):
+    def __init__(self, *args, screen_res=(10, 15), **kwargs):
         curses.initscr()
 
         self.win = curses.newwin(
@@ -75,7 +75,7 @@ class CursesIOManager(core.IOManager):
 
         controller = CursesController()
         display = CursesDisplay(self.win, *screen_res)
-        super().__init__(controller, display)
+        super().__init__(controller, display, *args, **kwargs)
 
     def update(self):
         """Update function that gets called every frame

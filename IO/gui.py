@@ -72,12 +72,13 @@ class PygameDisplay(core.Display):
 class PygameIOManager(core.IOManager):
     """Pygame IO Manager
     """
-    def __init__(self,
-                 bg_path="resources/images/bg.png",
+    def __init__(self, *args,
+                 bg_path=None, # "resources/images/bg.png",
                  title="FasiBoi-Color",
-                 screen_pos=(150, 100),
-                 screen_size=(200, 300),
-                 screen_res=(10, 15)):
+                 screen_pos=(0, 0), #(150, 100),
+                 screen_size=(500, 750),
+                 screen_res=(10, 15),
+                 **kwargs):
         pygame.init()
         pygame.display.set_caption(title)
 
@@ -90,7 +91,7 @@ class PygameIOManager(core.IOManager):
 
         display = PygameDisplay(win, screen_pos, screen_size, *screen_res)
         controller = PygameController()
-        super().__init__(controller, display)
+        super().__init__(controller, display, *args, **kwargs)
 
     def update(self):
         """Update function that gets called every frame
