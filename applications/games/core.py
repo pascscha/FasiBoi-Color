@@ -76,7 +76,7 @@ class Game(core.Application):
             io.display.fill((0, 0, 0))
 
             # Generate bitmap of highscore text
-            highscore_bmp = textutils.get_text_bitmap(self.score_str(self.highscore))
+            highscore_bmp = textutils.get_text_bitmap(self.score_str(self.highscore), monospace=False)
             if self.score is None:
                 # If we have no last score yet, just display highscore
                 bitmaputils.apply_bitmap(
@@ -96,7 +96,7 @@ class Game(core.Application):
                         255))
             else:
                 # Otherwise also show last score
-                score_bmp = textutils.get_text_bitmap(self.score_str(self.score))
+                score_bmp = textutils.get_text_bitmap(self.score_str(self.score), monospace=False)
 
                 # Draw highscore
                 bitmaputils.apply_bitmap(
