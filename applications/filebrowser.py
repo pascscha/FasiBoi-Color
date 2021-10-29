@@ -1,5 +1,6 @@
 import os
 from applications.animations import VideoPlayer
+from applications.texteditor import Texteditor
 from applications.menu import Menu
 from applications import core
 from IO.color import *
@@ -24,9 +25,9 @@ class Filebrowser(core.Application):
             if os.path.isdir(full):
                 folders.append(Filebrowser(os.path.join(self.root, file), name=short, color=BLUE))
             elif file.split(".")[-1].lower() in self.VIDEO_ENDINGS:
-                files.append(VideoPlayer(full, name=short, color=GREEN))            
+                files.append(VideoPlayer(full, name=short, color=GREEN * 0.5))            
             else:
-                files.append(EmptyApplication(name=short, color=GREEN * 0.5))
+                files.append(Texteditor(full, name=short, color=WHITE))
         return Menu(folders + files)
 
     def update(self, io, delta):

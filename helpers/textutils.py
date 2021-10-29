@@ -1,7 +1,7 @@
 import numpy as np
 
 letter_bmps = list(np.load("resources/sprites/letters.npy"))
-    
+
 def get_char_bitmap(char, monospace=True):
     """Gets the bitmap for a single char
 
@@ -13,7 +13,7 @@ def get_char_bitmap(char, monospace=True):
     """
     global letter_bmps
 
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?:.><="
+    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
     char = char.upper()
     if char not in letters:
         return np.zeros((5, 3), dtype=np.bool)

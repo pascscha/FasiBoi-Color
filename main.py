@@ -19,6 +19,7 @@ from applications.games.reversi import Reversi
 from applications.games.frat import Frat
 from applications.games.g2048 import G2048
 from applications.games.maze import Maze
+from applications.games.sudoku import Sudoku
 #from applications.games.pushy import Pushy
 from applications.milkdrop import Milkdrop
 from applications.colors import Colors
@@ -30,7 +31,7 @@ if __name__ == "__main__":
         ColorPaletteChoice()
     ]
 
-    with PygameIOManager() as ioManager:
+    with PygameIOManager(record_path="file_browser.mp4") as ioManager:
 
         # Hack, this makes sure settings are loaded even without opening them,
         # by letting them run for 1 frame
@@ -53,11 +54,13 @@ if __name__ == "__main__":
                         TicTacToe(),
                         Connect4(name="C4"),
                         Reversi()
-                    ], name="Strategy")
+                    ], name="Strategy"),
+                    Sudoku()
                 ], name="Games"),
                 Milkdrop(),
                 Clock(),
                 Filebrowser("resources/videos", name="Video"),
+                Filebrowser(".", name="Files"),
                 Menu([
                     Colors(),
                     SolidColor(
