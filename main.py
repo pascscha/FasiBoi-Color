@@ -1,8 +1,11 @@
 from cv2 import INTER_NEAREST
+#from IO.led import LEDIOManager
 from IO.gui import PygameIOManager
+from IO.commandline import CursesIOManager
 from applications.settings import BrightnessSlider, FPSChoice, ColorPaletteChoice
 from applications.menu import Menu
-from applications.animations import SolidColor, VideoPlayer, Webcam
+from applications.filebrowser import Filebrowser
+from applications.animations import SolidColor, VideoPlayer
 from applications.paint import Paint
 from applications.games.snake import Snake
 from applications.games.flappy import Flappy
@@ -16,8 +19,9 @@ from applications.games.reversi import Reversi
 from applications.games.frat import Frat
 from applications.games.g2048 import G2048
 from applications.games.maze import Maze
-from applications.games.pushy import Pushy
+#from applications.games.pushy import Pushy
 from applications.milkdrop import Milkdrop
+from applications.colors import Colors
 
 if __name__ == "__main__":
     settings = [
@@ -26,7 +30,7 @@ if __name__ == "__main__":
         ColorPaletteChoice()
     ]
 
-    with PygameIOManager(bg_path=None, screen_pos=(0, 0), screen_size=(670, 1005)) as ioManager:
+    with PygameIOManager() as ioManager:
 
         # Hack, this makes sure settings are loaded even without opening them,
         # by letting them run for 1 frame
@@ -36,7 +40,7 @@ if __name__ == "__main__":
         ioManager.run(Menu([
             Menu([
                 Menu([
-                    Snake(color=(11, 116, 93)),
+                    Snake(color=(11, 200, 93)),
                     Flappy(color=(116, 190, 46)),
                     Pong(color=(0, 0, 255)),
                     Tetris(color=(255, 127, 0)),
@@ -44,7 +48,7 @@ if __name__ == "__main__":
                     G2048(name="20"),
                     Frat(),
                     Maze(),
-                    Pushy(),
+                    #Pushy(),
                     Menu([
                         TicTacToe(),
                         Connect4(name="C4"),
@@ -53,23 +57,9 @@ if __name__ == "__main__":
                 ], name="Games"),
                 Milkdrop(),
                 Clock(),
+                Filebrowser("resources/videos", name="Video"),
                 Menu([
-                    VideoPlayer("resources/videos/spinning_alien.gif", name="A1"),
-                    VideoPlayer("resources/videos/walking_alien.mp4", name="A2"),
-                    VideoPlayer("resources/videos/walking2_alien.mp4", name="A3"),
-                    VideoPlayer("resources/videos/world.gif", name="World", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/evil.gif", name="Evil", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/smiley2.gif", name="Smiley", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/moon.gif", name="Moon", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/pattern.gif", name="Pattern", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/eye.gif", name="Eye", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/walk.gif", name="Walk", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/spin.gif", name="Spin", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/bat.gif", name="Bat", interpolation=INTER_NEAREST),
-                    VideoPlayer("resources/videos/emo.gif", name="Emo", interpolation=INTER_NEAREST),
-                ], name="Video"),
-                Webcam(),
-                Menu([
+                    Colors(),
                     SolidColor(
                         (255, 255, 255),
                         name="White"
