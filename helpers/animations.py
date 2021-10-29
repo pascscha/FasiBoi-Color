@@ -2,13 +2,13 @@
 """
 
 import numpy as np
-
+from IO.color import Color
 
 def blend_colors(color1, color2, prog):
     """If prog=0 it returns color1, if prog=1 color2, otherwise it blends linearly between them according to the given
     prog.
     """
-    return tuple(map(lambda c: c[0] * (1 - prog) + c[1] * prog, zip(color1, color2)))
+    return Color(*map(lambda c: c[0] * (1 - prog) + c[1] * prog, zip(color1, color2)))
 
 
 class TimedValue:
