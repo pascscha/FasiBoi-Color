@@ -2,9 +2,44 @@ import colorsys
 import hashlib
 import os.path
 import json
+import time
+import threading
+
+class Waker:
+    def wake_up(self):
+        raise NotImplementedError("Please implement this method")
+
+class TimeWaker(Waker):
+    def __init__(self, duration):
+        self.end = time.time() + duration
+
+    def wake_up(self):
+        return time.time() >= self.end
+
+class ButtonPressWaker(Waker):
+    def __init__(self, button):
+        self.button = button
+
+    def wake_up(self):
+        return self.button._value and self.button.fresh
+
+class ButtonReleaseWaker(Waker):
+    def __init__(self, button):
+        self.button = button
+
+    def wake_up(self):
+        return (not self.button._value) and self.button.fresh
+
+class LambdaWaker(Waker):
+    def __init__(self, wakeup_fun):
+        self.wakeup_fun = wakeup_fun
+
+    def wake_up(self):
+        return self.wakeup_fun()
 
 
 class Application:
+    MAX_FPS = None
 
     def __init__(self, name=None, color=None):
         if name is None:
@@ -18,6 +53,9 @@ class Application:
                                    colorsys.hsv_to_rgb(hue / 255, 1, 1)))
         else:
             self.color = color
+
+        self.wakers = None
+        self.sleep_time = 0
 
         self.save_path = os.path.join(
             "resources", "appdata", self.name.replace(" ", "_") + ".json")
@@ -70,6 +108,36 @@ class Application:
         data = self.load_data()
         data[key] = value
         self.save_data(data)
+
+    def sleep(self, wakers):
+        """Skips update until given condition is met
+
+        Args:
+            wakers (function): Function returning a boolean, deciding when to continue.
+        """
+        self.sleep_time = 0
+        self.wakers = wakers
+    
+    def wake_up(self):
+        """Wakes application up, ensuring it does not sleep the next frame
+        """
+        self.wakers = None
+
+    def is_sleeping(self, delta):
+        """Checks wether the application is sleeping
+
+        Returns:
+            bool: True if the application does not need to update
+        """
+        if self.wakers is None or len(self.wakers) == 0:
+            return False
+        else:
+            if any(waker.wake_up() for waker in self.wakers):
+                self.wakers = None
+                return False
+            else:
+                self.sleep_time += delta
+                return True
 
     def update(self, io, delta):
         """Updates Application to advance 1 frame

@@ -1,6 +1,8 @@
 from applications import core
-from helpers import textutils, bitmaputils
-
+from helpers import textutils, bitmaputils, animations
+from applications.colors import *
+from datetime import datetime
+import time
 
 class Choice:
     def __init__(self, text, color, fun):
@@ -90,8 +92,46 @@ class Menu(core.Application):
 
     def update(self, io, delta):
         io.display.fill((0, 0, 0))
+        
+        # Text
         self.chooser.update(io, delta)
         color = self.chooser.color
+
+        # Side Bars
         for x in range(io.display.width):
-            for y in [0, io.display.height - 1]:
+            for y in [1, io.display.height - 2]:
                 io.display.update(x, y, color)
+
+        # Battery
+        battery = io.get_battery()
+        if battery < 0.5:
+            battery_color = animations.blend_colors(RED, YELLOW * 0.5, battery * 2)
+        else:
+            battery_color = animations.blend_colors(YELLOW * 0.5, GREEN * 0.5, (battery - 0.5)* 2)
+        
+        for x in range(1 + round((io.display.width-1) * battery)):
+            io.display.update(x, 0, battery_color)
+        
+
+        # Clock
+        now = datetime.now()
+        hour = f"{now.hour%12:04b}"
+        minute = f"{now.minute:06b}"
+        for x in range(4):
+            if hour[x] == "1":
+                io.display.update(x, io.display.height-1, (RED + 0.5*GREEN)*0.5)
+            else:
+                io.display.update(x, io.display.height-1, (RED + 0.5*GREEN)*0.25)
+
+        for x in range(6):
+            if minute[x] == "1":
+                io.display.update(io.display.width - 6 + x, io.display.height-1, BLUE*0.5)
+            else:
+                io.display.update(io.display.width - 6 + x, io.display.height-1, BLUE*0.25)
+
+        if self.chooser.prog == self.chooser.index:
+            self.sleep([
+                core.ButtonReleaseWaker(io.controller.button_a),
+                core.ButtonPressWaker(io.controller.button_left),
+                core.ButtonPressWaker(io.controller.button_right),
+            ])
