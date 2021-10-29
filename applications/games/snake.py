@@ -50,6 +50,7 @@ class Snake(core.Game):
         # that has passed since last movement.
         self.ticker = animations.Ticker(3)
 
+
     def _update_midgame(self, io, delta):
         # Check controller values. We look for fresh_values, because we only care
         # about button presses and not if the button is held down
@@ -107,16 +108,17 @@ class Snake(core.Game):
 
             # We found the food
             if new_head == self.food:
-                # Generate new food
-                self.food = self.random_food_location(
-                    width=io.display.width,
-                    height=io.display.height
-                )
                 # Increase speed of snake
                 self.ticker.speed += 0.1
                 # Add head of snake to body without cutting the tail by one,
                 # which increases its length by 1
                 self.snake = [new_head] + self.snake
+
+                # Generate new food
+                self.food = self.random_food_location(
+                    width=io.display.width,
+                    height=io.display.height
+                )
             else:
                 # We did not find the food, add head to snake and cut its tail
                 # by one, so its length stays the same
@@ -135,7 +137,7 @@ class Snake(core.Game):
 
         # Draw snake
         for (x, y) in self.snake:
-            io.display.update(x, y, (11, 116, 93))
+            io.display.update(x, y, (11, 200, 93))
 
     def _update_gameover(self, io, delta):
         # We still use the snake progression for the dying animation
