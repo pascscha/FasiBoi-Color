@@ -20,14 +20,13 @@ class Filebrowser(core.Application):
         folders = []
         files = []
         for file in sorted(os.listdir(self.root)):
-            short = f"{file[:2]:<2}"
             full = os.path.join(self.root, file)
             if os.path.isdir(full):
-                folders.append(Filebrowser(os.path.join(self.root, file), name=short, color=BLUE))
+                folders.append(Filebrowser(os.path.join(self.root, file), name=file, color=BLUE))
             elif file.split(".")[-1].lower() in self.VIDEO_ENDINGS:
-                files.append(VideoPlayer(full, name=short, color=GREEN * 0.5))            
+                files.append(VideoPlayer(full, name=file, color=GREEN * 0.5))            
             else:
-                files.append(Texteditor(full, name=short, color=WHITE))
+                files.append(Texteditor(full, name=file, color=WHITE))
         return Menu(folders + files)
 
     def update(self, io, delta):

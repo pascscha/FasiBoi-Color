@@ -382,9 +382,9 @@ class StrategyGame(core.Game):
     }
 
     DIFFICULTIES = {
-        "Ea": (GREEN, 0.5, 2),
-        "Me": (YELLOW, 1, 5),
-        "Di": (RED, 5, 30)
+        "Easy": (0.5, 2),
+        "Medium": (1, 5),
+        "Difficult": (5, 30)
     }
 
     def __init__(self, *args, **kwargs):
@@ -393,15 +393,18 @@ class StrategyGame(core.Game):
         self.player1 = None
         self.player2 = None
 
+        p1color = self.COLOR_MAP[BitField.COLOR1]
+        p2color = self.COLOR_MAP[BitField.COLOR2]
+
         self.player1Choice = SlidingChoice([
-                                               Choice("Hu", WHITE, Applyer(self, HumanPlayer(BitField.COLOR1)))] + [
-                                               Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR1)))
-                                               for name, (color, t, d) in self.DIFFICULTIES.items()], 8)
+                                               Choice("Human", p1color, Applyer(self, HumanPlayer(BitField.COLOR1)))] + [
+                                               Choice(name, p1color, Applyer(self, AIPlayer(t, d, BitField.COLOR1)))
+                                               for name, (t, d) in self.DIFFICULTIES.items()], 8)
 
         self.player2Choice = SlidingChoice([
-                                               Choice("Hu", WHITE, Applyer(self, HumanPlayer(BitField.COLOR2)))] + [
-                                               Choice(name, color, Applyer(self, AIPlayer(t, d, BitField.COLOR2)))
-                                               for name, (color, t, d) in self.DIFFICULTIES.items()], 8)
+                                               Choice("Human", p2color, Applyer(self, HumanPlayer(BitField.COLOR2)))] + [
+                                               Choice(name, p2color, Applyer(self, AIPlayer(t, d, BitField.COLOR2)))
+                                               for name, (t, d) in self.DIFFICULTIES.items()], 8)
         self.reset()
 
     def reset(self, *args):
@@ -439,9 +442,9 @@ class StrategyGame(core.Game):
         io.display.fill((0, 0, 0))
         idx = [BitField.COLOR1, BitField.COLOR2].index(color)
 
-        bmp = textutils.get_text_bitmap(f"P{idx + 1}")
-        bitmaputils.apply_bitmap(
-            bmp, io.display, (1, 1), fg_color=self.COLOR_MAP[color])
+        #bmp = textutils.get_text_bitmap(f"P{idx + 1}")
+        #bitmaputils.apply_bitmap(
+        #    bmp, io.display, (1, 1), fg_color=self.COLOR_MAP[color])
         [self.player1Choice, self.player2Choice][idx].update(io, delta)
 
     def _update_pregame(self, io, delta):

@@ -84,6 +84,7 @@ class BrightnessSlider(Slider):
     def update(self, io, delta):
         super().update(io, delta)
         io.display.brightness = self.get_value()
+        io.display.force_update()
 
 
 class FPSChoice(NumberChoice):
