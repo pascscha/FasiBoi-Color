@@ -101,6 +101,11 @@ class Display:
         self.last_pixels = np.ones((width, height, 3), dtype=np.uint8)
         self.brightness = brightness
 
+    def force_update(self):
+        """Forces all pixels to be redrawn, even if they might have not changed
+        """
+        self.last_pixels = np.ones((self.width, self.height, 3), dtype=np.uint8)
+
     def check_coordinates(self, x, y):
         """Checks wether the given coordinates are valid
 
@@ -316,7 +321,6 @@ class IOManager:
         if len(self.applications) > 0:
             self.current_animation = SlideUp(
                 self.display, self.animation_duration)
-            self.applications[-1].destroy()
             self.applications = self.applications[:-1]
         if len(self.applications) == 0:
             self.running = False

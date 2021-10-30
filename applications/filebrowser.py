@@ -31,3 +31,6 @@ class Filebrowser(core.Application):
 
     def update(self, io, delta):
         return self.menu.update(io, delta)
+
+    def destroy(self):
+        self.menu = self.refresh()

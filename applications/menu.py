@@ -65,12 +65,13 @@ class Menu(core.Application):
     def __init__(self, applications, *args, speed=4, **kwargs):
         super().__init__(*args, **kwargs)
         self.applications = applications
+        self.speed = speed
         choices = [
             Choice(
                 application.name,
                 application.color,
                 ApplicationOpener(application)) for application in applications]
-        self.chooser = SlidingChoice(choices, 5, speed=speed)
+        self.chooser = SlidingChoice(choices, 5, speed=self.speed)
 
     def update(self, io, delta):
         io.display.fill((0, 0, 0))
@@ -117,3 +118,8 @@ class Menu(core.Application):
 
         io.display.pixels[:, io.display.height-2] = io.display.pixels[:, io.display.height-2] * 0.25
         io.display.pixels[:, io.display.height-3] = io.display.pixels[:, io.display.height-3] * 0.75
+    
+    def destroy(self):
+        for application in self.applications:
+            application.destroy()
+        self.chooser = SlidingChoice(self.chooser.choices, 5, speed=self.speed)

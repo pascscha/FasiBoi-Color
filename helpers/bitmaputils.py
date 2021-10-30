@@ -27,13 +27,18 @@ def apply_bitmap(bmp, display, loc, bg_color=None, fg_color=(255, 255, 255)):
     dsp_right = dsp_left + bmp_right - bmp_left
     dsp_bottom = dsp_top + bmp_bottom - bmp_top
 
+    
     cut_dsp = display.pixels[dsp_left:dsp_right, dsp_top:dsp_bottom]
-    cut_bmp = bmp.T[bmp_left:bmp_right, bmp_top:bmp_bottom]
+    
+    x, y, _ = cut_dsp.shape
 
-    if fg_color is not None:
-        cut_dsp[np.where(cut_bmp)] = fg_color
-    if bg_color is not None:
-        cut_dsp[np.where(1-cut_bmp)] = bg_color
+    if x*y > 0:
+        cut_bmp = bmp.T[bmp_left:bmp_right, bmp_top:bmp_bottom]
+
+        if fg_color is not None:
+            cut_dsp[np.where(cut_bmp)] = fg_color
+        if bg_color is not None:
+            cut_dsp[np.where(1-cut_bmp)] = bg_color
 
 
 def get_color(image, loc, default=np.array((0, 0, 0))):

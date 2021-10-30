@@ -149,3 +149,7 @@ class Game(core.Application):
             delta (float): How much time has passed since the last frame
         """
         self.state = self.PRE_GAME
+
+    def destroy(self):
+        self.score = None
+        self.state = self.PRE_GAME

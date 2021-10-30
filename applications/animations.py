@@ -64,6 +64,12 @@ class VideoPlayer(core.Application):
         elif not self.loop:
             io.close_application()
 
+    def destroy(self):
+        self.cap = cv2.VideoCapture(self.path)
+        self.progression = 0
+        self.last_frame = -1
+        self.read = None
+
 
 class Webcam(VideoPlayer):
     def __init__(self, *args, **kwargs):
@@ -78,11 +84,7 @@ class SolidColor(core.Application):
     def __init__(self, color, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.color = color
-        self.brightness = 0
-        self.last = time.time()
-        self.up = True
 
     def update(self, io, delta):
-        for x in range(io.display.width):
-            for y in range(io.display.height):
-                io.display.update(x, y, self.color)
+        io.display.fill(self.color)
+        self.sleep([core.ButtonPressWaker(io.controller.button_menu)])

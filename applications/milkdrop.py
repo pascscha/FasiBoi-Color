@@ -514,6 +514,9 @@ class Milkdrop(core.Application):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.reset()
+
+    def reset(self):
         self.beat_duration = 0.5
         self.energy = 0.5
         now = time.time()
@@ -847,3 +850,6 @@ class Milkdrop(core.Application):
         self.last_frame = viz.apply(
             self.last_frame, delta, progression, self.beat)
         io.display.pixels = self.last_frame
+
+    def destroy(self):
+        self.reset()

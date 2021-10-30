@@ -154,4 +154,5 @@ class Application:
     def destroy(self):
         """Closes application
         """
-        pass
+        self.wakers = None
+        self.sleep_time = 0

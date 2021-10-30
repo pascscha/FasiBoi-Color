@@ -4,6 +4,7 @@ from IO.gui import PygameIOManager
 from IO.commandline import CursesIOManager
 from applications.settings import BrightnessSlider, FPSChoice, ColorPaletteChoice
 from applications.menu import Menu
+from applications.closeall import CloseAll
 from applications.filebrowser import Filebrowser
 from applications.animations import SolidColor, VideoPlayer
 from applications.paint import Paint
@@ -28,10 +29,10 @@ if __name__ == "__main__":
     settings = [
         BrightnessSlider(start=0.1, end=1, default=1, name="Brightness"),
         FPSChoice(default=30, name="FPS"),
-        ColorPaletteChoice()
+        ColorPaletteChoice("Color Palette")
     ]
 
-    with PygameIOManager(record_path="file_browser.mp4") as ioManager:
+    with PygameIOManager(record_path="menu.mp4") as ioManager:
 
         # Hack, this makes sure settings are loaded even without opening them,
         # by letting them run for 1 frame
@@ -40,29 +41,29 @@ if __name__ == "__main__":
 
         ioManager.run(Menu([
             Menu([
+                Snake(color=(11, 200, 93)),
+                Flappy(color=(116, 190, 46), name="Flappy Bird"),
+                Pong(color=(0, 0, 255)),
+                Tetris(color=(255, 127, 0)),
+                Pacman(color=(255, 255, 0)),
+                G2048(name="2048"),
+                Frat(name="Felder Raten"),
+                Maze(),
+                #Pushy(),
                 Menu([
-                    Snake(color=(11, 200, 93)),
-                    Flappy(color=(116, 190, 46)),
-                    Pong(color=(0, 0, 255)),
-                    Tetris(color=(255, 127, 0)),
-                    Pacman(color=(255, 255, 0)),
-                    G2048(name="20"),
-                    Frat(),
-                    Maze(),
-                    #Pushy(),
-                    Menu([
-                        TicTacToe(),
-                        Connect4(name="C4"),
-                        Reversi()
-                    ], name="Strategy"),
-                    Sudoku()
-                ], name="Games"),
-                Milkdrop(),
+                    TicTacToe(name="Tic Tac Toe"),
+                    Connect4(name="Connect 4"),
+                    Reversi(name="Reversi")
+                ], name="Strategy"),
+                Sudoku()
+            ], name="Games"),
+            Menu([
+                Milkdrop(name="Music Visualization"),
                 Clock(),
-                Filebrowser("resources/videos", name="Video"),
+                Filebrowser("resources/videos", name="Videos"),
                 Filebrowser(".", name="Files"),
                 Menu([
-                    Colors(),
+                    Colors(name="Color Test"),
                     SolidColor(
                         (255, 255, 255),
                         name="White"
@@ -80,11 +81,11 @@ if __name__ == "__main__":
                         name="Blue"
                     )
                 ],
-                    name="Color"),
+                    name="Colors"),
                 Paint()
             ],
-                name="Applications"),
+                name="Apps"),
             Menu(settings,
-                 name="Settings"),
-
+                name="Settings"),
+            CloseAll(name="Close All", color=(255, 0, 0))
         ]))
