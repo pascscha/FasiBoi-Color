@@ -520,6 +520,7 @@ class Milkdrop(core.Application):
         self.beat_duration = 0.5
         self.energy = 0.5
         now = time.time()
+        self.last = now
         self.beat_count = 0
         self.last_change = 0
         self.beat = False
@@ -772,6 +773,10 @@ class Milkdrop(core.Application):
         self.last_change = self.beat_count
 
     def update(self, io, delta):
+        now = time.time()
+        if now - self.last > 10 * delta:
+            self.reset()
+
         if io.controller.button_up.fresh_press():
             self.energy = min(1., self.energy + 1 / self.ENERGY_GRANULARITY)
 
@@ -793,8 +798,6 @@ class Milkdrop(core.Application):
         if io.controller.button_b.fresh_press():
             self.next_visualization()
 
-        now = time.time()
-
         if io.controller.button_a.fresh_press():
             self.last_change = self.beat_count
             click_duration = now - self.last_click
@@ -814,8 +817,8 @@ class Milkdrop(core.Application):
                         # Slightly faster that the current beat, add new beat
                         # now
                         self.beat = True
-                        self.last_beats = [
-                                              now] + self.last_beats[:self.BEAT_MEMORY_SIZE - 1]
+                        self.last_beats = [now] + self.last_beats[:self.BEAT_MEMORY_SIZE - 1]
+                    self.beat_duration = (self.last_beats[0] - self.last_beats[-1]) / (len(self.last_beats)-1)
                 else:
                     # Clicking and beat drastically different speeds, change
                     # tempo
@@ -828,7 +831,6 @@ class Milkdrop(core.Application):
                             self.BEAT_MEMORY_SIZE)]
             self.last_click = now
         else:
-            now = time.time()
             if self.last_beats[0] + self.beat_duration < now:
                 self.beat = True
                 self.last_beats = [self.last_beats[0] + self.beat_duration] + self.last_beats[
@@ -837,6 +839,8 @@ class Milkdrop(core.Application):
                 self.beat = False
         if self.beat:
             self.beat_count += 1
+
+        print(60/self.beat_duration)
 
         beats_since_change = self.beat_count - self.last_change
         if beats_since_change != 0 and beats_since_change % 32 == 0:
@@ -850,6 +854,7 @@ class Milkdrop(core.Application):
         self.last_frame = viz.apply(
             self.last_frame, delta, progression, self.beat)
         io.display.pixels = self.last_frame
+        self.last = now
 
     def destroy(self):
         self.reset()
