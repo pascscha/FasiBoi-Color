@@ -40,14 +40,17 @@ class SlidingChoice:
             if i == round(self.prog):
                 color = self.choices[i].color
                 textlen = self.bmps[round(self.prog)].shape[1]
-                animlen = textlen + io.display.width + 5
+                animlen = textlen + io.display.width + 10
                 self.scroll_offset.set_value(animlen)
                 self.scroll_offset.speed = self.text_speed/animlen
-                offset = max(0,int(self.scroll_offset.tick(delta))-5)
+                offset = max(0,int(self.scroll_offset.tick(delta))-10)
                 if offset >= textlen:
                     x = 1 + io.display.width - (offset-textlen)
                 else:
                     x = 1 - int(offset)
+                
+                if offset == textlen+io.display.width: #restart scroll
+                    self.scroll_offset = animations.AnimatedValue(0)
             else:
                 color = Color(*self.choices[i].color) * 0.5
                 x = 1
