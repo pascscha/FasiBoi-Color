@@ -3,7 +3,7 @@
 import time
 import numpy as np
 from IO.effects import EffectCombination, VerticalDistort, StripedNoise, Dropout, Black, SlideUp, \
-    SlideDown, ColorPalette
+    SlideDown, ColorPalette, Notch
 from IO.color import Color
 import cv2
 
@@ -200,6 +200,7 @@ class IOManager:
         self.teppich = 0
         self.teppich_animations = [
             None,
+            Notch(),
             EffectCombination([VerticalDistort(frequency=1 / 60), StripedNoise(limit=50)]),
             EffectCombination([VerticalDistort(), StripedNoise(limit=100)]),
             EffectCombination(
