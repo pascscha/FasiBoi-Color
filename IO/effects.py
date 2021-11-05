@@ -224,6 +224,16 @@ class Black(WindowEffect):
         """
         display.pixels[:] = 0
 
+class Notch(WindowEffect):
+    """Creates an IPhone like Notch for Apple fans
+    """
+    def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
+        display.pixels[3:7, 0] = 0
 
 class ColorPalette(WindowEffect):
     def __init__(self, *args, colors=[(0,0,0), (255,255,255)], **kwargs):
