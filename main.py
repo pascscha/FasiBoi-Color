@@ -12,6 +12,7 @@ from applications.games.snake import Snake
 from applications.games.flappy import Flappy
 from applications.games.pong import Pong
 from applications.clock import Clock
+from applications.games.racer import Racer
 from applications.games.tetris import Tetris
 from applications.games.pacman import Pacman
 from applications.games.tictactoe import TicTacToe
@@ -32,7 +33,7 @@ if __name__ == "__main__":
         ColorPaletteChoice("Color Palette")
     ]
 
-    with PygameIOManager(record_path="menu.mp4") as ioManager:
+    with PygameIOManager() as ioManager:
 
         # Hack, this makes sure settings are loaded even without opening them,
         # by letting them run for 1 frame
@@ -42,9 +43,10 @@ if __name__ == "__main__":
         ioManager.run(Menu([
             Menu([
                 Snake(color=(11, 200, 93)),
-                Flappy(color=(116, 190, 46), name="Flappy Bird"),
-                Pong(color=(0, 0, 255)),
                 Tetris(color=(255, 127, 0)),
+                Flappy(color=(116, 190, 46), name="Flappy Bird"),
+                Racer(color=(255, 0, 0)),
+                Pong(color=(0, 0, 255)),
                 Pacman(color=(255, 255, 0)),
                 G2048(name="2048"),
                 Frat(name="Felder Raten"),
