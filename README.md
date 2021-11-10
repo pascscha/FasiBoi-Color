@@ -1,4 +1,18 @@
-# FasiBoi-Color
+# FasiBoi-Color [WIP]
+This is the Work in Progress repository for a carneval costume, due to be used in February 2022.
+
+## Vision
+![Vision](img/vision.jpg)
+
+
+## Showcase
+[![Emulating Gaming Console on 10x15 LED Matrix](img/thumbnail.jpg)](https://youtu.be/_cmhZQ1JC-s "Emulating Gaming Console on 10x15 LED Matrix")
+This shows the first time we managed to run the software on a prototype of the physical LED display.
+
+
+
+
+
 ## Helligkeiten
 - 1
   - 0.65 A

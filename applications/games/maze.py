@@ -100,6 +100,7 @@ class MazeUtils():
 
 class Maze(core.Game):
     MISERE = True
+    DEFAULT_SCORE = 99
 
     def reset(self, io):
         self.maze, _ = MazeUtils.generate_maze(io.display.width, io.display.height)

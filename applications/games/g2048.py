@@ -6,6 +6,17 @@ import math
 
 class Tile:
     COLORS = [
+        (238, 218, 197),
+        (239, 171, 159),
+        (234, 128, 28),
+        (243, 86, 0),
+        (248, 32, 0),
+        (242, 40, 0),
+        (231, 182, 0),
+        (237, 176, 0),
+        (235, 178, 0),
+        (229, 174, 0),
+        (232, 167, 0),
         (238, 228, 218),  # 2
         (239, 205, 199),  # 4
         (234, 181, 131),  # 8
@@ -36,7 +47,7 @@ class Tile:
 
     def get_colors(self):
         color_bright = self.COLORS[min(self.value - 1, len(self.COLORS) - 1)]
-        color_dark = tuple(map(lambda n: n * 0.8, color_bright))
+        color_dark = tuple(map(lambda n: n * 0.5, color_bright))
 
         out = []
         mask = 1

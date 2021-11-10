@@ -4,6 +4,8 @@ import datetime
 
 
 class Clock(core.Application):
+    MAX_FPS = 4
+
     def update(self, io, delta):
         time = datetime.datetime.now()
         hour_bmp = textutils.get_text_bitmap(f"{time.hour:02}")
@@ -23,3 +25,7 @@ class Clock(core.Application):
             (io.display.width // 2 - hour_bmp.shape[1] // 2,
              10 - hour_bmp.shape[0] // 2),
             fg_color=(255, 255, 255))
+
+        self.sleep([
+            core.TimeWaker(60 - time.second)
+        ])

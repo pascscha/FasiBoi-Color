@@ -3,9 +3,9 @@
 import time
 import numpy as np
 from IO.effects import EffectCombination, VerticalDistort, StripedNoise, Dropout, Black, SlideUp, \
-    SlideDown, ColorPalette
+    SlideDown, ColorPalette, Notch
 from IO.color import Color
-
+import cv2
 
 class ControllerValue:
     """The value of a controller
@@ -101,6 +101,11 @@ class Display:
         self.last_pixels = np.ones((width, height, 3), dtype=np.uint8)
         self.brightness = brightness
 
+    def force_update(self):
+        """Forces all pixels to be redrawn, even if they might have not changed
+        """
+        self.last_pixels = np.ones((self.width, self.height, 3), dtype=np.uint8)
+
     def check_coordinates(self, x, y):
         """Checks wether the given coordinates are valid
 
@@ -169,7 +174,7 @@ class Display:
         """
         # Only update pixels that have changed
         for x, y in zip(
-                *np.where(np.any(self.pixels * self.brightness != self.last_pixels, axis=2))):
+                *np.where(np.any(self.pixels != self.last_pixels, axis=2))):
             self._update(x, y, self.pixels[x][y] * self.brightness)
         self.last_pixels = self.pixels.copy()
         self._refresh()
@@ -180,7 +185,7 @@ class IOManager:
     display
     """
 
-    def __init__(self, controller, display, fps=30, animation_duration=0.25):
+    def __init__(self, controller, display, fps=20, animation_duration=0.25, record_path=None, record_scale=10):
         self.controller = controller
         self.display = display
         self.running = True
@@ -191,16 +196,32 @@ class IOManager:
         self.animation_duration = animation_duration
         self.current_animation = None
         self.color_palette = None
-
+        
         self.teppich = 0
         self.teppich_animations = [
             None,
+            Notch(),
             EffectCombination([VerticalDistort(frequency=1 / 60), StripedNoise(limit=50)]),
             EffectCombination([VerticalDistort(), StripedNoise(limit=100)]),
             EffectCombination(
                 [VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1 / 2)]),
             Black()
-        ]  # Noise(level=50), Noise(level=200), Noise(level=20000)]
+        ]
+
+        # Start recording if necessary
+        self.video_out = None
+        if record_path is not None:
+            self.record_shape = (display.width*record_scale, display.height*record_scale)
+            if record_path.lower().endswith(".avi"):
+                self.video_out = cv2.VideoWriter(record_path, 
+                            cv2.VideoWriter_fourcc(*'MJPG'),
+                            fps, self.record_shape)
+            elif record_path.lower().endswith(".mp4"):
+                self.video_out = cv2.VideoWriter(record_path, 
+                            cv2.VideoWriter_fourcc(*"mp4v"),
+                            fps, self.record_shape)
+
+
 
     def run(self, application):
         """Runs an application. Should only be invoked with the root
@@ -212,12 +233,20 @@ class IOManager:
         """
         self.applications = [application]
         last = time.time()
+        mfps = self.fps
         while len(self.applications) > 0:
             now = time.time()
             delta = now - last
             last = now
             self.update()
-            self.applications[-1].update(self, delta)
+            
+            if not self.applications[-1].is_sleeping(delta):
+                self.applications[-1].update(self, delta)
+
+                if self.applications[-1].MAX_FPS is not None:
+                    fps = min(self.fps, self.applications[-1].MAX_FPS)
+                else:
+                    fps = self.fps
 
             # Apply Effects
             if self.current_animation is not None:
@@ -225,6 +254,10 @@ class IOManager:
                     self.current_animation = None
                 else:
                     self.current_animation.apply(self.display)
+                    fps = self.fps
+
+                    # Wake application up
+                    self.applications[-1].wakers = None
 
             # Apply Drunkguard
             if self.controller.button_teppich.fresh_press():
@@ -232,15 +265,32 @@ class IOManager:
 
             if self.teppich_animations[self.teppich] is not None:
                 self.teppich_animations[self.teppich].apply(self.display)
-            
+                fps = self.fps
+
             # Apply Color Palette
             if self.color_palette is not None:
                 self.color_palette.apply(self.display)
 
+            # Update display
             self.display.refresh()
+
+            # Close application if button is pressed
             if self.controller.button_menu.fresh_press():
                 self.close_application()
-            time.sleep(max(0, min(delta, 1 / self.fps)))
+
+            # Save frame to recording
+            if self.video_out is not None:
+                out = cv2.resize(self.display.pixels.transpose(1, 0, 2), self.record_shape, interpolation=cv2.INTER_NEAREST)
+                self.video_out.write(cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
+
+
+            # Sleep for the rest of the frame
+            calc_duration = time.time() - last
+            mfps = (10*mfps + 1/calc_duration)/11
+            print("\rmax FPS", int(mfps), "\tFPS", int(fps), end="    \t", flush=True)
+
+            time.sleep(max(0, 1 / fps - calc_duration))
+
 
     def __enter__(self):
         return self
@@ -249,6 +299,10 @@ class IOManager:
         self.running = False
         while len(self.applications) > 0:
             self.close_application()
+
+        if self.video_out is not None:
+            self.video_out.release()
+
         self.destroy()
 
     def open_application(self, application):
@@ -268,7 +322,6 @@ class IOManager:
         if len(self.applications) > 0:
             self.current_animation = SlideUp(
                 self.display, self.animation_duration)
-            self.applications[-1].destroy()
             self.applications = self.applications[:-1]
         if len(self.applications) == 0:
             self.running = False
@@ -280,3 +333,8 @@ class IOManager:
     def destroy(self):
         """Cleanup function that gets called after all applications are closed
         """
+    
+    def get_battery(self):
+        """Calculates the current battery, returns value between 0 (empty) and 1 (fully charged)
+        """
+        return 1

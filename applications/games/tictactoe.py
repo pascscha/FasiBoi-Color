@@ -85,9 +85,9 @@ class TicTacToe(alphabeta.StrategyGame):
     FIELD_SIZE = (3, 3)
     FIELD_CLASS = TicTacToeField
     DIFFICULTIES = {
-        "Ea": (GREEN, 1, 1),
-        "Me": (YELLOW, 1, 2),
-        "Di": (RED, 5, 9)
+        "Easy": (1, 1),
+        "Medium": (1, 2),
+        "Difficult": (5, 9)
     }
 
 

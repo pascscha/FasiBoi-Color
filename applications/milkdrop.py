@@ -42,7 +42,7 @@ class AnimatedValue(MilkdropValue):
         return self.fun2(
             (self.beat_count +
              self.fun1(progression)) /
-            self.period)
+             self.period)
 
 
 class AnimatedHSVColor():
@@ -356,24 +356,85 @@ def swirl2(w, h, x, y, f=0.7):
 
 
 class Distorter(Content):
-    def __init__(self, shape=(10, 15), speed=6, vect_fun=to_center, darken=0.):
+    def __init__(self, shape=(10, 15), speed=6, vect_fun=to_center, darken=0.1):
         self.speed = speed
+        self.shape = shape
+        
+        # Calculate weights
+        weights = np.zeros(shape=(9,*shape), dtype=np.float32)
+        for x in range(shape[0]):
+            for y in range(shape[1]):
+                vector = np.array(vect_fun(*shape, x, y))
+                norm = np.linalg.norm(vector)
+                if norm > 1:
+                    vector = vector / norm
+                for i in range(-1, 2):
+                    for j in range(-1, 2):
+                        weights[(i+1)*3 + j, x, y] += np.linalg.norm(-vector + (i, j))
+
+        #weights = np.eye(9)[np.argmin(weights, axis=0)]
+
+        # only look at points closer than sqrt(2)
+        weights = 1.42 - weights
+        weights[np.where(weights < 0)] = 0
+
+        # make sure sum of weights is 0
+        weights = weights / np.sum(weights, axis=0)
+
+        #weights = np.max(weights, axis=0) - weights
+        #weights = weights / np.sum(weights, axis=0)
+
+        self.weights = []
+
+        for x in range(-1, 2):
+            for y in range(-1, 2):
+                w = weights[(x+1)*3 + y]
+                if x == -1:
+                    w[1,:] += w[0,:]
+                    w = w[1:]
+                    range_x1 = (1, shape[0])
+                    range_x2 = (0, shape[0]-1)
+                elif x == 0:
+                    range_x1 = (0, shape[0])
+                    range_x2 = (0, shape[0])
+                elif x == 1:
+                    w[-2,:] += w[-1,:]
+                    w = w[:-1]
+                    range_x1 = (0, shape[0]-1)
+                    range_x2 = (1, shape[0])
+
+                if y == -1:
+                    w[:,1] += w[:,0]
+                    w = w[:,1:]
+                    range_y1 = (1, shape[1])
+                    range_y2 = (0, shape[1]-1)
+                elif y == 0:
+                    range_y1 = (0, shape[1])
+                    range_y2 = (0, shape[1])
+                elif y == 1:
+                    w[:,-2] += w[:,-1]
+                    w = w[:,:-1]
+                    range_y1 = (0, shape[1]-1)
+                    range_y2 = (1, shape[1])
+                self.weights.append((range_x1, range_x2, range_y1, range_y2, w.reshape(*w.shape, 1)))
+
+
         self.vectors = [[vect_fun(*shape, x, y)
                          for y in range(shape[1])] for x in range(shape[0])]
         self.darken = darken
 
+
     def apply(self, frame, delta, progression, beat):
         darkened = frame * (1 - self.darken)
-        out = darkened.copy()
+        out = np.zeros(darkened.shape, dtype=np.float32)
+        
+        for range_x1, range_x2, range_y1, range_y2, weights in self.weights:
+            out[range_x1[0]:range_x1[1], range_y1[0]:range_y1[1]] += weights * darkened[range_x2[0]:range_x2[1], range_y2[0]:range_y2[1]]
 
-        for x in range(out.shape[0]):
-            for y in range(out.shape[1]):
-                vx, vy = self.vectors[x][y]
-                px = x + vx * self.speed * delta
-                py = y + vy * self.speed * delta
-                out[x, y] = bitmaputils.get_antialiased_color(darkened, (px, py))
+        out[np.where(out > 255)] = 255
+        out[np.where(out < 0)] = 0
 
-        return out
+        return out.astype(np.uint8)
 
 
 class Visualization:
@@ -453,9 +514,13 @@ class Milkdrop(core.Application):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.reset()
+
+    def reset(self):
         self.beat_duration = 0.5
         self.energy = 0.5
         now = time.time()
+        self.last = now
         self.beat_count = 0
         self.last_change = 0
         self.beat = False
@@ -503,7 +568,7 @@ class Milkdrop(core.Application):
             Visualization(name="Galaxy", max_bpm=200,
                           energy=0.2,
                           effects=[
-                              Distorter(vect_fun=swirl),
+                              Distorter(vect_fun=swirl, darken=0),
                               RandomDrawer(period=1),
                           ]),
             Visualization(name="Stage Lights",
@@ -591,7 +656,7 @@ class Milkdrop(core.Application):
             Visualization(name="Color Wave", max_bpm=180,
                           energy=0.4,
                           effects=[
-                              Distorter(vect_fun=from_center),
+                              Distorter(vect_fun=from_center, darken=0),
                               Drawer(color=AnimatedHSVColor(h=AnimatedValue(period=8))),
                           ]),
             Visualization(name="PARTY!!!",
@@ -693,27 +758,7 @@ class Milkdrop(core.Application):
                     Distorter(vect_fun=from_center, darken=0.01),
                     Particles(path=circle_medium, particles=2),
                 ]
-            ),
-            Visualization(name="Circling",
-                effects=[
-                    Distorter(vect_fun=to_center),
-                    Distorter(vect_fun=from_center),
-                    Distorter(vect_fun=to_center),
-                    Distorter(vect_fun=from_center),
-                    RandomDrawer(particles=4, radius=2, period=1, color=AnimatedHSVColor(h=AnimatedValue(period=2))),
-                    Distorter(vect_fun=to_center),
-                    Distorter(vect_fun=from_center),
-                    Distorter(vect_fun=to_center),
-                    Distorter(vect_fun=from_center),
-                    Particles(path=circle_big, particles=4, position=AnimatedValue(period=16, fun1=lambda x:x), color=AnimatedHSVColor(s=ConstantValue(1), v=AnimatedValue(period=4))),
-                    Particles(path=circle_medium, particles=4, position=AnimatedValue(period=16, fun1=lambda x:x, fun2=lambda x:x), color=AnimatedHSVColor(s=ConstantValue(1), v=AnimatedValue(period=4))),
-                ]),
-            Visualization(name="Strobo",
-                energy=1,
-                effects=[
-                    Drawer(coords=all_coords, color=AnimatedHSVColor(s=ConstantValue(0), v=AnimatedValue(fun1=lambda x:int(x*16)%2, period=1)))
-                ])
-
+            )
         ]
         self.visualization_index = len(self.visualizations) - 1
 
@@ -728,6 +773,10 @@ class Milkdrop(core.Application):
         self.last_change = self.beat_count
 
     def update(self, io, delta):
+        now = time.time()
+        if now - self.last > 10 * delta:
+            self.reset()
+
         if io.controller.button_up.fresh_press():
             self.energy = min(1., self.energy + 1 / self.ENERGY_GRANULARITY)
 
@@ -749,8 +798,6 @@ class Milkdrop(core.Application):
         if io.controller.button_b.fresh_press():
             self.next_visualization()
 
-        now = time.time()
-
         if io.controller.button_a.fresh_press():
             self.last_change = self.beat_count
             click_duration = now - self.last_click
@@ -770,8 +817,8 @@ class Milkdrop(core.Application):
                         # Slightly faster that the current beat, add new beat
                         # now
                         self.beat = True
-                        self.last_beats = [
-                                              now] + self.last_beats[:self.BEAT_MEMORY_SIZE - 1]
+                        self.last_beats = [now] + self.last_beats[:self.BEAT_MEMORY_SIZE - 1]
+                    self.beat_duration = (self.last_beats[0] - self.last_beats[-1]) / (len(self.last_beats)-1)
                 else:
                     # Clicking and beat drastically different speeds, change
                     # tempo
@@ -784,7 +831,6 @@ class Milkdrop(core.Application):
                             self.BEAT_MEMORY_SIZE)]
             self.last_click = now
         else:
-            now = time.time()
             if self.last_beats[0] + self.beat_duration < now:
                 self.beat = True
                 self.last_beats = [self.last_beats[0] + self.beat_duration] + self.last_beats[
@@ -793,6 +839,8 @@ class Milkdrop(core.Application):
                 self.beat = False
         if self.beat:
             self.beat_count += 1
+
+        print(60/self.beat_duration)
 
         beats_since_change = self.beat_count - self.last_change
         if beats_since_change != 0 and beats_since_change % 32 == 0:
@@ -806,3 +854,7 @@ class Milkdrop(core.Application):
         self.last_frame = viz.apply(
             self.last_frame, delta, progression, self.beat)
         io.display.pixels = self.last_frame
+        self.last = now
+
+    def destroy(self):
+        self.reset()
