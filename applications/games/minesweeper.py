@@ -48,7 +48,7 @@ class MineSweeper(core.Game):
     SIZE_X = 10
     SIZE_Y = 15
     N_MINES = 17
-    DEFAULT_SCORE = 99
+    DEFAULT_SCORE = 9999999
     MISERE = True
 
     NOT_VISITED = 100
