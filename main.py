@@ -21,6 +21,7 @@ from applications.games.reversi import Reversi
 from applications.games.frat import Frat
 from applications.games.g2048 import G2048
 from applications.games.maze import Maze
+from applications.games.minesweeper import MineSweeper
 from applications.games.sudoku import Sudoku
 #from applications.games.pushy import Pushy
 from applications.milkdrop import Milkdrop
@@ -51,6 +52,7 @@ if __name__ == "__main__":
                 G2048(name="2048"),
                 Frat(name="Felder Raten"),
                 Maze(),
+                MineSweeper(),
                 #Pushy(),
                 Menu([
                     TicTacToe(name="Tic Tac Toe"),
