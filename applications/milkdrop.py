@@ -5,7 +5,7 @@ from IO.color import *
 import time
 import random
 import math
-
+import cv2
 
 class MilkdropValue():
     def get_value(self, delta, progression, beat):
@@ -146,13 +146,30 @@ class Animation(Drawer):
             *args,
             driver=AnimatedValue(
                 fun1=lambda x: x),
-            npy_path=None,
+            path=None,
             **kwargs):
         super().__init__(*args, **kwargs)
-        animation = np.load(npy_path)
-        self.frame_coords = [list(zip(*reversed(np.where(frame))))
-                             for frame in animation]
-        self.animation_length = len(animation)
+
+        if path.endswith(".npy"):
+            animation = np.load(path)
+            self.frame_coords = [list(zip(*reversed(np.where(frame))))
+                                for frame in animation]
+        elif path.endswith(".gif"):
+            self.frame_coords = []
+            cap = cv2.VideoCapture(path)
+            while cap.isOpened():
+                ret, frame = cap.read()
+                if ret == True:
+                    self.frame_coords.append(
+                        list(zip(*reversed(np.where(frame[:,:,0]==255))))
+                    )
+                else:
+                    break
+            cap.release()
+        else:
+            raise ValueError(f"Cannot load animations of type {path.split('.')[-1]}")
+
+        self.animation_length = len(self.frame_coords)
         self.driver = driver
 
     def apply(self, frame, delta, progression, beat):
@@ -607,12 +624,12 @@ class Milkdrop(core.Application):
                           energy=0.8,
                           effects=[
                               portal_out,
-                              Animation(npy_path="resources/animations/shuffle1.npy",
+                              Animation(path="resources/animations/shuffle1.npy",
                                         driver=AnimatedValue(fun1=lambda x: 1 - x),
                                         color=AnimatedHSVColor(v=ConstantValue(1))),
                               Distorter(vect_fun=from_center, darken=0.2),
                               portal_in,
-                              Animation(npy_path="resources/animations/shuffle1.npy",
+                              Animation(path="resources/animations/shuffle1.npy",
                                         driver=AnimatedValue(fun1=lambda x: 1 - x),
                                         color=AnimatedHSVColor(h=ConstantValue(1),
                                                                s=ConstantValue(0),
@@ -622,12 +639,12 @@ class Milkdrop(core.Application):
                           energy=0.8,
                           effects=[
                               portal_out,
-                              Animation(npy_path="resources/animations/shuffle2-2.npy",
+                              Animation(path="resources/animations/shuffle2-2.npy",
                                         driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
                                         color=AnimatedHSVColor(v=ConstantValue(1))),
                               Distorter(vect_fun=from_center, darken=0.2),
                               portal_in,
-                              Animation(npy_path="resources/animations/shuffle2-2.npy",
+                              Animation(path="resources/animations/shuffle2-2.npy",
                                         driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
                                         color=AnimatedHSVColor(h=ConstantValue(1),
                                                                s=ConstantValue(0),
@@ -637,12 +654,12 @@ class Milkdrop(core.Application):
                           energy=0.8,
                           effects=[
                               portal_out,
-                              Animation(npy_path="resources/animations/shuffle3.npy",
+                              Animation(path="resources/animations/shuffle3.npy",
                                         driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
                                         color=AnimatedHSVColor(v=ConstantValue(1))),
                               Distorter(vect_fun=from_center, darken=0.2),
                               portal_in,
-                              Animation(npy_path="resources/animations/shuffle3.npy",
+                              Animation(path="resources/animations/shuffle3.npy",
                                         driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
                                         color=AnimatedHSVColor(h=ConstantValue(1),
                                                                s=ConstantValue(0),
@@ -758,7 +775,33 @@ class Milkdrop(core.Application):
                     Distorter(vect_fun=from_center, darken=0.01),
                     Particles(path=circle_medium, particles=2),
                 ]
-            )
+            ),
+            Visualization(name="Fireworks2", min_bpm=30, max_bpm=180,
+                energy=0.8,
+                effects=[
+                    Distorter(vect_fun=from_center, darken=0.2),
+                    Animation(path="resources/animations/fireworks.gif",
+                            driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
+                            color=AnimatedHSVColor(v=ConstantValue(1))),
+                ]),
+            Visualization(name="Worms", min_bpm=30, max_bpm=180,
+                energy=0.8,
+                effects=[
+                    Distorter(vect_fun=down, darken=0.2),
+                    Animation(path="resources/animations/worms.gif",
+                            driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
+                            color=AnimatedHSVColor(v=AnimatedValue(fun1=lambda x: x / 2))),
+                ]),
+            Visualization(name="Heart", min_bpm=30, max_bpm=180,
+                energy=0.8,
+                effects=[
+                    Distorter(vect_fun=from_center, darken=0.5),
+                    Animation(path="resources/animations/heart.gif",
+                            driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
+                            color=AnimatedHSVColor(
+                                h=ConstantValue(0),
+                                v=AnimatedValue(fun1=lambda x: x / 2))),
+                ]),
         ]
         self.visualization_index = len(self.visualizations) - 1
 
