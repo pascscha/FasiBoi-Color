@@ -40,17 +40,20 @@ class SlidingChoice:
             if i == round(self.prog):
                 color = self.choices[i].color
                 textlen = self.bmps[round(self.prog)].shape[1]
-                animlen = textlen + io.display.width + 10
-                self.scroll_offset.set_value(animlen)
-                self.scroll_offset.speed = self.text_speed/animlen
-                offset = max(0,int(self.scroll_offset.tick(delta))-10)
-                if offset >= textlen:
-                    x = 1 + io.display.width - (offset-textlen)
+                if textlen > io.display.width:
+                    animlen = textlen + io.display.width + 10
+                    self.scroll_offset.set_value(animlen)
+                    self.scroll_offset.speed = self.text_speed/animlen
+                    offset = max(0,int(self.scroll_offset.tick(delta))-10)
+                    if offset >= textlen:
+                        x = 1 + io.display.width - (offset-textlen)
+                    else:
+                        x = 1 - int(offset)
+                    
+                    if offset == textlen+io.display.width: #restart scroll
+                        self.scroll_offset = animations.AnimatedValue(0)
                 else:
-                    x = 1 - int(offset)
-                
-                if offset == textlen+io.display.width: #restart scroll
-                    self.scroll_offset = animations.AnimatedValue(0)
+                    x = 1
             else:
                 color = Color(*self.choices[i].color) * 0.5
                 x = 1
@@ -75,7 +78,7 @@ class Menu(core.Application):
                 application.color,
                 ApplicationOpener(application)) for application in applications]
         self.chooser = SlidingChoice(choices, 5, speed=self.speed)
-
+        self.bat = 1
     def update(self, io, delta):
         io.display.fill((0, 0, 0))
         
@@ -84,6 +87,7 @@ class Menu(core.Application):
         
         # Battery
         battery = io.get_battery()
+
         if battery < 0.5:
             battery_color = animations.blend_colors(RED, YELLOW * 0.5, battery * 2)
         else:
@@ -100,13 +104,13 @@ class Menu(core.Application):
             if hour[x] == "1":
                 io.display.update(x, io.display.height-1, (RED + 0.5*GREEN)*0.5)
             else:
-                io.display.update(x, io.display.height-1, (RED + 0.5*GREEN)*0.25)
+                io.display.update(x, io.display.height-1, (RED + 0.5*GREEN)*0.0)
 
         for x in range(6):
             if minute[x] == "1":
                 io.display.update(io.display.width - 6 + x, io.display.height-1, BLUE*0.5)
             else:
-                io.display.update(io.display.width - 6 + x, io.display.height-1, BLUE*0.25)
+                io.display.update(io.display.width - 6 + x, io.display.height-1, BLUE*0.0)
 
         if self.chooser.prog == self.chooser.index:
             self.sleep([

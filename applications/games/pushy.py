@@ -5,22 +5,29 @@ import random
 import numpy as np
 import json
 import os
+from pprint import pprint
+from applications.menu import Choice, SlidingChoice
+
 
 class PushyState:
     EMPTY = 0
-    PUSHY=1
+    PUSHY = 1
     WALL = 2
     BOX = 3
     HOME = 4
+    PORTAL = 5
+    BALL = 6
+    GOAL = 7
 
     def __init__(self, shape, pos=(0, 0)):
         self.width, self.height = shape
         self.field = np.ones(shape, dtype=np.uint8) * self.EMPTY
-        
         self.pos = pos
-    
+        self.portals = None
+
     def set(self, x, y, value):
         self.field[x, y] = value
+        self.portals = None
 
     def __hash__(self):
         return hash(self.field.tobytes()) ^ hash(self.pos)
@@ -40,6 +47,11 @@ class PushyState:
         return 0 <= pos[0] < self.width and 0 <= pos[1] < self.height
 
     def move(self, direction):
+        if self.portals is None:
+            self.portals = [
+                (x, y) for x, y in zip(*np.where(self.field == self.PORTAL))
+            ]
+
         new_pos = (self.pos[0] + direction[0], self.pos[1] + direction[1])
         if self.in_bounds(new_pos):
             if self.field[new_pos] == self.EMPTY:
@@ -47,13 +59,34 @@ class PushyState:
                 return 0
             elif self.field[new_pos] == self.BOX:
                 new_box_pos = (new_pos[0] + direction[0], new_pos[1] + direction[1])
-                if self.in_bounds(new_box_pos) and self.field[new_box_pos] == self.EMPTY:
+                if (
+                    self.in_bounds(new_box_pos)
+                    and self.field[new_box_pos] == self.EMPTY
+                ):
                     self.field[new_pos] = self.EMPTY
                     self.field[new_box_pos] = self.BOX
                     self.pos = new_pos
                     return 1
+            elif self.field[new_pos] == self.BALL:
+                new_box_pos = (new_pos[0] + direction[0], new_pos[1] + direction[1])
+                if self.in_bounds(new_box_pos):
+                    if self.field[new_box_pos] == self.EMPTY:
+                        self.field[new_pos] = self.EMPTY
+                        self.field[new_box_pos] = self.BALL
+                        self.pos = new_pos
+                        return 1
+                    elif self.field[new_box_pos] == self.GOAL:
+                        self.field[new_pos] = self.EMPTY
+                        self.pos = new_pos
+                        return 1
+            elif self.field[new_pos] == self.PORTAL:
+                for pos in self.portals:
+                    if pos != new_pos:
+                        self.pos = pos
+                        return 1
             elif self.field[new_pos] == self.HOME:
-                self.pos = new_pos
+                if not np.any(self.field == self.BALL):
+                    self.pos = new_pos
                 return 0
         return 0
 
@@ -62,13 +95,32 @@ class PushyState:
         for y in range(self.height):
             line = []
             for x in range(self.width):
-                c = {self.EMPTY:" ", self.WALL:"#", self.BOX:"b", self.HOME:"H"}[self.field[x,y]]
+                c = {
+                    self.EMPTY: " ",
+                    self.WALL: "#",
+                    self.BOX: "b",
+                    self.HOME: "H",
+                    self.PORTAL: "@",
+                    self.BALL: "?",
+                    self.GOAL: "!",
+                }[self.field[x, y]]
                 if self.pos == (x, y):
                     c = "O"
                 line.append(c)
             out.append(" ".join(line))
         return "\n".join(out)
-                
+
+
+class GameStarter:
+    def __init__(self, parent, index):
+        self.parent = parent
+        self.index = index
+
+    def __call__(self, io):
+        self.parent.idx = self.index
+        self.parent.state = self.parent.MID_GAME
+        self.parent.load_field()
+
 
 class Pushy(core.Game):
     # Directions
@@ -76,15 +128,45 @@ class Pushy(core.Game):
     DOWN = (0, 1)
     LEFT = (-1, 0)
     RIGHT = (1, 0)
+    LEVEL_FOLDER = os.path.join("resources", "misc", "pushy")
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        fields = self.load_value("fields")
-        self.fields = sorted(fields, key=lambda x:x["steps"] * x["fu_ratio"], reverse=True)
+        # fields = self.load_value("fields")
+        fields = []
+        for file in os.listdir(self.LEVEL_FOLDER):
+            if file.endswith(".json") and not "scored" in file:
+                with open(os.path.join(self.LEVEL_FOLDER, file)) as f:
+                    fields = fields + json.load(f)
+
+        fields_by_steps = {}
+        for field in fields:
+            if field["steps"] not in fields_by_steps:
+                fields_by_steps[field["steps"]] = []
+            fields_by_steps[field["steps"]].append(field)
+
+        self.fields = []
+        for steps, fields in sorted(fields_by_steps.items()):
+            self.fields.append(max(fields, key=lambda x: x["fu_ratio"]))
+        pprint(self.fields)
+
+        self.idx = 0
+
+        choices = [
+            Choice(str(i), (255, 255, 255), GameStarter(self, i))
+            for i in range(len(self.fields))
+        ]
+        
+        self.chooser = SlidingChoice(choices, 5, speed=5)
+
+        # self.fields = sorted(
+        #     fields, key=lambda x: x["steps"] + x["fu_ratio"] * 50, reverse=True
+        # )
+        self.portal_hue = animations.Ticker(speed=0.2)
 
     @staticmethod
     def get_line(l):
-        l=l.strip()
+        l = l.strip()
         out = []
         for x in range(0, len(l), 2):
             out.append(l[x])
@@ -92,15 +174,18 @@ class Pushy(core.Game):
 
     def load_field(self):
         field = self.fields[self.idx]
-        print(self.fields[self.idx])
+        pprint(field)
         f = np.array(field["field"], dtype=np.uint8)
         self.field = PushyState(f.shape, pos=tuple(field["start"]))
         self.field.field = f
         self.reset_field = self.field.copy()
 
     def reset(self, io):
-        self.idx = 0
         self.load_field()
+
+    def _update_pregame(self, io, delta):
+        io.display.fill((0, 0, 0))
+        self.chooser.update(io, delta)
 
     def _update_midgame(self, io, delta):
         self.field = self.field.copy()
@@ -113,11 +198,18 @@ class Pushy(core.Game):
         if io.controller.button_right.fresh_press():
             self.field.move(self.RIGHT)
 
-        if io.controller.button_b.fresh_release():
+        if io.controller.button_a.fresh_release():
             self.field = self.reset_field.copy()
 
+        if io.controller.button_b.fresh_release():
+            self.state = self.PRE_GAME
+            self.chooser.index.set_value(self.idx)
+            # self.chooser.scroll_offset = animations.AnimatedValue(0)
+            return
+
+
         if self.field.has_won():
-            self.idx += 1
+            self.idx = (self.idx + 1) % len(self.fields)
             self.load_field()
 
         io.display.fill(BLACK)
@@ -125,6 +217,7 @@ class Pushy(core.Game):
         left = (io.display.width - self.field.width) // 2
         top = (io.display.height - self.field.height) // 2
 
+        self.portal_hue.tick(delta)
         for fx in range(self.field.width):
             for fy in range(self.field.height):
                 x = fx + left
@@ -135,10 +228,19 @@ class Pushy(core.Game):
                     io.display.update(x, y, Color(128, 64, 0))
                 elif self.field.field[fx, fy] == self.field.HOME:
                     io.display.update(x, y, Color(0, 128, 128))
+                elif self.field.field[fx, fy] == self.field.BALL:
+                    io.display.update(x, y, Color(0, 0, 255))
+                elif self.field.field[fx, fy] == self.field.GOAL:
+                    io.display.update(x, y, Color(0, 0, 128))
+                elif self.field.field[fx, fy] == self.field.PORTAL:
+                    io.display.update(
+                        x, y, Color.from_hsv(self.portal_hue.progression, 1, 1)
+                    )
 
-        io.display.update(self.field.pos[0]+left, self.field.pos[1]+top, GREEN*0.75)
-    def _update_gameover(self, io, delta):
-        pass
+        io.display.update(
+            self.field.pos[0] + left, self.field.pos[1] + top, GREEN * 0.5
+        )
+
 
 def solveable(field):
     seen = {hash(field)}
@@ -160,6 +262,7 @@ def solveable(field):
                 stack.append(new_field)
     return False
 
+
 class Node:
     def __init__(self, field, parent, cost=1):
         self.field = field
@@ -171,6 +274,7 @@ class Node:
         else:
             self.distance = cost
             self.reached_by = set()
+
 
 def difficulty(field):
     node = Node(field, None, cost=0)
@@ -190,20 +294,20 @@ def difficulty(field):
 
             if h not in seen:
                 seen[h] = child
-                stack.append(child)  
+                stack.append(child)
             else:
                 if child.distance < seen[h].distance:
                     child.reached_by |= seen[h].reached_by
                     seen[h] = child
-                    stack.append(child)  
+                    stack.append(child)
                     dups += 1
                 else:
                     seen[h].reached_by |= child.reached_by
 
     winning_nodes = [node for node in seen.values() if node.winnable]
     if len(winning_nodes) == 0:
-        return 0, 0
-    
+        return 0, 0, 0
+
     distance = min([node.distance for node in winning_nodes])
     stack = winning_nodes
     n_winnable = len(winning_nodes)
@@ -218,11 +322,12 @@ def difficulty(field):
 
     return len(seen), distance, 1 - n_winnable / (len(seen) + dups)
 
+
 def place_obstacles(field, n, obstacles):
     if n == 0:
         return field
 
-    field = place_obstacles(field, n-1, obstacles)
+    field = place_obstacles(field, n - 1, obstacles)
     coords = list(zip(*np.where(field.field == field.EMPTY)))
     random.shuffle(obstacles)
     random.shuffle(coords)
@@ -236,7 +341,8 @@ def place_obstacles(field, n, obstacles):
                     return new_field
     return field
 
-def place_obstacles_optimally(field, n, obstacles, fu_weight=50):
+
+def place_obstacles_optimally(field, n, obstacles, fu_weight=15):
     if n == 0:
         return field
 
@@ -247,7 +353,9 @@ def place_obstacles_optimally(field, n, obstacles, fu_weight=50):
             for obstacle in obstacles:
                 new_field = field.copy()
                 new_field.set(x, y, obstacle)
-                new_field = place_obstacles_optimally(new_field, n-1, obstacles, fu_weight=fu_weight)
+                new_field = place_obstacles_optimally(
+                    new_field, n - 1, obstacles, fu_weight=fu_weight
+                )
                 if new_field is None:
                     score = None
                 else:
@@ -259,52 +367,69 @@ def place_obstacles_optimally(field, n, obstacles, fu_weight=50):
                 elif score is not None and best_score == score:
                     best_fields.append(new_field)
     if best_fields is None:
-        return None
+        return None, -1
     else:
-        return random.choice(best_fields)
+        return random.choice(best_fields), best_score
 
-def random_field(shape, wall_fill=0.2, total_fill=0.8):
+
+def random_field(shape, wall_fill=0.2, total_fill=0.9):
     field = PushyState(shape)
     for x in range(field.width):
         field.set(x, 0, field.WALL)
-        field.set(x, field.height-1, field.WALL)
+        field.set(x, field.height - 1, field.WALL)
     for y in range(field.height):
         field.set(0, y, field.WALL)
-        field.set(field.width-1, y, field.WALL)
+        field.set(field.width - 1, y, field.WALL)
 
     field.pos = (1, 1)
-    field.set(field.width-2, field.height-2, field.HOME)
+    field.set(field.width - 2, field.height - 2, field.HOME)
 
-    n_fields = field.width * field.height - 2*field.width - 2*field.height + 2
+    n_fields = field.width * field.height - 2 * field.width - 2 * field.height + 2
 
     last = field
 
-    while field is not None and np.sum(field.field[1:-1,1:-1]!=field.EMPTY)/n_fields < wall_fill:
-        print(field)
+    while field is not None and np.sum(field.field[1:-1, 1:-1] == field.PORTAL) < 2:
         last = field
-        field = place_obstacles(field, 1, [field.WALL, field.BOX])
+        field = place_obstacles(field, 1, [field.PORTAL])
+
+    field = place_obstacles(field, 1, [field.GOAL])
+    field = place_obstacles(field, 1, [field.BALL])
+    field = place_obstacles(field, 1, [field.BALL])
+
+    while (
+        field is not None
+        and np.sum(field.field[1:-1, 1:-1] != field.EMPTY) / n_fields < wall_fill
+    ):
+        # print(field)
+        last = field
+        field = place_obstacles(field, 1, [field.WALL])
     if field is None:
         return last
 
-    while field is not None and np.sum(field.field!=field.EMPTY)/(field.width * field.height) < total_fill:
-        print(field)
-        last = field
-        field = place_obstacles_optimally(field, 1, [field.WALL])
-        
-    if field is None:
-        return last    
-    return field
-    
+    best = last
+    best_score = 0
+
+    while (
+        field is not None
+        and np.sum(field.field != field.EMPTY) / (field.width * field.height)
+        < total_fill
+    ):
+        field, score = place_obstacles_optimally(field, 1, [field.BOX])
+        if score > best_score:
+            best = field
+
+    return best
+
 
 if __name__ == "__main__":
-    """
     sizes = [(x, y) for x in range(5, 10) for y in range(x, 15)]
-    sizes = sorted(sizes, key=lambda x:x[0]*x[1])
+    sizes = sorted(sizes, key=lambda x: x[0] * x[1])
 
     best = None
     best_score = None
+    best_info = None
 
-    for w,h in sizes:
+    for w, h in sizes:
         file = f"fields_{w}x{h}.json"
 
         fields = []
@@ -312,42 +437,56 @@ if __name__ == "__main__":
             with open(file) as f:
                 fields = json.load(f)
 
-        for i in range(100):
-            if len(fields) < i:
-                field = random_field((w, h))
-                score = solve2(field)
-                fields.append({"steps":score, "start":field.pos, "field":[[int(e) for e in c] for c in field.field]})        
+        try:
+            print(f"Trying {w}x{h}")
+            for i in range(100):
+                if len(fields) < i:
+                    field = random_field((w, h))
+                    n_nodes, distance, fu_ratio = difficulty(field)
+                    score = distance + fu_ratio * 15
+                    fields.append(
+                        {
+                            "steps": distance,
+                            "start": field.pos,
+                            "fu_ratio": fu_ratio,
+                            "field": [[int(e) for e in c] for c in field.field],
+                        }
+                    )
 
-                if best_score is None or score > best_score:
-                    best_score = score
-                    best = field
+                    if best_score is None or score > best_score:
+                        best_score = score
+                        best = field
+                        print()
+                        print(
+                            f"Best score: {best_score:.1f} (s:{best.width}x{best.height} d:{distance}, n:{n_nodes}, f:{fu_ratio:.2f})"
+                        )
+                        print(best)
 
-                with open(file, "w+") as f:
-                    json.dump(fields, f)
-                        
-                print()
-                print(f"Current ({w}x{h}):", score)
-                print(field)
-                print(f"Best: ({best.width}x{best.height})", best_score)
-                print(best)
-    """
+                    with open(file, "w+") as f:
+                        json.dump(fields, f)
+        finally:
+            with open(file, "w+") as f:
+                json.dump(fields, f)
+                # print()
+                # print(f"Current ({w}x{h}):", score)
+                # print(field)
 
     fields = []
     for file in os.listdir():
         if file.endswith(".json") and not "scored" in file:
             with open(file) as f:
-                fields = fields + json.load(f)      
-      
-    total = len(fields)
-    for i, json_field in enumerate(fields):
-        print(i, total, end="\r")
-        f = np.array(json_field["field"], dtype=np.uint8)
-        field = PushyState(f.shape, pos=tuple(json_field["start"]))
-        field.field = f
-        n_nodes, distance, fu_ratio = difficulty(field)
-        json_field["n_nodes"] = n_nodes
-        json_field["fu_ratio"] = fu_ratio
-        json_field["steps"] = distance
+                fields = fields + json.load(f)
 
-    with open("scored.json", "w+") as f:
-       json.dump(fields, f)
+    # total = len(fields)
+    # for i, json_field in enumerate(fields):
+    #     print(i, total, end="\r")
+    #     f = np.array(json_field["field"], dtype=np.uint8)
+    #     field = PushyState(f.shape, pos=tuple(json_field["start"]))
+    #     field.field = f
+    #     n_nodes, distance, fu_ratio = difficulty(field)
+    #     json_field["n_nodes"] = n_nodes
+    #     json_field["fu_ratio"] = fu_ratio
+    #     json_field["steps"] = distance
+
+    # with open("scored.json", "w+") as f:
+    #    json.dump(fields, f)
