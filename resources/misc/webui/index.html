@@ -1,0 +1,79 @@
+<html>
+
+<head>
+</head>
+
+<body style="background-color:#505050;">
+    <canvas id="myCanvas" width="500" height="750"></canvas>
+</body>
+
+<script>
+    var canvas = document.getElementById("myCanvas")
+    var ctx = canvas.getContext("2d");
+    ctx.rect(0, 0, 500, 750)
+    ctx.fillStyle = "#000000";
+    ctx.fill()
+
+    function startWebsocket() {
+        var socket = new WebSocket("ws://localhost:8001");
+
+        const key_map = new Map([
+            [37, "l"],
+            [38, "u"],
+            [39, "r"],
+            [40, "d"],
+            [65, "a"],
+            [66, "b"],
+            [84, "t"],
+            [27, "q"],
+        ])
+
+        window.onkeydown = function (key) {
+            if (key_map.has(key.keyCode)) {
+                socket.send(key_map.get(key.keyCode).toUpperCase())
+            }
+        };
+
+        window.onkeyup = function (key) {
+            if (key_map.has(key.keyCode)) {
+                socket.send(key_map.get(key.keyCode))
+            }
+        };
+
+        socket.onmessage = function (event) {
+            var canvas = document.getElementById("myCanvas")
+            var ctx = canvas.getContext("2d");
+            if (event.data.length == 900) {
+                for (var x = 0; x < 10; x += 1) {
+                    for (var y = 0; y < 15; y += 1) {
+                        const idx = 6 * (x * 15 + y);
+                        color = event.data.substring(idx, idx + 6)
+                        ctx.fillStyle = "#" + color;
+                        ctx.fillRect(x * 50, y * 50, 50, 50);
+                    }
+                }
+            }
+        };
+
+
+        socket.onclose = function () {
+            ctx.rect(0, 0, 500, 750)
+            ctx.fillStyle = "#000000";
+            ctx.fill()
+            socket = null
+            setTimeout(startWebsocket, 1000)
+        }
+
+        socket.onerror = function () {
+            ctx.rect(0, 0, 500, 750)
+            ctx.fillStyle = "#500000";
+            ctx.fill()
+            socket = null
+            setTimeout(startWebsocket, 1000)
+        }
+
+    }
+    startWebsocket()
+</script>
+
+</html>

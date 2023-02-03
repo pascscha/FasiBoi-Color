@@ -16,7 +16,7 @@ def get_char_bitmap(char, monospace=True):
     letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
     char = char.upper()
     if char not in letters:
-        return np.zeros((5, 3), dtype=np.bool)
+        return np.zeros((5, 3), dtype=np.uint8)
 
     bmp = letter_bmps[letters.index(char)]
     if not monospace:
@@ -48,7 +48,7 @@ def get_text_bitmap(text, monospace=True):
     width = len(bmps) - 1 + sum([bmp.shape[1] for bmp in bmps])
     height = 5
 
-    out = np.zeros((height, width), np.bool)
+    out = np.zeros((height, width), np.uint8)
     x = 0
     for bmp in bmps:
         out [:, x:x+bmp.shape[1]] = bmp

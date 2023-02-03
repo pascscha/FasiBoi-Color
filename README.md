@@ -9,10 +9,6 @@ This is the Work in Progress repository for a carneval costume, due to be used i
 [![Emulating Gaming Console on 10x15 LED Matrix](img/thumbnail.jpg)](https://youtu.be/_cmhZQ1JC-s "Emulating Gaming Console on 10x15 LED Matrix")
 This shows the first time we managed to run the software on a prototype of the physical LED display.
 
-
-
-
-
 ## Helligkeiten
 - 1
   - 0.65 A
@@ -27,7 +23,7 @@ This shows the first time we managed to run the software on a prototype of the p
   - Scho halbiert?
 
 - 0.125
-  - 0.18A
+  - 0.18AX
   - Scho betzli dönkler, Wenns fiister esch doss gsesch das locker
 
 - 1/16
@@ -41,6 +37,12 @@ This shows the first time we managed to run the software on a prototype of the p
 - 1/64
   - 0.12 a
   - Das wöri jetzt aber ned näh
+
+# Notes
+- DC/DC converter:
+  - [TRACO POWER TSR 1-2450](https://www.tracopower.com/ch/deu/model/tsr-1-2450)
+  - [Datasheet](https://www.tracopower.com/sites/default/files/products/datasheets/tsr1_datasheet.pdf)
+  - max 1A input
 
 
 # [Ideas](http://inventwithpython.com/blog/2012/02/20/i-need-practice-programming-49-ideas-for-game-clones-to-code/):

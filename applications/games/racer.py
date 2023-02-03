@@ -54,7 +54,7 @@ class Racer(core.Game):
 
         for y in range(io.display.height):
             if int((y - d)/3)%2 == 0:
-                io.display.update(lane_x, y, (255, 255, 0))
+                io.display.update(lane_x, y, (64, 64, 0))
 
         while (d - self.obstacles[0][0]) > io.display.height:
             self.obstacles = self.obstacles[1:]

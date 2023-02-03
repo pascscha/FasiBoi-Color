@@ -1,6 +1,8 @@
 from cv2 import INTER_NEAREST
-#from IO.led import LEDIOManager
-from IO.gui import PygameIOManager
+
+# from IO.led import LEDIOManager
+# from IO.gui import PygameIOManager
+from IO.web import WebIOManager
 from IO.commandline import CursesIOManager
 from applications.settings import BrightnessSlider, FPSChoice, ColorPaletteChoice
 from applications.menu import Menu
@@ -22,72 +24,90 @@ from applications.games.frat import Frat
 from applications.games.g2048 import G2048
 from applications.games.maze import Maze
 from applications.games.sudoku import Sudoku
-#from applications.games.pushy import Pushy
+from applications.games.pushy import Pushy
+from applications.games.supermario import Supermario
 from applications.milkdrop import Milkdrop
 from applications.colors import Colors
+import argparse
+
 
 if __name__ == "__main__":
+    io = {
+        # "pygame": PygameIOManager,
+        "web": WebIOManager,
+        "commandLine": CursesIOManager,
+    }
+
+    parser = argparse.ArgumentParser(
+        prog="FasiBoi",
+        description="The gaming costume for Lucerne's carneval 2023 with a 10x15 screen resolution",
+    )
+    parser.add_argument("--io", choices=io.keys(), default="web", required=False)
+    args = parser.parse_args()
+
     settings = [
         BrightnessSlider(start=0.1, end=1, default=1, name="Brightness"),
         FPSChoice(default=30, name="FPS"),
-        ColorPaletteChoice("Color Palette")
+        ColorPaletteChoice("Color Palette"),
     ]
 
-    with PygameIOManager() as ioManager:
+    with io[args.io]() as ioManager:
 
         # Hack, this makes sure settings are loaded even without opening them,
         # by letting them run for 1 frame
         for setting in settings:
             setting.update(ioManager, 0)
 
-        ioManager.run(Menu([
-            Menu([
-                Snake(color=(11, 200, 93)),
-                Tetris(color=(255, 127, 0)),
-                Flappy(color=(116, 190, 46), name="Flappy Bird"),
-                Racer(color=(255, 0, 0)),
-                Pong(color=(0, 0, 255)),
-                Pacman(color=(255, 255, 0)),
-                G2048(name="2048"),
-                Frat(name="Felder Raten"),
-                Maze(),
-                #Pushy(),
-                Menu([
-                    TicTacToe(name="Tic Tac Toe"),
-                    Connect4(name="Connect 4"),
-                    Reversi(name="Reversi")
-                ], name="Strategy"),
-                Sudoku()
-            ], name="Games"),
-            Menu([
-                Milkdrop(name="Music Visualization"),
-                Clock(),
-                Filebrowser("resources/videos", name="Videos"),
-                Filebrowser(".", name="Files"),
-                Menu([
-                    Colors(name="Color Test"),
-                    SolidColor(
-                        (255, 255, 255),
-                        name="White"
+        ioManager.run(
+            Menu(
+                [
+                    Menu(
+                        [
+                            Menu(
+                                [
+                                    Snake(color=(11, 200, 93)),
+                                    Tetris(color=(255, 127, 0)),
+                                    Flappy(color=(116, 190, 46), name="Flappy Bird"),
+                                    Racer(color=(255, 0, 0)),
+                                    Pong(color=(0, 0, 255)),
+                                    Pacman(color=(255, 255, 0)),
+                                    G2048(name="2048"),
+                                    Frat(name="Felder Raten"),
+                                    Maze(),
+                                    Supermario(),
+                                    Pushy(),
+                                    Menu(
+                                        [
+                                            TicTacToe(name="Tic Tac Toe"),
+                                            Connect4(name="Connect 4"),
+                                            Reversi(name="Reversi"),
+                                        ],
+                                        name="Strategy",
+                                    ),
+                                    Sudoku(),
+                                ],
+                                name="Games",
+                            ),
+                            Milkdrop(name="Music Visualization"),
+                            Clock(),
+                            Filebrowser("resources/videos", name="Videos"),
+                            Filebrowser(".", name="Files"),
+                            Menu(
+                                [
+                                    Colors(name="Color Test"),
+                                    SolidColor((255, 255, 255), name="White"),
+                                    SolidColor((255, 0, 0), name="Red"),
+                                    SolidColor((0, 255, 0), name="Green"),
+                                    SolidColor((0, 0, 255), name="Blue"),
+                                ],
+                                name="Colors",
+                            ),
+                            Paint(),
+                        ],
+                        name="Apps",
                     ),
-                    SolidColor(
-                        (255, 0, 0),
-                        name="Red"
-                    ),
-                    SolidColor(
-                        (0, 255, 0),
-                        name="Green"
-                    ),
-                    SolidColor(
-                        (0, 0, 255),
-                        name="Blue"
-                    )
-                ],
-                    name="Colors"),
-                Paint()
-            ],
-                name="Apps"),
-            Menu(settings,
-                name="Settings"),
-            CloseAll(name="Close All", color=(255, 0, 0))
-        ]))
+                    Menu(settings, name="Settings"),
+                    CloseAll(name="Close All", color=(255, 0, 0)),
+                ]
+            )
+        )

@@ -57,7 +57,7 @@ class Flappy(core.Game):
                 int(io.display.width * 1.5)))
 
     def _update_midgame(self, io, delta):
-        if io.controller.button_up.fresh_press():
+        if io.controller.button_up.fresh_press() or io.controller.button_a.fresh_press():
             self.y_velocity -= 7
             self.y_velocity = min(-10, self.y_velocity)
 
@@ -93,10 +93,10 @@ class Flappy(core.Game):
             io.display.update(1, round(self.y_location), (255, 255, 0))
 
     def _update_gameover(self, io, delta):
-        io.open_application(
-            VideoPlayer(
-                "resources/animations/flappy-death.gif",
-                loop=False))
+        # io.open_application(
+        #     VideoPlayer(
+        #         "resources/animations/flappy-death.gif",
+        #         loop=False))
         self.state = self.PRE_GAME
         """
         self.y_velocity += self.gravity * delta

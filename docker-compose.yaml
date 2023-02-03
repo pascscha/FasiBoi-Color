@@ -1,0 +1,10 @@
+version: "2.2"
+
+services:
+    fasiboi:
+        build: .
+        tty: true
+        ports:
+            - 8000:8000
+            - 8001:8001
+        command: python3 main.py

@@ -27,6 +27,7 @@ class MovingEntity:
         horiz_bounce=False,
         collide_box=True,
         collide_entity=False,
+        collide_floor=True,
     ):
         self.pos = pos
         self.parent = parent
@@ -36,12 +37,17 @@ class MovingEntity:
         self.horiz_bounce = horiz_bounce
         self.collide_box = collide_box
         self.collide_entity = collide_entity
+        self.collide_floor = collide_floor
 
     def is_colliding(self, x, y):
         for dx in range(self.size[0]):
             for dy in range(self.size[1]):
                 collision = self.parent.get_collision(
-                    x + dx, y - dy, box=self.collide_box, entity=self.collide_entity
+                    x + dx,
+                    y - dy,
+                    box=self.collide_box,
+                    entity=self.collide_entity,
+                    floor=self.collide_floor,
                 )
                 if collision is not None:
                     return collision
@@ -91,7 +97,14 @@ class MovingEntity:
 
 class Goomba(MovingEntity):
     def __init__(self, *args, speed=2, **kwargs):
-        super().__init__(*args, collide_entity=False, horiz_bounce=True, **kwargs)
+        super().__init__(
+            *args,
+            collide_entity=False,
+            collide_floor=True,
+            horiz_bounce=True,
+            size=(1, 1),
+            **kwargs,
+        )
         self.falling = not self.on_floor()
         self.speed = speed
         self.vel[0] = self.speed
@@ -139,6 +152,7 @@ class Supermario(core.Game):
         self.boxes = []
         self.entities = []
         self.goombas = []
+        self.dead_goombas = []
         self.powerups = []
 
         self.goombas = [
@@ -177,15 +191,15 @@ class Supermario(core.Game):
 
     def get_entity(self, x, y):
         for entity in self.entities:
-            if abs(x - entity.pos[0] + 0.5) < 1 and abs(y - entity.pos[1]) < 1:
+            if abs(x - entity.pos[0]) < 1 and abs(y - entity.pos[1]) < 1:
                 return entity
         return None
 
-    def get_collision(self, x, y, box=True, entity=True):
+    def get_collision(self, x, y, box=True, entity=True, floor=True):
         ix = int(x)
         iy = int(y)
         if 0 <= ix < self.floor_bmp.shape[1] and 0 <= iy < self.floor_bmp.shape[0]:
-            if self.floor_bmp[iy][ix]:
+            if floor and self.floor_bmp[iy][ix]:
                 return True
             if box:
                 b = self.get_box(x, y)
@@ -213,6 +227,8 @@ class Supermario(core.Game):
                 if self.super or col.vertical and col.velocity > 0:
                     self.goombas.remove(col.other)
                     self.entities.remove(col.other)
+                    self.dead_goombas.append(col.other)
+                    col.other.collide_floor = False
                     self.score += 1
                 else:
                     self.state = self.GAME_OVER
@@ -261,14 +277,12 @@ class Supermario(core.Game):
         io.display.fill((0, 0, 0))
         self.draw_floor(io, delta)
         self.draw_goombas(io, delta)
-        self.draw_boxes(io, delta)
         self.draw_powerups(io, delta)
         self.draw_boxes(io, delta)
         self.draw_mario(io, delta)
 
     def draw_goombas(self, io, delta):
         for goomba in self.goombas:
-
             ix = int(4.5 + goomba.pos[0] - self.mario_entity.pos[0])
             iy = int(goomba.pos[1])
 
@@ -328,9 +342,14 @@ class Supermario(core.Game):
         self.mario_entity.vel[1] += self.GRAVITY * delta
         self.mario_entity.pos[1] += self.mario_entity.vel[1] * delta
 
+        for entity in self.entities:
+            entity.update(delta)
+
         io.display.fill((0, 0, 0))
         self.draw_floor(io, delta)
         self.draw_goombas(io, delta)
+        self.draw_powerups(io, delta)
+        self.draw_boxes(io, delta)
         self.draw_mario(io, delta)
 
         text_pos = self.gameover_scroll.tick(delta)

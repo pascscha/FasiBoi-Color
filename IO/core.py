@@ -2,14 +2,25 @@
 """
 import time
 import numpy as np
-from IO.effects import EffectCombination, VerticalDistort, StripedNoise, Dropout, Black, SlideUp, \
-    SlideDown, ColorPalette, Notch
+from IO.effects import (
+    EffectCombination,
+    VerticalDistort,
+    StripedNoise,
+    Dropout,
+    Black,
+    SlideUp,
+    SlideDown,
+    ColorPalette,
+    Notch,
+    Squeeze,
+    Minimize,
+)
 from IO.color import Color
 import cv2
 
+
 class ControllerValue:
-    """The value of a controller
-    """
+    """The value of a controller"""
 
     def __init__(self, dtype=bool, default=False):
         self._value = default
@@ -54,30 +65,31 @@ class ControllerValue:
 
 
 class BooleanControllerValue(ControllerValue):
-    """A Controller value that only has a boolean state, e.g. a Button
-    """
-    TIMEOUT=2
+    """A Controller value that only has a boolean state, e.g. a Button"""
+
+    TIMEOUT = 2
 
     def fresh_press(self):
-        """Checks if the button has freshly been pressed
-        """
+        """Checks if the button has freshly been pressed"""
         if self._value and self.fresh and self.last_change + self.TIMEOUT > time.time():
             self.fresh = False
             return True
         return False
 
     def fresh_release(self):
-        """Checks if the button has freshly been released
-        """
-        if not self._value and self.fresh  and self.last_change + self.TIMEOUT > time.time():
+        """Checks if the button has freshly been released"""
+        if (
+            not self._value
+            and self.fresh
+            and self.last_change + self.TIMEOUT > time.time()
+        ):
             self.fresh = False
             return True
         return False
 
 
 class Controller:
-    """The Base class for a controller, holding several controller values
-    """
+    """The Base class for a controller, holding several controller values"""
 
     def __init__(self):
         self.button_up = BooleanControllerValue()
@@ -91,8 +103,7 @@ class Controller:
 
 
 class Display:
-    """The Base class for a display, showing the current state of the application
-    """
+    """The Base class for a display, showing the current state of the application"""
 
     def __init__(self, width, height, brightness=1):
         self.width = width
@@ -102,8 +113,7 @@ class Display:
         self.brightness = brightness
 
     def force_update(self):
-        """Forces all pixels to be redrawn, even if they might have not changed
-        """
+        """Forces all pixels to be redrawn, even if they might have not changed"""
         self.last_pixels = np.ones((self.width, self.height, 3), dtype=np.uint8)
 
     def check_coordinates(self, x, y):
@@ -159,8 +169,7 @@ class Display:
             color = Color(*color)
         color = tuple(color)
 
-        self.pixels = np.ones((self.width, self.height, 3),
-                              dtype=np.uint8) * color 
+        self.pixels = np.ones((self.width, self.height, 3), dtype=np.uint8) * color
 
     def _update(self, x, y, color):
         raise NotImplementedError("Please implement this method!")
@@ -173,8 +182,7 @@ class Display:
         since last call to this function.
         """
         # Only update pixels that have changed
-        for x, y in zip(
-                *np.where(np.any(self.pixels != self.last_pixels, axis=2))):
+        for x, y in zip(*np.where(np.any(self.pixels != self.last_pixels, axis=2))):
             self._update(x, y, self.pixels[x][y] * self.brightness)
         self.last_pixels = self.pixels.copy()
         self._refresh()
@@ -185,7 +193,15 @@ class IOManager:
     display
     """
 
-    def __init__(self, controller, display, fps=20, animation_duration=0.25, record_path=None, record_scale=10):
+    def __init__(
+        self,
+        controller,
+        display,
+        fps=20,
+        animation_duration=0.25,
+        record_path=None,
+        record_scale=10,
+    ):
         self.controller = controller
         self.display = display
         self.running = True
@@ -196,32 +212,40 @@ class IOManager:
         self.animation_duration = animation_duration
         self.current_animation = None
         self.color_palette = None
-        
+
         self.teppich = 0
         self.teppich_animations = [
             None,
             Notch(),
-            EffectCombination([VerticalDistort(frequency=1 / 60), StripedNoise(limit=50)]),
+            EffectCombination(
+                [VerticalDistort(frequency=1 / 60), StripedNoise(limit=50)]
+            ),
             EffectCombination([VerticalDistort(), StripedNoise(limit=100)]),
             EffectCombination(
-                [VerticalDistort(amount=4), StripedNoise(limit=200), Dropout(frequency=1 / 2)]),
-            Black()
+                [
+                    VerticalDistort(amount=4),
+                    StripedNoise(limit=200),
+                    Dropout(frequency=1 / 2),
+                ]
+            ),
+            Black(),
         ]
 
         # Start recording if necessary
         self.video_out = None
         if record_path is not None:
-            self.record_shape = (display.width*record_scale, display.height*record_scale)
+            self.record_shape = (
+                display.width * record_scale,
+                display.height * record_scale,
+            )
             if record_path.lower().endswith(".avi"):
-                self.video_out = cv2.VideoWriter(record_path, 
-                            cv2.VideoWriter_fourcc(*'MJPG'),
-                            fps, self.record_shape)
+                self.video_out = cv2.VideoWriter(
+                    record_path, cv2.VideoWriter_fourcc(*"MJPG"), fps, self.record_shape
+                )
             elif record_path.lower().endswith(".mp4"):
-                self.video_out = cv2.VideoWriter(record_path, 
-                            cv2.VideoWriter_fourcc(*"mp4v"),
-                            fps, self.record_shape)
-
-
+                self.video_out = cv2.VideoWriter(
+                    record_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, self.record_shape
+                )
 
     def run(self, application):
         """Runs an application. Should only be invoked with the root
@@ -239,7 +263,7 @@ class IOManager:
             delta = now - last
             last = now
             self.update()
-            
+
             if not self.applications[-1].is_sleeping(delta):
                 self.applications[-1].update(self, delta)
 
@@ -280,17 +304,19 @@ class IOManager:
 
             # Save frame to recording
             if self.video_out is not None:
-                out = cv2.resize(self.display.pixels.transpose(1, 0, 2), self.record_shape, interpolation=cv2.INTER_NEAREST)
+                out = cv2.resize(
+                    self.display.pixels.transpose(1, 0, 2),
+                    self.record_shape,
+                    interpolation=cv2.INTER_NEAREST,
+                )
                 self.video_out.write(cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
-
 
             # Sleep for the rest of the frame
             calc_duration = time.time() - last
-            mfps = (10*mfps + 1/calc_duration)/11
-            print("\rmax FPS", int(mfps), "\tFPS", int(fps), end="    \t", flush=True)
+            mfps = (10 * mfps + 1 / calc_duration) / 11
+            print("max FPS", int(mfps), "\tFPS", int(fps))
 
             time.sleep(max(0, 1 / fps - calc_duration))
-
 
     def __enter__(self):
         return self
@@ -311,30 +337,25 @@ class IOManager:
         Args:
             application (application.core.Application): The application to be opened
         """
-        self.current_animation = SlideDown(
-            self.display, self.animation_duration)
+        self.current_animation = SlideDown(self.display, self.animation_duration)
         self.applications.append(application)
 
     def close_application(self):
         """Closes the topmost application and returns to the previously opened appplication.
         If none exists quits the Program
         """
-        if len(self.applications) > 0:
-            self.current_animation = SlideUp(
-                self.display, self.animation_duration)
+        if len(self.applications) >= 1:
+            self.current_animation = Minimize(self.display, self.animation_duration)
             self.applications = self.applications[:-1]
         if len(self.applications) == 0:
             self.running = False
 
     def update(self):
-        """Update function that gets called every frame
-        """
+        """Update function that gets called every frame"""
 
     def destroy(self):
-        """Cleanup function that gets called after all applications are closed
-        """
-    
+        """Cleanup function that gets called after all applications are closed"""
+
     def get_battery(self):
-        """Calculates the current battery, returns value between 0 (empty) and 1 (fully charged)
-        """
+        """Calculates the current battery, returns value between 0 (empty) and 1 (fully charged)"""
         return 1

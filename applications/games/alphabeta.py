@@ -9,12 +9,10 @@ import threading
 
 
 class Move:
-    """A move, which can be applied on a field to transform it to a new field
-    """
+    """A move, which can be applied on a field to transform it to a new field"""
 
     def apply(self, field):
-        """Apply that move on a filed to transform it
-        """
+        """Apply that move on a filed to transform it"""
         raise NotImplementedError("Please implement this method")
 
     def __eq__(self, other):
@@ -22,38 +20,32 @@ class Move:
 
 
 class Field:
-    """A representation of a playing field of a strategy game
-    """
+    """A representation of a playing field of a strategy game"""
 
     def score(self, player):
-        """Calculate a score for the given player on the field. Higher scores mean the player is more likely to win.
-        """
+        """Calculate a score for the given player on the field. Higher scores mean the player is more likely to win."""
         raise NotImplementedError("Please implement this method")
 
     def possible_moves(self, player):
-        """Returns a list of moves that the given player could perform on the current state of the game
-        """
+        """Returns a list of moves that the given player could perform on the current state of the game"""
         raise NotImplementedError("Please implement this method")
 
     def has_won(self, player):
-        """Checks whether the given player has won the game
-        """
+        """Checks whether the given player has won the game"""
         raise NotImplementedError("Please implement this method")
 
     def game_over(self):
-        """Checks whether the game is finished
-        """
+        """Checks whether the game is finished"""
         raise NotImplementedError("Please implement this method")
 
     def winning_moves(self):
-        """Returns a list of moves that contribute to the winning player's victory
-        """
+        """Returns a list of moves that contribute to the winning player's victory"""
         raise NotImplementedError("Please implement this method")
 
 
 class BitField(Field):
-    """2D field with two colors, implemented with bitboards for efficiency
-    """
+    """2D field with two colors, implemented with bitboards for efficiency"""
+
     UNDEFINED = 2
     EMPTY = 0
     COLOR1 = 1
@@ -62,7 +54,7 @@ class BitField(Field):
     # Constants used for bit count
     M1 = 0x5555555555555555
     M2 = 0x3333333333333333
-    M4 = 0x0f0f0f0f0f0f0f0f
+    M4 = 0x0F0F0F0F0F0F0F0F
     H01 = 0x0101010101010101
 
     def __init__(self, width=8, height=8, bits1=0, bits2=0):
@@ -73,24 +65,20 @@ class BitField(Field):
 
     @staticmethod
     def other(color):
-        """Returns the opponent of the given color
-        """
+        """Returns the opponent of the given color"""
         return -color
 
     @staticmethod
     def count_bits(x):
-        """Counts the bits that are set to 1 in a given integer
-        """
+        """Counts the bits that are set to 1 in a given integer"""
         return bin(x).count("1")
 
     def get_bitmask(self, x, y):
-        """Returns a bitmask which has only one bit set to 1, at the given location
-        """
+        """Returns a bitmask which has only one bit set to 1, at the given location"""
         return 1 << (x + y * self.width)
 
     def set_value(self, x, y, value):
-        """Changes the field at the given position to the given value
-        """
+        """Changes the field at the given position to the given value"""
         mask = self.get_bitmask(x, y)
         if value == self.EMPTY:
             self.bits1 &= ~mask
@@ -106,8 +94,7 @@ class BitField(Field):
             self.bits2 |= mask
 
     def get_value(self, x, y):
-        """Returns the value of the field at the given position
-        """
+        """Returns the value of the field at the given position"""
         mask = self.get_bitmask(x, y)
         if self.bits1 & mask == 0:
             if self.bits2 & mask == 0:
@@ -121,8 +108,7 @@ class BitField(Field):
                 return self.UNDEFINED
 
     def is_full(self):
-        """Checks whether no position is empty
-        """
+        """Checks whether no position is empty"""
         for x in range(self.width):
             for y in range(self.height):
                 if self.get_value(x, y) == self.EMPTY:
@@ -132,7 +118,8 @@ class BitField(Field):
     def __str__(self):
         out = [
             f"{self.__class__.__name__} -  X: {self.score(self.COLOR1)} ({self.has_won(self.COLOR1)}) "
-            f"O: {self.score(self.COLOR2)} ({self.has_won(self.COLOR2)})"]
+            f"O: {self.score(self.COLOR2)} ({self.has_won(self.COLOR2)})"
+        ]
         for y in range(self.height):
             line = []
             for x in range(self.width):
@@ -149,8 +136,8 @@ class BitField(Field):
 
 
 class AlphaBeta:
-    """An implementation of the alpha beta game tree algorithm
-    """
+    """An implementation of the alpha beta game tree algorithm"""
+
     ALPHA_INIT = -111111111111
     BETA_INIT = -ALPHA_INIT
     WIN_SCORE = 100000
@@ -169,18 +156,15 @@ class AlphaBeta:
         for move in field.possible_moves(self.player):
             next_field = move.apply(field)
             score = self.get_min(
-                next_field,
-                AlphaBeta.ALPHA_INIT,
-                AlphaBeta.BETA_INIT,
-                self.depth - 1)
+                next_field, AlphaBeta.ALPHA_INIT, AlphaBeta.BETA_INIT, self.depth - 1
+            )
             if score > best_score:
                 best_score = score
                 best_move = move
         return best_move
 
     def get_max(self, field, alpha, beta, depth):
-        """Returns the best score of any move if the current player wants to maximize the score
-        """
+        """Returns the best score of any move if the current player wants to maximize the score"""
         if self.time_over < time.time():
             raise TimeoutError()
         elif field.has_won(self.other):
@@ -200,8 +184,7 @@ class AlphaBeta:
         return best_score
 
     def get_min(self, field, alpha, beta, depth):
-        """Returns the best score of any move if the current player wants to minimize the score
-        """
+        """Returns the best score of any move if the current player wants to minimize the score"""
         if self.time_over < time.time():
             raise TimeoutError()
         elif field.has_won(self.player):
@@ -222,20 +205,19 @@ class AlphaBeta:
 
 
 class Strategy:
-    """A strategy, either of a human or a computer player, which can play a game
-    """
+    """A strategy, either of a human or a computer player, which can play a game"""
+
     def __init__(self, color):
         self.color = color
 
-    def make_move(self, io, delta, field, left, top):
-        """Return a move on the given field
-        """
+    def make_move(self, io, delta, field, left, top, square_size):
+        """Return a move on the given field"""
         raise NotImplementedError("Please Implement this method")
 
 
 class Applyer:
-    """Sorry for this ugly thing, it was necessary to get around some list-comprehension issues I had
-    """
+    """Sorry for this ugly thing, it was necessary to get around some list-comprehension issues I had"""
+
     def __init__(self, game, strategy):
         self.game = game
         self.strategy = strategy
@@ -245,15 +227,11 @@ class Applyer:
 
 
 class TreadWithResult(threading.Thread):
-    """A thread that can return the return value of the given function after its done
-    """
+    """A thread that can return the return value of the given function after its done"""
+
     def __init__(
-            self,
-            *thread_args,
-            target=None,
-            args=(),
-            kwargs=None,
-            **thread_kwargs):
+        self, *thread_args, target=None, args=(), kwargs=None, **thread_kwargs
+    ):
         if kwargs is None:
             kwargs = {}
 
@@ -267,8 +245,8 @@ class TreadWithResult(threading.Thread):
 
 
 class AIPlayer(Strategy):
-    """Strategy for a game that uses the alpha beta algorithm to determine its move
-    """
+    """Strategy for a game that uses the alpha beta algorithm to determine its move"""
+
     def __init__(self, time_limit, max_depth, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.time_limit = time_limit
@@ -288,12 +266,10 @@ class AIPlayer(Strategy):
         # print("AI finished analysis with depth", d, self.max_depth, move)
         return move
 
-    def make_move(self, io, delta, field, left, top):
-        """Return a move on the given field
-        """
+    def make_move(self, io, delta, field, left, top, square_size):
+        """Return a move on the given field"""
         if self.thread is None:
-            self.thread = TreadWithResult(
-                target=self._make_move, args=(field,))
+            self.thread = TreadWithResult(target=self._make_move, args=(field,))
             self.thread.start()
         elif not self.thread.is_alive():
             self.thread.join()
@@ -305,16 +281,15 @@ class AIPlayer(Strategy):
 
 
 class HumanPlayer(Strategy):
-    """Lets a human choose its moves on a strategy game
-    """
+    """Lets a human choose its moves on a strategy game"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.select_blinker = animations.Blinker(Color(128, 128, 128), WHITE)
         self.selected_move = None
 
-    def make_move(self, io, delta, field, left, top):
-        """Return a move on the given field
-        """
+    def make_move(self, io, delta, field, left, top, square_size):
+        """Return a move on the given field"""
         possible_moves = list(field.possible_moves(self.color))
         if len(possible_moves) == 0:
             return None
@@ -336,10 +311,13 @@ class HumanPlayer(Strategy):
             best_score = None
             best_field = None
             for p in possible_moves:
-                delta_x = min(self.selected_move.x - p.x,
-                              self.selected_move.x - p.x + field.width)
-                delta_y = min(self.selected_move.y - p.y,
-                              self.selected_move.y - p.y + field.height)
+                delta_x = min(
+                    self.selected_move.x - p.x, self.selected_move.x - p.x + field.width
+                )
+                delta_y = min(
+                    self.selected_move.y - p.y,
+                    self.selected_move.y - p.y + field.height,
+                )
 
                 score = 0
                 if direction[0] == 0:
@@ -360,10 +338,15 @@ class HumanPlayer(Strategy):
             self.selected_move = best_field
 
         if self.selected_move is not None:
-            io.display.update(
-                left + self.selected_move.x,
-                top + self.selected_move.y,
-                self.select_blinker.tick(delta))
+            c = self.select_blinker.tick(delta)
+            for ix in range(square_size):
+                for iy in range(square_size):
+
+                    io.display.update(
+                        left + self.selected_move.x * square_size + ix,
+                        top + self.selected_move.y * square_size + iy,
+                        c,
+                    )
 
         if io.controller.button_a.fresh_release():
             return self.selected_move
@@ -372,8 +355,8 @@ class HumanPlayer(Strategy):
 
 
 class StrategyGame(core.Game):
-    """Base class for 2 Player Strategy games like TicTacToe and Connect4
-    """
+    """Base class for 2 Player Strategy games like TicTacToe and Connect4"""
+
     FIELD_SIZE = (3, 3)
     FIELD_CLASS = BitField
     COLOR_MAP = {
@@ -381,11 +364,7 @@ class StrategyGame(core.Game):
         BitField.COLOR2: BLUE,
     }
 
-    DIFFICULTIES = {
-        "Easy": (0.5, 2),
-        "Medium": (1, 5),
-        "Difficult": (5, 30)
-    }
+    DIFFICULTIES = {"Easy": (0.5, 2), "Medium": (1, 5), "Difficult": (5, 30)}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -396,20 +375,27 @@ class StrategyGame(core.Game):
         p1color = self.COLOR_MAP[BitField.COLOR1]
         p2color = self.COLOR_MAP[BitField.COLOR2]
 
-        self.player1Choice = SlidingChoice([
-                                               Choice("Human", p1color, Applyer(self, HumanPlayer(BitField.COLOR1)))] + [
-                                               Choice(name, p1color, Applyer(self, AIPlayer(t, d, BitField.COLOR1)))
-                                               for name, (t, d) in self.DIFFICULTIES.items()], 8)
+        self.player1Choice = SlidingChoice(
+            [Choice("Human", p1color, Applyer(self, HumanPlayer(BitField.COLOR1)))]
+            + [
+                Choice(name, p1color, Applyer(self, AIPlayer(t, d, BitField.COLOR1)))
+                for name, (t, d) in self.DIFFICULTIES.items()
+            ],
+            8,
+        )
 
-        self.player2Choice = SlidingChoice([
-                                               Choice("Human", p2color, Applyer(self, HumanPlayer(BitField.COLOR2)))] + [
-                                               Choice(name, p2color, Applyer(self, AIPlayer(t, d, BitField.COLOR2)))
-                                               for name, (t, d) in self.DIFFICULTIES.items()], 8)
+        self.player2Choice = SlidingChoice(
+            [Choice("Human", p2color, Applyer(self, HumanPlayer(BitField.COLOR2)))]
+            + [
+                Choice(name, p2color, Applyer(self, AIPlayer(t, d, BitField.COLOR2)))
+                for name, (t, d) in self.DIFFICULTIES.items()
+            ],
+            8,
+        )
         self.reset()
 
     def reset(self, *args):
-        """Resets the strategy game
-        """
+        """Resets the strategy game"""
         self.player1 = None
         self.player2 = None
         self.field = None
@@ -417,33 +403,39 @@ class StrategyGame(core.Game):
         self.border_ticker = animations.Ticker(0.1)
         self.select_blinker = animations.Blinker(Color(128, 128, 128), WHITE)
         self.p1_win_blinker = animations.Blinker(
-            self.COLOR_MAP[BitField.COLOR1], WHITE, speed=1)
+            self.COLOR_MAP[BitField.COLOR1], WHITE, speed=1
+        )
         self.p2_win_blinker = animations.Blinker(
-            self.COLOR_MAP[BitField.COLOR2], WHITE, speed=1)
+            self.COLOR_MAP[BitField.COLOR2], WHITE, speed=1
+        )
         self.gameover_scroller = None
 
-        self.field_colors = [[animations.AnimatedColor((0, 0, 0), speed=2) for _ in range(
-            self.FIELD_SIZE[1])] for _ in range(self.FIELD_SIZE[0])]
+        self.field_colors = [
+            [
+                animations.AnimatedColor((0, 0, 0), speed=2)
+                for _ in range(self.FIELD_SIZE[1])
+            ]
+            for _ in range(self.FIELD_SIZE[0])
+        ]
 
         self.border_color = animations.AnimatedColor(
-            self.COLOR_MAP[BitField.COLOR1], speed=2)
+            self.COLOR_MAP[BitField.COLOR1], speed=2
+        )
 
     def set_player(self, player):
-        """Helper function that stores the given player in slot 1 or 2, accoriding to the players color
-        """
+        """Helper function that stores the given player in slot 1 or 2, accoriding to the players color"""
         if player.color == BitField.COLOR1:
             self.player1 = player
         else:
             self.player2 = player
 
     def player_select(self, io, delta, color):
-        """Displays a player select screen
-        """
+        """Displays a player select screen"""
         io.display.fill((0, 0, 0))
         idx = [BitField.COLOR1, BitField.COLOR2].index(color)
 
-        #bmp = textutils.get_text_bitmap(f"P{idx + 1}")
-        #bitmaputils.apply_bitmap(
+        # bmp = textutils.get_text_bitmap(f"P{idx + 1}")
+        # bitmaputils.apply_bitmap(
         #    bmp, io.display, (1, 1), fg_color=self.COLOR_MAP[color])
         [self.player1Choice, self.player2Choice][idx].update(io, delta)
 
@@ -465,14 +457,21 @@ class StrategyGame(core.Game):
                 self.state = self.GAME_OVER
                 return
 
-        left = int(5 - self.FIELD_SIZE[0] / 2)
-        top = int(5 - self.FIELD_SIZE[1] / 2)
-        self.draw_field(io, delta, left, top)
+        square_size = int(
+            min(
+                (io.display.width - 2) / self.FIELD_SIZE[0],
+                (io.display.height - 2) / self.FIELD_SIZE[1],
+            )
+        )
+
+        left = int(5 - square_size * self.FIELD_SIZE[0] / 2)
+        top = int(5 - square_size * self.FIELD_SIZE[1] / 2)
+        self.draw_field(io, delta, left, top, square_size)
 
         if self.active_color == BitField.COLOR1:
-            move = self.player1.make_move(io, delta, self.field, left, top)
+            move = self.player1.make_move(io, delta, self.field, left, top, square_size)
         else:
-            move = self.player2.make_move(io, delta, self.field, left, top)
+            move = self.player2.make_move(io, delta, self.field, left, top, square_size)
 
         if move is not None:
             self.field = move.apply(self.field)
@@ -491,17 +490,35 @@ class StrategyGame(core.Game):
             self.player2 = None
             self.gameover_scroller = None
         else:
-            left = int(5 - self.FIELD_SIZE[0] / 2)
-            top = int(5 - self.FIELD_SIZE[1] / 2)
-            self.draw_field(io, delta, left, top)
+            square_size = int(
+                min(
+                    (io.display.width - 2) / self.FIELD_SIZE[0],
+                    (io.display.height - 2) / self.FIELD_SIZE[1],
+                )
+            )
+
+            left = int(5 - square_size * self.FIELD_SIZE[0] / 2)
+            top = int(5 - square_size * self.FIELD_SIZE[1] / 2)
+
+            self.draw_field(io, delta, left, top, square_size)
             color1 = self.p1_win_blinker.tick(delta)
             color2 = self.p2_win_blinker.tick(delta)
 
             for move in self.field.winning_moves():
-                if move.color == BitField.COLOR1:
-                    io.display.update(left + move.x, top + move.y, color1)
-                if move.color == BitField.COLOR2:
-                    io.display.update(left + move.x, top + move.y, color2)
+                for ix in range(square_size):
+                    for iy in range(square_size):
+                        if move.color == BitField.COLOR1:
+                            io.display.update(
+                                left + move.x * square_size + ix,
+                                top + move.y * square_size + iy,
+                                color1,
+                            )
+                        if move.color == BitField.COLOR2:
+                            io.display.update(
+                                left + move.x * square_size + ix,
+                                top + move.y * square_size + iy,
+                                color2,
+                            )
 
             if self.field.has_won(BitField.COLOR1):
                 self.active_color = BitField.COLOR1
@@ -518,39 +535,43 @@ class StrategyGame(core.Game):
             text_bmp = textutils.get_text_bitmap(text)
 
             if self.gameover_scroller is None:
-                self.gameover_scroller = animations.Ticker(
-                    4 / (text_bmp.shape[1] + 10))
+                self.gameover_scroller = animations.Ticker(4 / (text_bmp.shape[1] + 10))
             self.gameover_scroller.tick(delta)
 
-            x = int((1 - self.gameover_scroller.progression) *
-                    (text_bmp.shape[1] + 10) - text_bmp.shape[1])
-            y = top + \
-                self.FIELD_SIZE[1] + 1 + max(0, ((15 - (top + self.FIELD_SIZE[1] + 1) - 5) // 2))
-            bitmaputils.apply_bitmap(
-                text_bmp, io.display, (x, y), fg_color=color)
+            x = int(
+                (1 - self.gameover_scroller.progression) * (text_bmp.shape[1] + 10)
+                - text_bmp.shape[1]
+            )
+            y = (
+                top
+                + self.FIELD_SIZE[1] * square_size
+                + 1
+                + max(0, ((15 - (top + self.FIELD_SIZE[1] * square_size + 1) - 5) // 2))
+            )
+            bitmaputils.apply_bitmap(text_bmp, io.display, (x, y), fg_color=color)
 
     @staticmethod
     def get_background_color(x, y):
-        """Gets the background color for the given position
-        """
+        """Gets the background color for the given position"""
         if (x + y) % 2 == 0:
             return (0, 0, 0)
         else:
             return (32, 32, 32)
 
-    def draw_border(self, io, delta, left, top):
-        """Draws the border around the field
-        """
-        right = left + self.FIELD_SIZE[0]
-        bottom = top + self.FIELD_SIZE[1]
+    def draw_border(self, io, delta, left, top, square_size):
+        """Draws the border around the field"""
+        right = left + self.FIELD_SIZE[0] * square_size
+        bottom = top + self.FIELD_SIZE[1] * square_size
         self.border_ticker.tick(delta)
         self.border_color.tick(delta)
         color = self.border_color.get_value()
 
-        coordinates = [(x, top - 1) for x in range(left - 1, right + 1)] + \
-                      [(right, y) for y in range(top, bottom + 1)] + \
-                      [(x, bottom) for x in range(right, left - 1, -1)] + \
-                      [(left - 1, y) for y in range(bottom, top - 1, -1)]
+        coordinates = (
+            [(x, top - 1) for x in range(left - 1, right + 1)]
+            + [(right, y) for y in range(top, bottom + 1)]
+            + [(x, bottom) for x in range(right, left - 1, -1)]
+            + [(left - 1, y) for y in range(bottom, top - 1, -1)]
+        )
 
         for i, coord in enumerate(coordinates):
             prog = 1 - self.border_ticker.progression + i / len(coordinates)
@@ -559,32 +580,33 @@ class StrategyGame(core.Game):
                 prog = (0.1 - prog) / 0.1
 
             io.display.update(
-                *coord, tuple(map(lambda c: c * (0.2 + 0.8 * prog), color)))
+                *coord, tuple(map(lambda c: c * (0.2 + 0.8 * prog), color))
+            )
 
-    def draw_stones(self, io, delta, left, top):
-        """Draws the stones on the field
-        """
+    def draw_stones(self, io, delta, left, top, square_size):
+        """Draws the stones on the field"""
         for x in range(self.FIELD_SIZE[0]):
             for y in range(self.FIELD_SIZE[1]):
                 c = self.field.get_value(x, y)
                 if c in self.COLOR_MAP:
                     self.field_colors[x][y].set_value(self.COLOR_MAP[c])
                 else:
-                    self.field_colors[x][y].set_value(
-                        self.get_background_color(x, y))
+                    self.field_colors[x][y].set_value(self.get_background_color(x, y))
                 self.field_colors[x][y].tick(delta)
 
         for x in range(self.FIELD_SIZE[0]):
             for y in range(self.FIELD_SIZE[1]):
-                io.display.update(
-                    left + x, top + y, self.field_colors[x][y].get_value())
+                for ix in range(x * square_size, (x + 1) * square_size):
+                    for iy in range(y * square_size, (y + 1) * square_size):
+                        io.display.update(
+                            left + ix, top + iy, self.field_colors[x][y].get_value()
+                        )
 
-    def draw_field(self, io, delta, left, top):
-        """Draws both the border and the stones
-        """
+    def draw_field(self, io, delta, left, top, square_size):
+        """Draws both the border and the stones"""
         io.display.fill((0, 0, 0))
-        self.draw_border(io, delta, left, top)
-        self.draw_stones(io, delta, left, top)
+        self.draw_border(io, delta, left, top, square_size)
+        self.draw_stones(io, delta, left, top, square_size)
 
     def _update(self, io, delta):
         pass

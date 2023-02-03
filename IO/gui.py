@@ -90,6 +90,7 @@ class PygameIOManager(core.IOManager):
             win = pygame.display.set_mode(screen_size)
 
         display = PygameDisplay(win, screen_pos, screen_size, *screen_res)
+        #display = PygameDisplay(win, (0,0), bg_image.get_size(), *screen_res)
         controller = PygameController()
         super().__init__(controller, display, *args, **kwargs)
 

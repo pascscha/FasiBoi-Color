@@ -3,7 +3,7 @@
 import time
 import numpy as np
 import cv2
-
+import math
 
 class WindowEffect:
     """An Effect that can be applied on the entire display, regardless of the current application
@@ -112,6 +112,28 @@ class Squeeze(WindowEffect):
 
         display.pixels[:, top:top + height] = squeezed
 
+class Minimize(WindowEffect):
+    """Squeezes the initial screen horizontally and reveals the current screen
+    """
+    def apply(self, display):
+        """
+        Applies the effect to the current display
+        Args:
+            display: The current state of the display
+        """
+        progression = (time.time() - self.start_time) / self.duration
+        if progression > 1:
+            return
+
+        height = max(1, int(display.pixels.shape[1] * (1 - progression)))
+        width = max(1, int(display.pixels.shape[0] * (1 - progression)))
+
+        squeezed = cv2.resize(
+            self.start_pixels, (height, width))
+
+        left = (display.pixels.shape[0] - width) // 2
+
+        display.pixels[left:left+width, display.pixels.shape[1]-height:] = squeezed
 
 class Noise(WindowEffect):
     """Adds noise to the screen
@@ -248,10 +270,27 @@ class ColorPalette(WindowEffect):
         return np.sqrt(d1**2 + d2**2 + d3**2)
     
     def apply(self, display):
-        scores = [self.squared_distances(display.pixels.astype(np.int32), color) for color in self.colors]
+        scores = [self.squared_distances(display.pixels.astype(np.int32), color).reshape(-1) for color in self.colors]
+
+        sort_me = [(scores[c][i], i, c) for c in range(len(self.colors)) for i in range(display.width * display.height)]
+        sort_me.sort(key=lambda x:x[0], reverse=False)
+
+        max_count = math.ceil(display.width * display.height / len(self.colors))
+        counts = [0] * len(self.colors)
+        last_distances = [100000000] * len(self.colors)
+        for d, i, c in sort_me:
+            if counts[c] <= max_count or d == last_distances[c]:
+                display.pixels[i//display.height][i%display.height] = self.colors[c]
+                counts[c] += 1
+                last_distances[c] = d
+        """
+
+
+
         # min_distances = [np.min(d) for d in distances]
         # max_distances = [np.max(d) for d in distances]
         # scores = np.array([(distance - min_distance) / (max_distance - min_distance) for distance, min_distance, max_distance in zip(distances, min_distances, max_distances)])
         indices = np.argmin(scores, axis=0)
         for i, c in enumerate(self.colors):
             display.pixels[np.where(indices==i)] = c
+        """

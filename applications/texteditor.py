@@ -35,7 +35,7 @@ class Texteditor(core.Application):
 
         io.display.fill((0,0,0))
 
-        char_bitmap = np.zeros((23, 15), dtype=np.bool)
+        char_bitmap = np.zeros((23, 15), dtype=np.uint8)
 
         for x in range(4):
             for y in range(4):

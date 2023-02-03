@@ -118,6 +118,7 @@ class GameStarter:
 
     def __call__(self, io):
         self.parent.idx = self.index
+        self.parent.save_value("index", self.index)
         self.parent.state = self.parent.MID_GAME
         self.parent.load_field()
 
@@ -148,16 +149,17 @@ class Pushy(core.Game):
         self.fields = []
         for steps, fields in sorted(fields_by_steps.items()):
             self.fields.append(max(fields, key=lambda x: x["fu_ratio"]))
-        pprint(self.fields)
+        # pprint(self.fields)
 
-        self.idx = 0
+        self.idx = self.load_value("index", 0)
 
         choices = [
             Choice(str(i), (255, 255, 255), GameStarter(self, i))
             for i in range(len(self.fields))
         ]
-        
+
         self.chooser = SlidingChoice(choices, 5, speed=5)
+        self.chooser.index.set_value(self.idx)
 
         # self.fields = sorted(
         #     fields, key=lambda x: x["steps"] + x["fu_ratio"] * 50, reverse=True
@@ -207,9 +209,9 @@ class Pushy(core.Game):
             # self.chooser.scroll_offset = animations.AnimatedValue(0)
             return
 
-
         if self.field.has_won():
             self.idx = (self.idx + 1) % len(self.fields)
+            self.save_value("index", self.idx)
             self.load_field()
 
         io.display.fill(BLACK)
