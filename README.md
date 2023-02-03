@@ -1,68 +1,67 @@
-# FasiBoi-Color [WIP]
-This is the Work in Progress repository for a carneval costume, due to be used in February 2022.
+# FasiBoi-Color
+This project was done together with with [@jgygax](https://github.com/jgygax) to run on our costume at Lucerne Carneval 2023.
 
-## Vision
-![Vision](img/vision.jpg)
+This repository contains the software for a Game-Boy inspired console, that runs on a 10x15 pixel home made LED grid, which is incorporated into our costume as a playable game boy costume. It features many games, music visualization and other applications.
 
+## Installation
+The best way of running it by yourself is through [Docker](https://docs.docker.com/get-docker/):
 
-## Showcase
-[![Emulating Gaming Console on 10x15 LED Matrix](img/thumbnail.jpg)](https://youtu.be/_cmhZQ1JC-s "Emulating Gaming Console on 10x15 LED Matrix")
-This shows the first time we managed to run the software on a prototype of the physical LED display.
+1. Install Docker
+2. Open a Terminal (Powershell on Windows)
+3. Run:
+    ```bash
+    docker run -it -p 8000:8000 -p 8001:8001 pascscha/fasiboi
+    ```
 
-## Helligkeiten
-- 1
-  - 0.65 A
-  - Sehr gut sichtbar
+## Controls
+The physical version comes with a controller with 7 buttons. These are mapped onto the keyboard when running the Docker version:
 
-- 0.5 
-  - 0.4 A
-  - Betz weniger aber au okay so
+| Control | Mapping | Functionality           |
+| :------ | :------ | :---------------------- |
+| Back    | `Esc`   | Back / Close            |
+| A       | `A`     | Select / Primary Button |
+| B       | `B`     | Secondary Button        |
+| Up      | `↑`     | Go / Scroll Up          |
+| Down    | `↓`     | Go / Scroll Down        |
+| Left    | `←`     | Go Left                 |
+| Right   | `→`     | Go Right                |
 
-- 0.25
-  - 0.25A 
-  - Scho halbiert?
+## Menu Navigation
+At start you will see the main Menu. From there you can navigate all possible applications. The full application name scrolls by when you stay on one application.
 
-- 0.125
-  - 0.18AX
-  - Scho betzli dönkler, Wenns fiister esch doss gsesch das locker
+## Games
+Games can be found at `Applications -> Games` in the menu. Most games open with a screen showing the current highscore and if you just played the game, the last previous score. Press `A` to start the game.
 
-- 1/16
-  - 0.15A
-  - Gsesch scho dass es nömme s ganze fäldli so ganz mag fölle
+### Snake
+![Snake Gameplay](img/games/snake.jpg)
 
-- 1/32
-  - 0.124A
-  - Wie bem 16tel
+Eat as many red dots as possible. If you collide with yourself you loose. If you go out of the playing board you will re-enter on the other side.
 
-- 1/64
-  - 0.12 a
-  - Das wöri jetzt aber ned näh
+| Control | Functionality |
+| :------ | :------------ |
+| Up      | Move Up       |
+| Down    | Move Down     |
+| Left    | Move Left     |
+| Right   | Move Right    |
 
-# Notes
-- DC/DC converter:
-  - [TRACO POWER TSR 1-2450](https://www.tracopower.com/ch/deu/model/tsr-1-2450)
-  - [Datasheet](https://www.tracopower.com/sites/default/files/products/datasheets/tsr1_datasheet.pdf)
-  - max 1A input
+### Tetris
+![Tetris Gameplay](img/games/tetris.jpg)
 
+Place as many tiles on the board without filling it up to the top. You can rotate pieces to better fit your existing tiles. Once you fill a row completely, it will disappear. Making multiple rows disappear at the same time gives more points.
 
-# [Ideas](http://inventwithpython.com/blog/2012/02/20/i-need-practice-programming-49-ideas-for-game-clones-to-code/):
-## Simon
-Description: Four colored buttons light up in a specific pattern. After displaying the pattern, the player must repeat the pattern by clicking the buttons in proper order. The pattern gets longer each time the player completes the pattern. If the player presses a wrong button, the game ends.
+| Control | Functionality     |
+| :------ | :---------------- |
+| A       | Rotate the Piece  |
+| Left    | Move Piece Left   |
+| Right   | Move Piece Right  |
+| Down    | Drop Piece Faster |
 
-## Flood It
-A grid of six colors of tiles starts off randomly. The player can do a "flood fill" on the top left tile, changing the color of any adjacent tiles of the same color. The player wins if they are able to make the entire board a single color within a certain number of moves.
+### Flappy Bird
+![Flappy Bird Gameplay](img/games/flappy-bird.jpg)
 
-## Candy Crush
-The board is filled with seven different types of jewels. The player can swap two adjacent jewels to form a three-in-a-row, causing the jewels to disappear and the jewels on top of them to fall down. Creating chain reactions gives bonus points.
+Fly through the tubes without crashing into them. You move forward automatically and will get an upward boost when you flap your wings
 
-## Grid Lock
-The player must slide a target car through an exit, but other cars are blocking the way. Cars can only be moved vertically or horizontally depending on their starting orientation. Level designs can be copied from existing games.
+| Control | Functionality      |
+| :------ | :----------------- |
+| A       | Flap Wings (Go Up) |
 
-## Space Invaders
-A few rows of enemies gradually makes they're way down to the player. The player must shoot them all before they reach the bottom. 
-
-## Tron
-Players control a constantly moving object that leaves a trail of walls behind it. The player who avoids crashing into a wall longest wins.
-
-## Snood / Bust-a-Move
-The top of the board is filled with different colored bubbles. The player must shoot bubbles from the bottom to form a set of three bubbles of the same color in a row to make them disappear. The ceiling lowers over time. The player wins if the board is cleared of bubbles, and loses if the bubbles reach the bottom.
