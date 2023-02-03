@@ -85,6 +85,7 @@ class WebDisplay(core.Display):
         super().__init__(*args, **kwargs)
         self.websocket = websocket
         self.full_refresh_threshold = self.width * self.height * 3 / 4
+        self.refresh()
 
     def refresh(self):
         """Shows changes on the screen. Only updated pixels that have been changed
@@ -146,14 +147,15 @@ class WebIOManager(core.IOManager):
 
     def start_http(self):
         PORT = 8000
-        print(f"Serving on http://localhost:{PORT}")
         self.http_server = socketserver.TCPServer(("", PORT), FasiBoiHTTPRequestHandler)
         self.http_server_thread = threading.Thread(
             target=self.http_server.serve_forever
         )
         self.http_server.allow_reuse_address = True
         self.http_server_thread.start()
-        print(f"Serving on http://localhost:{PORT}")
+        print()
+        print(f"Fasiboy is running here: http://localhost:{PORT}")
+        print(f"Fasiboy might need up to 1min to fully start, please be patient")
 
     def update(self):
         self.controller.update()

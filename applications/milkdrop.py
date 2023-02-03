@@ -503,9 +503,9 @@ class Visualization:
         time_fit = 1 - self.gaussian(
             now, center=self.last_applied, deviation=self.REPEAT_TIME
         )
-        print(
-            f"{str(self.name):>20} {energy_fit * time_fit:.2f} (e: {energy_fit:.2f}, t: {time_fit:.2f})"
-        )
+        # print(
+        #     f"{str(self.name):>20} {energy_fit * time_fit:.2f} (e: {energy_fit:.2f}, t: {time_fit:.2f})"
+        # )
         return energy_fit * time_fit
 
 
@@ -975,7 +975,7 @@ class Milkdrop(core.Application):
             vis.is_fitting(bpm, self.energy) for vis in self.visualizations
         ]
         idx = random.choices(range(len(self.visualizations)), weights=probabilities)[0]
-        print(f"Chosen {self.visualizations[idx].name}")
+        # print(f"Chosen {self.visualizations[idx].name}")
         self.visualization_index = idx
         self.last_change = self.beat_count
 
@@ -1050,16 +1050,16 @@ class Milkdrop(core.Application):
         if self.beat:
             self.beat_count += 1
 
-        print(60 / self.beat_duration)
+        # print(60 / self.beat_duration)
 
         beats_since_change = self.beat_count - self.last_change
         if beats_since_change != 0 and beats_since_change % 32 == 0:
             self.next_visualization()
 
-        print(
-            f"\r{60 / self.beat_duration:.2f} BPM ({self.beat_duration:.2f} s)",
-            end="    ",
-        )
+        # print(
+        #     f"\r{60 / self.beat_duration:.2f} BPM ({self.beat_duration:.2f} s)",
+        #     end="    ",
+        # )
         progression = (now - self.last_beats[0]) / self.beat_duration
         viz = self.visualizations[self.visualization_index]
         self.last_frame = viz.apply(self.last_frame, delta, progression, self.beat)

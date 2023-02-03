@@ -314,7 +314,7 @@ class IOManager:
             # Sleep for the rest of the frame
             calc_duration = time.time() - last
             mfps = (10 * mfps + 1 / calc_duration) / 11
-            print("max FPS", int(mfps), "\tFPS", int(fps))
+            # print("max FPS", int(mfps), "\tFPS", int(fps))
 
             time.sleep(max(0, 1 / fps - calc_duration))
 
@@ -344,7 +344,7 @@ class IOManager:
         """Closes the topmost application and returns to the previously opened appplication.
         If none exists quits the Program
         """
-        if len(self.applications) >= 1:
+        if len(self.applications) > 1:
             self.current_animation = Minimize(self.display, self.animation_duration)
             self.applications = self.applications[:-1]
         if len(self.applications) == 0:
