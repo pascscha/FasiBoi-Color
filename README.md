@@ -33,7 +33,7 @@ At start you will see the main Menu. From there you can navigate all possible ap
 Games can be found at `Applications -> Games` in the menu. Most games open with a screen showing the current highscore and if you just played the game, the last previous score. Press `A` to start the game.
 
 ### Snake
-![Snake Gameplay](img/games/snake.jpg)
+![Snake Gameplay](img/games/snake.gif)
 
 Eat as many red dots as possible. If you collide with yourself you loose. If you go out of the playing board you will re-enter on the other side.
 
@@ -45,7 +45,7 @@ Eat as many red dots as possible. If you collide with yourself you loose. If you
 | Right   | Move Right    |
 
 ### Tetris
-![Tetris Gameplay](img/games/tetris.jpg)
+![Tetris Gameplay](img/games/tetris.gif)
 
 Place as many tiles on the board without filling it up to the top. You can rotate pieces to better fit your existing tiles. Once you fill a row completely, it will disappear. Making multiple rows disappear at the same time gives more points.
 
@@ -57,7 +57,7 @@ Place as many tiles on the board without filling it up to the top. You can rotat
 | Down    | Drop Piece Faster |
 
 ### Flappy Bird
-![Flappy Bird Gameplay](img/games/flappy-bird.jpg)
+![Flappy Bird Gameplay](img/games/flappy-bird.gif)
 
 Fly through the tubes without crashing into them. You move forward automatically and will get an upward boost when you flap your wings
 
