@@ -69,8 +69,11 @@ class Application:
         if not os.path.exists(self.save_path):
             return {}
         else:
-            with open(self.save_path) as f:
-                return json.load(f)
+            try:
+                with open(self.save_path) as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                return {}
 
     def save_data(self, data):
         """Stores application data to disk. The filename is automatically generated based on the application name.

@@ -69,6 +69,15 @@ class BooleanControllerValue(ControllerValue):
 
     TIMEOUT = 2
 
+    def update_true(self):
+        # print("Set to true")
+        self.update(1)
+
+    def update_false(self):
+        # print("Set to false")
+        self.update(0)
+
+
     def fresh_press(self):
         """Checks if the button has freshly been pressed"""
         if self._value and self.fresh and self.last_change + self.TIMEOUT > time.time():

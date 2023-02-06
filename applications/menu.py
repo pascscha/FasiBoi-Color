@@ -13,7 +13,7 @@ class Choice:
 
 
 class SlidingChoice:
-    def __init__(self, choices, height, speed=4, text_speed=10):
+    def __init__(self, choices, height=8, speed=4, text_speed=10):
         self.choices = choices
         self.bmps = [textutils.get_text_bitmap(choice.text) for choice in self.choices]
         self.index = animations.AnimatedValue(0, speed=speed)
@@ -25,13 +25,15 @@ class SlidingChoice:
     def update(self, io, delta):
         if io.controller.button_up.fresh_press():
             new_value = max(0, self.index.new_value - 1)
+            if self.index.get_value() != new_value:
+                self.scroll_offset = animations.AnimatedValue(0)
             self.index.set_value(new_value)
-            self.scroll_offset = animations.AnimatedValue(0)
         if io.controller.button_down.fresh_press():
             new_value = min(len(self.choices) - 1, self.index.new_value + 1)
+            if self.index.get_value() != new_value:
+                self.scroll_offset = animations.AnimatedValue(0)
             self.index.set_value(new_value)
-            self.scroll_offset = animations.AnimatedValue(0)
-
+    
         self.prog = self.index.tick(delta)
 
         if io.controller.button_a.fresh_release():
