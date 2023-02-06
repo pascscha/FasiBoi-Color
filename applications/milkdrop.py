@@ -240,7 +240,7 @@ class Slideshow(Content):
 
 class TextDrawer(Drawer):
     def __init__(
-        self,
+        self,c
         *args,
         text="PARTY!!!",
         loc=(4, 5),
