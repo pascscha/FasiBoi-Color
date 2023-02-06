@@ -390,5 +390,4 @@ class IOManager:
 
     def get_battery(self):
         """Calculates the current battery, returns value between 0 (empty) and 1 (fully charged)"""
-        print(self.running_uncharged, self.expected_battery_life)
         return min(1, max(0, 1 - self.running_uncharged / self.expected_battery_life))
