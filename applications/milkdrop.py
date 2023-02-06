@@ -169,6 +169,75 @@ class Animation(Drawer):
         return super().apply(frame, delta, progression, beat)
 
 
+class Slideshow(Content):
+    def __init__(self, paths, *args, draw_black=True, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.paths = paths
+
+        images = [
+            cv2.cvtColor(
+                cv2.imread(path, cv2.IMREAD_UNCHANGED), cv2.COLOR_BGRA2RGBA
+            ).swapaxes(0, 1)
+            for path in paths
+        ]
+
+        if not draw_black:
+            for image in images:
+                image[
+                    np.where(
+                        (image[:, :, 0] == 0)
+                        & (image[:, :, 1] == 0)
+                        & (image[:, :, 2] == 0)
+                    )
+                ] = 0
+
+        self.images = []
+        for image in images:
+            a = []
+            for width in range(1, 11):
+                height = int(width * 1.5)
+                resized = cv2.resize(image, (height, width), cv2.INTER_NEAREST)
+                new_image = np.zeros(image.shape)
+                left = (10 - width) // 2
+                top = (15 - height) // 2
+                new_image[left : left + width, top : top + height] = resized
+                a.append(new_image)
+            self.images.append(a)
+
+        self.animation_length = len(self.images)
+        self.driver = AnimatedValue(fun1=lambda x: x, period=self.animation_length)
+        self.zoom_driver = AnimatedValue()
+
+    def apply(self, frame, delta, progression, beat):
+        idx = int(
+            self.driver.get_value(delta, progression, beat) * self.animation_length
+        )
+        idx = min(idx, self.animation_length - 1)
+
+        zoomed_images = self.images[idx]
+        zoomed_idx = min(
+            len(zoomed_images) - 1,
+            int(
+                (1 - self.zoom_driver.get_value(delta, progression, beat))
+                * 4
+                * len(zoomed_images)
+            ),
+        )
+
+        image = zoomed_images[zoomed_idx]
+
+        alpha = image[:, :, 3] / 255
+        alpha_inv = 1 - alpha
+
+
+        frame[:, :, 0] = frame[:, :, 0] * alpha_inv + image[:, :, 0] * alpha
+        frame[:, :, 1] = frame[:, :, 1] * alpha_inv + image[:, :, 1] * alpha
+        frame[:, :, 2] = frame[:, :, 2] * alpha_inv + image[:, :, 2] * alpha
+
+        return frame
+
+
 class TextDrawer(Drawer):
     def __init__(
         self,
@@ -963,6 +1032,43 @@ class Milkdrop(core.Application):
                             v=ConstantValue(1),
                             h=AnimatedValue(fun2=lambda x: (1 - x) / 6, period=2),
                         ),
+                    ),
+                ],
+            ),
+            Visualization(
+                name="",
+                min_bpm=30,
+                max_bpm=180,
+                energy=0.8,
+                effects=[
+                    portal_out,
+                    Slideshow(
+                        [
+                            "resources/images/apple.png",
+                            "resources/images/grape.png",
+                            "resources/images/lemon.png",
+                            "resources/images/pineapple.png",
+                            "resources/images/strawberry.png",
+                            "resources/images/banana.png",
+                            "resources/images/peach.png",
+                            "resources/images/ice-cream.png",
+                        ],
+                        draw_black=False,
+                    ),
+                    Distorter(vect_fun=from_center, darken=0.2),
+                    portal_in,
+                    Slideshow(
+                        [
+                            "resources/images/apple.png",
+                            "resources/images/grape.png",
+                            "resources/images/lemon.png",
+                            "resources/images/pineapple.png",
+                            "resources/images/strawberry.png",
+                            "resources/images/banana.png",
+                            "resources/images/peach.png",
+                            "resources/images/ice-cream.png",
+                        ],
+                        draw_black=True,
                     ),
                 ],
             ),
