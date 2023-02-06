@@ -95,23 +95,8 @@ class Flappy(core.Game):
             io.display.update(1, round(self.y_location), (255, 255, 0))
 
     def _update_gameover(self, io, delta):
-        # io.open_application(
-        #     VideoPlayer(
-        #         "resources/animations/flappy-death.gif",
-        #         loop=False))
+        io.open_application(
+            VideoPlayer(
+                "resources/animations/flappy-death.gif",
+                loop=False))
         self.state = self.PRE_GAME
-        """
-        self.y_velocity += self.gravity * delta
-        self.y_location += self.y_velocity * delta
-
-        if self.y_location > io.display.height:
-            self.state = self.PRE_GAME
-
-        io.display.fill((0, 0, 0))
-        for pipe in self.pipes:
-            pipe.draw(io.display, self.pipe_progression)
-
-        display_location = round(self.y_location)
-        if 0 <= display_location < io.display.height:
-            io.display.update(1, round(self.y_location), (255, 0, 0))
-        """
