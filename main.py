@@ -28,6 +28,7 @@ from applications.games.pushy import Pushy
 from applications.games.supermario import Supermario
 from applications.milkdrop import Milkdrop
 from applications.colors import Colors
+from applications.scroller import Scroller
 import argparse
 
 
@@ -90,6 +91,7 @@ if __name__ == "__main__":
                             ),
                             Milkdrop(name="Music Visualization"),
                             Clock(),
+                            Scroller(),
                             Filebrowser("resources/videos", name="Videos"),
                             Filebrowser(".", name="Files"),
                             Menu(
