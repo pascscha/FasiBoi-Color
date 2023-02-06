@@ -15,17 +15,21 @@ class Clock(core.Application):
         bitmaputils.apply_bitmap(
             hour_bmp,
             io.display,
-            (io.display.width // 2 - hour_bmp.shape[1] // 2,
-             4 - hour_bmp.shape[0] // 2),
-            fg_color=(255, 255, 255))
+            (
+                io.display.width // 2 - hour_bmp.shape[1] // 2,
+                4 - hour_bmp.shape[0] // 2,
+            ),
+            fg_color=(255, 255, 255),
+        )
 
         bitmaputils.apply_bitmap(
             minute_bmp,
             io.display,
-            (io.display.width // 2 - hour_bmp.shape[1] // 2,
-             10 - hour_bmp.shape[0] // 2),
-            fg_color=(255, 255, 255))
+            (
+                io.display.width // 2 - hour_bmp.shape[1] // 2,
+                10 - hour_bmp.shape[0] // 2,
+            ),
+            fg_color=(255, 255, 255),
+        )
 
-        self.sleep([
-            core.TimeWaker(60 - time.second)
-        ])
+        self.sleep([core.TimeWaker(60 - time.second)])

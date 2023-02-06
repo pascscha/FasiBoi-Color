@@ -4,7 +4,9 @@ import cv2
 
 
 class VideoPlayer(core.Application):
-    def __init__(self, path, *args, loop=True, interpolation=cv2.INTER_LINEAR,**kwargs):
+    def __init__(
+        self, path, *args, loop=True, interpolation=cv2.INTER_LINEAR, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.path = path
         self.cap = cv2.VideoCapture(path)
@@ -31,7 +33,7 @@ class VideoPlayer(core.Application):
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
             self.read = self.cap.read()
 
-        #self.sleep([core.TimeWaker(1/self.video_fps)])
+        # self.sleep([core.TimeWaker(1/self.video_fps)])
         return self.read
 
     def update(self, io, delta):
@@ -50,11 +52,14 @@ class VideoPlayer(core.Application):
                 if cut > 0:
                     frame = frame[cut:-cut, :]
 
-            resized = cv2.resize(frame, (io.display.width, io.display.height), interpolation=self.interpolation)
+            resized = cv2.resize(
+                frame,
+                (io.display.width, io.display.height),
+                interpolation=self.interpolation,
+            )
             converted = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
 
             io.display.pixels = converted.transpose(1, 0, 2)
-
 
         elif self.video_frames < 0:
             self.progression = 0

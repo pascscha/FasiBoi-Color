@@ -27,13 +27,18 @@ class Connect4Field(alphabeta.BitField):
     ]
 
     # Masks for each row (vertical)
-    ROW_MASKS = np.array([0x0000000000003f,
-                          0x00000000003f00,
-                          0x000000003f0000,
-                          0x0000003f000000,
-                          0x00003f00000000,
-                          0x003f0000000000,
-                          0x3f000000000000], dtype=np.int64)
+    ROW_MASKS = np.array(
+        [
+            0x0000000000003F,
+            0x00000000003F00,
+            0x000000003F0000,
+            0x0000003F000000,
+            0x00003F00000000,
+            0x003F0000000000,
+            0x3F000000000000,
+        ],
+        dtype=np.int64,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, width=8, height=8, **kwargs)
@@ -117,16 +122,18 @@ class Connect4Field(alphabeta.BitField):
         possible &= ~other
 
         # Weighted
-        return 7 * self.count_bits(possible & 0x01010101010101) + \
-            6 * self.count_bits(possible & 0x02020202020202) +\
-            5 * self.count_bits(possible & 0x04040404040404) +\
-            4 * self.count_bits(possible & 0x08080808080808) +\
-            3 * self.count_bits(possible & 0x10101010101010) +\
-            2 * self.count_bits(possible & 0x20202020202020) +\
-            1 * self.count_bits(possible & 0x40404040404040)
+        return (
+            7 * self.count_bits(possible & 0x01010101010101)
+            + 6 * self.count_bits(possible & 0x02020202020202)
+            + 5 * self.count_bits(possible & 0x04040404040404)
+            + 4 * self.count_bits(possible & 0x08080808080808)
+            + 3 * self.count_bits(possible & 0x10101010101010)
+            + 2 * self.count_bits(possible & 0x20202020202020)
+            + 1 * self.count_bits(possible & 0x40404040404040)
+        )
 
     def is_full(self):
-        return (self.bits1 | self.bits2) & 0x7f == 0x7f
+        return (self.bits1 | self.bits2) & 0x7F == 0x7F
 
     def game_over(self):
         return self.is_full() or self.has_won(self.COLOR1) or self.has_won(self.COLOR2)

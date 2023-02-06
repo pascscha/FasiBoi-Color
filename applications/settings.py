@@ -27,10 +27,11 @@ class Slider(core.Application):
             for y in range(io.display.height):
                 io.display.update(x, y, (0, 0, 0))
 
-        for x in range(int(io.display.width / 3),
-                       int(2 * io.display.width / 3) + 1):
-            for y in range(int((1 - self.value_index / self.steps)
-                           * io.display.height), io.display.height):
+        for x in range(int(io.display.width / 3), int(2 * io.display.width / 3) + 1):
+            for y in range(
+                int((1 - self.value_index / self.steps) * io.display.height),
+                io.display.height,
+            ):
                 io.display.update(x, y, self.color)
 
     def get_value(self):
@@ -38,14 +39,7 @@ class Slider(core.Application):
 
 
 class NumberChoice(core.Application):
-    def __init__(
-            self,
-            *args,
-            start=1,
-            end=100,
-            step_size=1,
-            default=50,
-            **kwargs):
+    def __init__(self, *args, start=1, end=100, step_size=1, default=50, **kwargs):
         super().__init__(*args, **kwargs)
         self.start = start
         self.end = end
@@ -75,9 +69,12 @@ class NumberChoice(core.Application):
         bitmaputils.apply_bitmap(
             bmp,
             io.display,
-            (io.display.width // 2 - bmp.shape[1] // 2,
-             io.display.height // 2 - bmp.shape[0] // 2),
-            fg_color=self.color)
+            (
+                io.display.width // 2 - bmp.shape[1] // 2,
+                io.display.height // 2 - bmp.shape[0] // 2,
+            ),
+            fg_color=self.color,
+        )
 
 
 class BrightnessSlider(Slider):
@@ -92,6 +89,7 @@ class FPSChoice(NumberChoice):
         super().update(io, delta)
         io.fps = self.value
 
+
 class ColorPaletteApplyer:
     def __init__(self, parent, palette_name):
         self.parent = parent
@@ -100,47 +98,57 @@ class ColorPaletteApplyer:
     def __call__(self, io):
         self.parent.palette_name = self.palette_name
 
+
 class ColorPaletteChoice(core.Application):
     PALETTES = {
-        "GB": effects.ColorPalette(colors=[
-            (0x9b, 0xbc, 0x0f),
-            (0x8b, 0xac, 0x0f),
-            (0x30, 0x62, 0x30),
-            (0x0f, 0x38, 0x0f)
-        ]),
-        "G2": effects.ColorPalette(colors=[
-            (0xe0, 0xf8, 0xd0),
-            (0x88, 0xc0, 0x70),
-            (0x34, 0x68, 0x56),
-            (0x08, 0x18, 0x20),
-        ]),
-        "BY": effects.ColorPalette(colors=[
-            (0xf0, 0xf0, 0xf0),
-            (0x8f, 0x9b, 0xf6),
-            (0xab, 0x46, 0x46),
-            (0x16, 0x16, 0x16),
-        ]),
-        "GR": effects.ColorPalette(colors=[
-            (255,255,255),
-            (170,170,170),
-            (85,85,85),
-            (0,0,0)
-        ]),
-        "MA": effects.ColorPalette(colors=[
-            (255,255,255),
-            (0,0,0),
-            (255,0,0),
-            (255,255,0),
-            (0,0,255),
-            (0,255,0),
-        ])
+        "GB": effects.ColorPalette(
+            colors=[
+                (0x9B, 0xBC, 0x0F),
+                (0x8B, 0xAC, 0x0F),
+                (0x30, 0x62, 0x30),
+                (0x0F, 0x38, 0x0F),
+            ]
+        ),
+        "G2": effects.ColorPalette(
+            colors=[
+                (0xE0, 0xF8, 0xD0),
+                (0x88, 0xC0, 0x70),
+                (0x34, 0x68, 0x56),
+                (0x08, 0x18, 0x20),
+            ]
+        ),
+        "BY": effects.ColorPalette(
+            colors=[
+                (0xF0, 0xF0, 0xF0),
+                (0x8F, 0x9B, 0xF6),
+                (0xAB, 0x46, 0x46),
+                (0x16, 0x16, 0x16),
+            ]
+        ),
+        "GR": effects.ColorPalette(
+            colors=[(255, 255, 255), (170, 170, 170), (85, 85, 85), (0, 0, 0)]
+        ),
+        "MA": effects.ColorPalette(
+            colors=[
+                (255, 255, 255),
+                (0, 0, 0),
+                (255, 0, 0),
+                (255, 255, 0),
+                (0, 0, 255),
+                (0, 255, 0),
+            ]
+        ),
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.palette_name = None
-        choices = [menu.Choice("Default", (255, 255, 255), ColorPaletteApplyer(self, None))] + \
-                  [menu.Choice(name, (255, 255, 255), ColorPaletteApplyer(self, name)) for name, palette in self.PALETTES.items()]
+        choices = [
+            menu.Choice("Default", (255, 255, 255), ColorPaletteApplyer(self, None))
+        ] + [
+            menu.Choice(name, (255, 255, 255), ColorPaletteApplyer(self, name))
+            for name, palette in self.PALETTES.items()
+        ]
         self.chooser = menu.SlidingChoice(choices, 5)
 
     def update(self, io, delta):
@@ -158,8 +166,6 @@ class ColorPaletteChoice(core.Application):
                 colors = palette.colors
                 n_colors = len(colors)
                 n_displayed = min(n_colors, io.display.width)
-                left = (io.display.width - n_displayed)//2
+                left = (io.display.width - n_displayed) // 2
                 for i, x in enumerate(range(left, left + n_displayed)):
                     io.display.update(x, 12, colors[i])
-
-    

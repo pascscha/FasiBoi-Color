@@ -5,17 +5,14 @@ from applications.menu import Menu
 if __name__ == "__main__":
     animations = [
         BeatAnimation(
-            "resources/animations/shuffle1.npy",
-            name="Shuffle",
-            beats_per_loop=1),
+            "resources/animations/shuffle1.npy", name="Shuffle", beats_per_loop=1
+        ),
         BeatAnimation(
-            "resources/animations/shuffle2-2.npy",
-            name="Charleston",
-            beats_per_loop=2),
+            "resources/animations/shuffle2-2.npy", name="Charleston", beats_per_loop=2
+        ),
         BeatAnimation(
-            "resources/animations/shuffle3.npy",
-            name="Little Big",
-            beats_per_loop=2)
+            "resources/animations/shuffle3.npy", name="Little Big", beats_per_loop=2
+        ),
     ]
 
     menus = []

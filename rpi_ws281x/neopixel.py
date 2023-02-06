@@ -30,12 +30,9 @@ class _LED_Data(object):
         # and returning them in a list.
         if isinstance(pos, slice):
             return [
-                ws.ws2811_led_get(
-                    self.channel,
-                    n) for n in xrange(
-                    *
-                    pos.indices(
-                        self.size))]
+                ws.ws2811_led_get(self.channel, n)
+                for n in xrange(*pos.indices(self.size))
+            ]
         # Else assume the passed in value is a number to the position.
         else:
             return ws.ws2811_led_get(self.channel, pos)
@@ -57,8 +54,17 @@ class _LED_Data(object):
 
 
 class Adafruit_NeoPixel(object):
-    def __init__(self, num, pin, freq_hz=800000, dma=10, invert=False,
-                 brightness=255, channel=0, strip_type=ws.WS2811_STRIP_RGB):
+    def __init__(
+        self,
+        num,
+        pin,
+        freq_hz=800000,
+        dma=10,
+        invert=False,
+        brightness=255,
+        channel=0,
+        strip_type=ws.WS2811_STRIP_RGB,
+    ):
         """Class to represent a NeoPixel/WS281x LED display.  Num should be the
         number of pixels in the display, and pin should be the GPIO pin connected
         to the display signal line (must be a PWM pin like 18!).  Optional
@@ -112,8 +118,8 @@ class Adafruit_NeoPixel(object):
         if resp != ws.WS2811_SUCCESS:
             message = ws.ws2811_get_return_t_str(resp)
             raise RuntimeError(
-                'ws2811_init failed with code {0} ({1})'.format(
-                    resp, message))
+                "ws2811_init failed with code {0} ({1})".format(resp, message)
+            )
 
     def show(self):
         """Update the display with the data from the LED buffer."""
@@ -121,12 +127,11 @@ class Adafruit_NeoPixel(object):
         if resp != ws.WS2811_SUCCESS:
             message = ws.ws2811_get_return_t_str(resp)
             raise RuntimeError(
-                'ws2811_render failed with code {0} ({1})'.format(
-                    resp, message))
+                "ws2811_render failed with code {0} ({1})".format(resp, message)
+            )
 
     def setPixelColor(self, n, color):
-        """Set LED at position n to the provided 24-bit color value (in RGB order).
-        """
+        """Set LED at position n to the provided 24-bit color value (in RGB order)."""
         self._led_data[n] = color
 
     def setPixelColorRGB(self, n, red, green, blue, white=0):

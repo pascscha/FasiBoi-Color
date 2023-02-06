@@ -2,7 +2,8 @@ import numpy as np
 
 letter_bmps = list(np.load("resources/sprites/letters.npy"))
 LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
-    
+
+
 def get_char_bitmap(char, monospace=True):
     """Gets the bitmap for a single char
 
@@ -20,17 +21,18 @@ def get_char_bitmap(char, monospace=True):
 
     bmp = letter_bmps[LETTERS.index(char)]
     if not monospace:
-        while np.all(bmp[:,0]==False):
-            bmp = bmp[:,1:]
+        while np.all(bmp[:, 0] == False):
+            bmp = bmp[:, 1:]
 
-        while np.all(bmp[:,-1]==False):
-            bmp = bmp[:,:-1]    
+        while np.all(bmp[:, -1] == False):
+            bmp = bmp[:, :-1]
 
     return bmp
-        
 
 
 bmp_memory = {}
+
+
 def get_text_bitmap(text, monospace=True):
     """Gets a bitmap of a string. Distance between two characters is 1 pixel
 
@@ -51,7 +53,7 @@ def get_text_bitmap(text, monospace=True):
     out = np.zeros((height, width), np.uint8)
     x = 0
     for bmp in bmps:
-        out [:, x:x+bmp.shape[1]] = bmp
+        out[:, x : x + bmp.shape[1]] = bmp
         x += bmp.shape[1] + 1
 
     bmp_memory[(text, monospace)] = out

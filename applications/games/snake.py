@@ -16,16 +16,9 @@ class Snake(core.Game):
         Returns:
             (int, int): A location on the board that does not collide with the snake.
         """
-        location = (
-            random.randint(
-                0,
-                width - 1),
-            random.randint(
-                0,
-                height - 1))
+        location = (random.randint(0, width - 1), random.randint(0, height - 1))
         while location in self.snake:
-            location = (random.randint(0, width - 1),
-                        random.randint(0, height - 1))
+            location = (random.randint(0, width - 1), random.randint(0, height - 1))
         return location
 
     def reset(self, io):
@@ -42,14 +35,12 @@ class Snake(core.Game):
 
         # Initialize the food at some random location
         self.food = self.random_food_location(
-            width=io.display.width,
-            height=io.display.height
+            width=io.display.width, height=io.display.height
         )
 
         # Set speed and progression of snake. Progression accumulates the time
         # that has passed since last movement.
         self.ticker = animations.Ticker(3)
-
 
     def _update_midgame(self, io, delta):
         # Check controller values. We look for fresh_values, because we only care
@@ -65,8 +56,7 @@ class Snake(core.Game):
 
         # Pulser value, that goes back and forth from 0 to 1, used to set
         # brightness of food
-        pulser = abs(self.pulse_progression -
-                     int(self.pulse_progression) - 0.5) * 2
+        pulser = abs(self.pulse_progression - int(self.pulse_progression) - 0.5) * 2
 
         # Move the snake to the next field if the time is ready
         if self.ticker.tick(delta):
@@ -77,8 +67,10 @@ class Snake(core.Game):
                 self.button_press_queue = self.button_press_queue[1:]
                 # Check that the direction is valid. Not allowed is to change direction by 180°, e.g. from left to right
                 # or from up to down.
-                if direction[0] != - \
-                        self.direction[0] or direction[1] != -self.direction[1]:
+                if (
+                    direction[0] != -self.direction[0]
+                    or direction[1] != -self.direction[1]
+                ):
                     self.direction = direction
 
             # Calculate the new x position of the snake and warp it around the
@@ -116,8 +108,7 @@ class Snake(core.Game):
 
                 # Generate new food
                 self.food = self.random_food_location(
-                    width=io.display.width,
-                    height=io.display.height
+                    width=io.display.width, height=io.display.height
                 )
             else:
                 # We did not find the food, add head to snake and cut its tail

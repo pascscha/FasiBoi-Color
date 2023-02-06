@@ -8,28 +8,28 @@ import time
 from rpi_ws281x import *
 
 # LED strip configuration:
-LED_1_COUNT = 30      # Number of LED pixels.
+LED_1_COUNT = 30  # Number of LED pixels.
 # GPIO pin connected to the pixels (must support PWM! GPIO 13 and 18 on RPi 3).
 LED_1_PIN = 18
 LED_1_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
 # DMA channel to use for generating signal (Between 1 and 14)
 LED_1_DMA = 10
-LED_1_BRIGHTNESS = 128     # Set to 0 for darkest and 255 for brightest
+LED_1_BRIGHTNESS = 128  # Set to 0 for darkest and 255 for brightest
 # True to invert the signal (when using NPN transistor level shift)
 LED_1_INVERT = False
-LED_1_CHANNEL = 0       # 0 or 1
+LED_1_CHANNEL = 0  # 0 or 1
 LED_1_STRIP = ws.SK6812_STRIP_GRBW
 
-LED_2_COUNT = 15      # Number of LED pixels.
+LED_2_COUNT = 15  # Number of LED pixels.
 # GPIO pin connected to the pixels (must support PWM! GPIO 13 or 18 on RPi 3).
 LED_2_PIN = 13
 LED_2_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
 # DMA channel to use for generating signal (Between 1 and 14)
 LED_2_DMA = 11
-LED_2_BRIGHTNESS = 128     # Set to 0 for darkest and 255 for brightest
+LED_2_BRIGHTNESS = 128  # Set to 0 for darkest and 255 for brightest
 # True to invert the signal (when using NPN transistor level shift)
 LED_2_INVERT = False
-LED_2_CHANNEL = 1       # 0 or 1
+LED_2_CHANNEL = 1  # 0 or 1
 LED_2_STRIP = ws.WS2811_STRIP_GRB
 
 
@@ -61,7 +61,7 @@ def blackout(strip):
 
 
 # Main program logic follows:
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create NeoPixel objects with appropriate configuration for each strip.
     strip1 = Adafruit_NeoPixel(
         LED_1_COUNT,
@@ -71,7 +71,8 @@ if __name__ == '__main__':
         LED_1_INVERT,
         LED_1_BRIGHTNESS,
         LED_1_CHANNEL,
-        LED_1_STRIP)
+        LED_1_STRIP,
+    )
     strip2 = Adafruit_NeoPixel(
         LED_2_COUNT,
         LED_2_PIN,
@@ -80,13 +81,14 @@ if __name__ == '__main__':
         LED_2_INVERT,
         LED_2_BRIGHTNESS,
         LED_2_CHANNEL,
-        LED_2_STRIP)
+        LED_2_STRIP,
+    )
 
     # Intialize the library (must be called once before other functions).
     strip1.begin()
     strip2.begin()
 
-    print('Press Ctrl-C to quit.')
+    print("Press Ctrl-C to quit.")
 
     # Black out any LEDs that may be still on for the last run
     blackout(strip1)
@@ -99,11 +101,9 @@ if __name__ == '__main__':
         multiColorWipe(Color(0, 255, 0), Color(0, 255, 0))  # Blue wipe
         multiColorWipe(Color(0, 0, 255), Color(0, 0, 255))  # Green wipe
         multiColorWipe(
-            Color(
-                255, 255, 255), Color(
-                255, 255, 255))  # Composite White wipe
+            Color(255, 255, 255), Color(255, 255, 255)
+        )  # Composite White wipe
         multiColorWipe(Color(0, 0, 0, 255), Color(0, 0, 0))  # White wipe
         multiColorWipe(
-            Color(
-                255, 255, 255, 255), Color(
-                0, 0, 0))  # Composite White + White LED wipe
+            Color(255, 255, 255, 255), Color(0, 0, 0)
+        )  # Composite White + White LED wipe

@@ -34,7 +34,9 @@ class Vector:
         return self._y.set_value(value)
 
     def __add__(self, other):
-        return Vector(self.x + other.x, self.y + other.y, speed=self.speed, function=self.function)
+        return Vector(
+            self.x + other.x, self.y + other.y, speed=self.speed, function=self.function
+        )
 
 
 class DrawableObject:
@@ -83,8 +85,8 @@ class DrawableObject:
         x_range_pix = [0, pixels.shape[0]]
         y_range_pix = [0, pixels.shape[1]]
 
-        x_range_disp = [x, x+pixels.shape[0]]
-        y_range_disp = [y, y+pixels.shape[1]]
+        x_range_disp = [x, x + pixels.shape[0]]
+        y_range_disp = [y, y + pixels.shape[1]]
 
         if x_range_disp[0] >= display.width or x_range_disp[0] + x_range_disp[1] < 0:
             return
@@ -102,30 +104,34 @@ class DrawableObject:
 
         if x_range_disp[1] > display.width:
             x_range_pix[1] -= x_range_disp[1] - display.width - 1
-            x_range_disp[1] = display.width-1
+            x_range_disp[1] = display.width - 1
 
         if y_range_disp[1] > display.height:
             y_range_pix[1] -= y_range_disp[1] - display.height - 1
-            y_range_disp[1] = display.height-1
+            y_range_disp[1] = display.height - 1
 
         print(x_range_disp, x_range_pix)
         print(y_range_disp, y_range_pix)
-        print(x_range_disp[0], x_range_disp[1],
-              y_range_disp[0], y_range_disp[1])
+        print(x_range_disp[0], x_range_disp[1], y_range_disp[0], y_range_disp[1])
         print(x_range_pix[0], x_range_pix[1], y_range_pix[0], y_range_pix[1])
 
-        out_pixels = display.pixels[x_range_disp[0]                                    :x_range_disp[1], y_range_disp[0]:y_range_disp[1]]
-        in_pixels = pixels[x_range_pix[0]:x_range_pix[1],
-                           y_range_pix[0]:y_range_pix[1]]
+        out_pixels = display.pixels[
+            x_range_disp[0] : x_range_disp[1], y_range_disp[0] : y_range_disp[1]
+        ]
+        in_pixels = pixels[
+            x_range_pix[0] : x_range_pix[1], y_range_pix[0] : y_range_pix[1]
+        ]
 
         print(in_pixels.shape, out_pixels.shape, display.pixels.shape)
 
-        blend = (in_pixels[:, :, 3].astype(np.float32) /
-                 255).reshape(in_pixels.shape[0], in_pixels.shape[1], 1)
-        print(out_pixels * (1-blend))
+        blend = (in_pixels[:, :, 3].astype(np.float32) / 255).reshape(
+            in_pixels.shape[0], in_pixels.shape[1], 1
+        )
+        print(out_pixels * (1 - blend))
         print(in_pixels[:, :, :3] * blend)
-        display.pixels[x_range_disp[0]:x_range_disp[1], y_range_disp[0]:y_range_disp[1]] = (out_pixels * (1-blend) +
-                                                                                            in_pixels[:, :, :3] * blend).astype(np.uint8)
+        display.pixels[
+            x_range_disp[0] : x_range_disp[1], y_range_disp[0] : y_range_disp[1]
+        ] = (out_pixels * (1 - blend) + in_pixels[:, :, :3] * blend).astype(np.uint8)
 
 
 class Point(DrawableObject):
@@ -134,7 +140,7 @@ class Point(DrawableObject):
         self.radius = radius
 
     def render(self):
-        pix = np.ones(shape=(2*self.radius, 2*self.radius, 4)) * 255
+        pix = np.ones(shape=(2 * self.radius, 2 * self.radius, 4)) * 255
         return (-self.radius, -self.radius), pix
 
 
@@ -145,7 +151,10 @@ class ExampleDrawing(core.Application):
         ys = [2, 7, 12]
         self.points = []
         for i, y in enumerate(ys):
-            p = Point(radius=1, offset=Vector(2, y, speed=0.5 + i/2, function = lambda x:x**2))
+            p = Point(
+                radius=1,
+                offset=Vector(2, y, speed=0.5 + i / 2, function=lambda x: x**2),
+            )
             self.points.append(p)
 
     def update(self, io, delta):

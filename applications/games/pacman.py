@@ -32,30 +32,24 @@ class Position:
     def __add__(self, other):
         if isinstance(other, Position):
             return Position(
-                self.x + other.x,
-                self.y + other.y,
-                width=self.width,
-                height=self.height)
+                self.x + other.x, self.y + other.y, width=self.width, height=self.height
+            )
         else:
             raise ValueError(f"Can't add {type(other)} to {type(self)}")
 
     def __sub__(self, other):
         if isinstance(other, Position):
             return Position(
-                self.x - other.x,
-                self.y - other.y,
-                width=self.width,
-                height=self.height)
+                self.x - other.x, self.y - other.y, width=self.width, height=self.height
+            )
         else:
             raise ValueError(f"Can't add {type(other)} to {type(self)}")
 
     def __mul__(self, other):
         if isinstance(other, int):
             return Position(
-                self.x * other,
-                self.y * other,
-                width=self.width,
-                height=self.height)
+                self.x * other, self.y * other, width=self.width, height=self.height
+            )
         else:
             raise ValueError(f"Can't add {type(other)} to {type(self)}")
 
@@ -101,8 +95,8 @@ class Field:
 
     def completed(self):
         return not (
-                np.any(
-                    self.field == self.FOOD) or np.any(self.field == self.SUPER_FOOD))
+            np.any(self.field == self.FOOD) or np.any(self.field == self.SUPER_FOOD)
+        )
 
     def draw(self, display, pulse_progression):
         prog1 = pulse_progression * 2
@@ -126,13 +120,14 @@ class Field:
 
 class Entity:
     def __init__(
-            self,
-            field,
-            pos,
-            speed=5.,
-            color=(255, 255, 255),
-            direction=Field.LEFT,
-            obstacles=None):
+        self,
+        field,
+        pos,
+        speed=5.0,
+        color=(255, 255, 255),
+        direction=Field.LEFT,
+        obstacles=None,
+    ):
         if obstacles is None:
             obstacles = [Field.WALL, Field.GHOST_DOOR]
         self.field = field
@@ -148,8 +143,10 @@ class Entity:
 
     def get_walkable_directions(self, backtrack=False):
         return [
-            direction for direction in Field.DIRECTIONS
-            if self.is_walkable(self.pos + direction) and (backtrack or direction != -self.direction)
+            direction
+            for direction in Field.DIRECTIONS
+            if self.is_walkable(self.pos + direction)
+            and (backtrack or direction != -self.direction)
         ]
 
     def update(self, delta):
@@ -194,19 +191,21 @@ class Ghost(Entity):
     EATEN = 3
 
     def __init__(
-            self,
-            field,
-            idle_target,
-            *args,
-            release=2.,
-            frighten_duration=5.,
-            release_after_eaten=2.,
-            target_speed=4.,
-            frightened_speed=3.,
-            eaten_speed=6.,
-            **kwargs):
-        super().__init__(field, random.choice(field.base),
-                         *args, speed=target_speed, **kwargs)
+        self,
+        field,
+        idle_target,
+        *args,
+        release=2.0,
+        frighten_duration=5.0,
+        release_after_eaten=2.0,
+        target_speed=4.0,
+        frightened_speed=3.0,
+        eaten_speed=6.0,
+        **kwargs,
+    ):
+        super().__init__(
+            field, random.choice(field.base), *args, speed=target_speed, **kwargs
+        )
         self.state = self.UNRELEASED
         self.pos = random.choice(self.field.base)
         self.idle_target = idle_target
@@ -255,10 +254,7 @@ class Ghost(Entity):
 
     def go_to(self, target):
         directions = self.get_walkable_directions()
-        return min(
-            directions,
-            key=lambda d: target.squared_distance(self.pos + d)
-        )
+        return min(directions, key=lambda d: target.squared_distance(self.pos + d))
 
     def update_unreleased(self):
         self.pos = random.choice(self.field.base)
@@ -298,38 +294,49 @@ class Pacman(core.Game):
         self.level_start = time.time()
 
         self.field = Field()
-        self.pac = Pac(self.field, Position(4, 11),
-                       speed=5, direction=Field.RIGHT)
+        self.pac = Pac(self.field, Position(4, 11), speed=5, direction=Field.RIGHT)
 
         frighten_duration = max(2, 6 - level / 2)
         release_after_eaten = max(0, 3 - level / 2)
         target_speed = 3 + level / 4
         release = max(0.5, 2 - level / 4)
 
-        self.blinky = Ghost(self.field, Position(9, 0),
-                            color=(255, 0, 38),
-                            frighten_duration=frighten_duration,
-                            release_after_eaten=release_after_eaten,
-                            target_speed=target_speed,
-                            release=release)
-        self.pinky = Ghost(self.field, Position(0, 0),
-                           color=(255, 182, 251),
-                           frighten_duration=frighten_duration,
-                           release_after_eaten=release_after_eaten,
-                           target_speed=target_speed,
-                           release=2 * release)
-        self.inky = Ghost(self.field, Position(9, 14),
-                          color=(0, 255, 253),
-                          frighten_duration=frighten_duration,
-                          release_after_eaten=release_after_eaten,
-                          target_speed=target_speed,
-                          release=3 * release)
-        self.clyde = Ghost(self.field, Position(0, 14),
-                           color=(255, 181, 97),
-                           frighten_duration=frighten_duration,
-                           release_after_eaten=release_after_eaten,
-                           target_speed=target_speed,
-                           release=4 * release)
+        self.blinky = Ghost(
+            self.field,
+            Position(9, 0),
+            color=(255, 0, 38),
+            frighten_duration=frighten_duration,
+            release_after_eaten=release_after_eaten,
+            target_speed=target_speed,
+            release=release,
+        )
+        self.pinky = Ghost(
+            self.field,
+            Position(0, 0),
+            color=(255, 182, 251),
+            frighten_duration=frighten_duration,
+            release_after_eaten=release_after_eaten,
+            target_speed=target_speed,
+            release=2 * release,
+        )
+        self.inky = Ghost(
+            self.field,
+            Position(9, 14),
+            color=(0, 255, 253),
+            frighten_duration=frighten_duration,
+            release_after_eaten=release_after_eaten,
+            target_speed=target_speed,
+            release=3 * release,
+        )
+        self.clyde = Ghost(
+            self.field,
+            Position(0, 14),
+            color=(255, 181, 97),
+            frighten_duration=frighten_duration,
+            release_after_eaten=release_after_eaten,
+            target_speed=target_speed,
+            release=4 * release,
+        )
         self.ghosts = [self.clyde, self.inky, self.pinky, self.blinky]
         self.level_age = 0
 
@@ -362,8 +369,7 @@ class Pacman(core.Game):
                         ghost.target = ghost.idle_target
 
             elif self.mode == self.ATTACK:
-                if len(
-                        self.defenses) > 0 and self.level_age > self.defenses[0]:
+                if len(self.defenses) > 0 and self.level_age > self.defenses[0]:
                     self.mode = self.SPREAD
                     print("spread")
                     self.defenses = self.defenses[1:]
@@ -412,23 +418,18 @@ class Pacman(core.Game):
                 bitmaputils.apply_bitmap(
                     level_text,
                     io.display,
-                    (io.display.width //
-                     2 -
-                     level_text.shape[1] //
-                     2,
-                     io.display.height //
-                     2 -
-                     level_text.shape[0] //
-                     2),
-                    fg_color=(
-                        255,
-                        255,
-                        255))
+                    (
+                        io.display.width // 2 - level_text.shape[1] // 2,
+                        io.display.height // 2 - level_text.shape[0] // 2,
+                    ),
+                    fg_color=(255, 255, 255),
+                )
 
         if next_level:
             self.reset_level(io, self.level + 1)
 
     def _update_gameover(self, io, delta):
-        io.open_application(VideoPlayer(
-            "resources/animations/pacman-death.gif", loop=False))
+        io.open_application(
+            VideoPlayer("resources/animations/pacman-death.gif", loop=False)
+        )
         self.state = self.PRE_GAME

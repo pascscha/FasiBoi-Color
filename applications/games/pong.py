@@ -4,12 +4,10 @@ import math
 
 
 class Pong(core.Game):
-
     def reset(self, io):
         self.ball_x = io.display.width / 2
         self.ball_y = io.display.height / 2
-        self.ball_direction = -math.pi / 2 + \
-                              (0.5 - random.random()) * math.pi / 2
+        self.ball_direction = -math.pi / 2 + (0.5 - random.random()) * math.pi / 2
         self.ball_speed = 10
         self.platform_width = io.display.width // 2
         self.platform_speed = 10
@@ -30,10 +28,8 @@ class Pong(core.Game):
             if self.platform_pos + self.platform_width / 2 > io.display.width:
                 self.platform_pos = io.display.width - self.platform_width / 2
 
-        self.ball_x += math.cos(self.ball_direction) * \
-                       self.ball_speed * delta
-        self.ball_y += math.sin(self.ball_direction) * \
-                       self.ball_speed * delta
+        self.ball_x += math.cos(self.ball_direction) * self.ball_speed * delta
+        self.ball_y += math.sin(self.ball_direction) * self.ball_speed * delta
 
         t = -(self.ball_y - 1) / math.sin(self.ball_direction)
         if t > 0:
@@ -42,7 +38,7 @@ class Pong(core.Game):
             if x >= io.display.width:
                 x = 2 * io.display.width - x
 
-            diff = (x - self.ai_platform_pos)
+            diff = x - self.ai_platform_pos
             if diff > self.ai_platform_speed * delta:
                 diff = self.ai_platform_speed * delta
             elif diff < -self.ai_platform_speed * delta:
@@ -61,17 +57,33 @@ class Pong(core.Game):
             self.ball_direction = math.pi - self.ball_direction
 
         if 0 < self.ball_y < 1:
-            if self.ai_platform_pos - self.ai_platform_width / \
-                    2 < self.ball_x < self.ai_platform_pos + self.ai_platform_width / 2:
-                self.ball_direction = math.pi / 2 + math.pi / 2 * (
-                        self.ball_x - self.ai_platform_pos) / self.ai_platform_width
+            if (
+                self.ai_platform_pos - self.ai_platform_width / 2
+                < self.ball_x
+                < self.ai_platform_pos + self.ai_platform_width / 2
+            ):
+                self.ball_direction = (
+                    math.pi / 2
+                    + math.pi
+                    / 2
+                    * (self.ball_x - self.ai_platform_pos)
+                    / self.ai_platform_width
+                )
                 self.ball_y = 1
 
         elif io.display.height - 2 < self.ball_y < io.display.height - 1:
-            if self.platform_pos - self.platform_width / 2 - \
-                    1 < self.ball_x < self.platform_pos + self.platform_width / 2:
-                self.ball_direction = - (
-                            math.pi / 2 - math.pi / 2 * (self.ball_x - self.platform_pos) / self.platform_width)
+            if (
+                self.platform_pos - self.platform_width / 2 - 1
+                < self.ball_x
+                < self.platform_pos + self.platform_width / 2
+            ):
+                self.ball_direction = -(
+                    math.pi / 2
+                    - math.pi
+                    / 2
+                    * (self.ball_x - self.platform_pos)
+                    / self.platform_width
+                )
                 self.ball_y = io.display.height - 2
                 self.score += 1
                 self.ball_speed += 1 / 2
@@ -89,27 +101,16 @@ class Pong(core.Game):
 
         io.display.fill((0, 0, 0))
 
-        io.display.update(round(self.ball_x), round(
-            self.ball_y), (255, 255, 255))
+        io.display.update(round(self.ball_x), round(self.ball_y), (255, 255, 255))
 
         for x in range(
-                round(
-                    self.ai_platform_pos -
-                    self.ai_platform_width /
-                    2),
-                round(
-                    self.ai_platform_pos +
-                    self.ai_platform_width /
-                    2)):
+            round(self.ai_platform_pos - self.ai_platform_width / 2),
+            round(self.ai_platform_pos + self.ai_platform_width / 2),
+        ):
             io.display.update(x, 0, (255, 0, 0))
 
         for x in range(
-                round(
-                    self.platform_pos -
-                    self.platform_width /
-                    2),
-                round(
-                    self.platform_pos +
-                    self.platform_width /
-                    2)):
+            round(self.platform_pos - self.platform_width / 2),
+            round(self.platform_pos + self.platform_width / 2),
+        ):
             io.display.update(x, io.display.height - 1, (0, 255, 0))

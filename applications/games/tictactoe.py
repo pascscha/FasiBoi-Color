@@ -27,13 +27,13 @@ class TicTacToeField(alphabeta.BitField):
         [(0, 1), (1, 1), (2, 1)],
         [(0, 2), (1, 2), (2, 2)],
         [(0, 0), (1, 1), (2, 2)],
-        [(0, 2), (1, 1), (2, 0)]
+        [(0, 2), (1, 1), (2, 0)],
     ]
 
     ORDER = [
         [(1, 1)],
         [(0, 0), (2, 2), (0, 2), (2, 0)],
-        [(0, 1), (1, 0), (1, 2), (2, 1)]
+        [(0, 1), (1, 0), (1, 2), (2, 1)],
     ]
 
     def __init__(self, *args, **kwargs):
@@ -84,11 +84,7 @@ class TicTacToeField(alphabeta.BitField):
 class TicTacToe(alphabeta.StrategyGame):
     FIELD_SIZE = (3, 3)
     FIELD_CLASS = TicTacToeField
-    DIFFICULTIES = {
-        "Easy": (1, 1),
-        "Medium": (1, 2),
-        "Difficult": (5, 9)
-    }
+    DIFFICULTIES = {"Easy": (1, 1), "Medium": (1, 2), "Difficult": (5, 9)}
 
 
 if __name__ == "__main__":
@@ -114,6 +110,7 @@ if __name__ == "__main__":
                     break
                 except BaseException:
                     import time
+
                     time.sleep(1)
                     print("try again")
                     pass
