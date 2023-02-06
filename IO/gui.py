@@ -4,12 +4,12 @@ import pygame
 from os import environ
 from IO import core
 
-environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
 
 class PygameController(core.Controller):
-    """A Controller for pygame inputs
-    """
+    """A Controller for pygame inputs"""
+
     def __init__(self):
         super().__init__()
         self.keymap = {
@@ -20,7 +20,7 @@ class PygameController(core.Controller):
             pygame.K_a: self.button_a,
             pygame.K_b: self.button_b,
             pygame.K_ESCAPE: self.button_menu,
-            pygame.K_t: self.button_teppich
+            pygame.K_t: self.button_teppich,
         }
 
     def update(self, event):
@@ -38,8 +38,8 @@ class PygameController(core.Controller):
 
 
 class PygameDisplay(core.Display):
-    """A Display for pygame gui windows
-    """
+    """A Display for pygame gui windows"""
+
     def __init__(self, win, screen_pos, screen_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.win = win
@@ -49,16 +49,13 @@ class PygameDisplay(core.Display):
         self.pixel_size = min(max_px_width, max_px_height)
 
         # Recenter screen
-        new_pos_x = screen_pos[0] + \
-                    (screen_size[0] - self.pixel_size * self.width) // 2
-        new_pos_y = screen_pos[1] + \
-                    (screen_size[1] - self.pixel_size * self.height) // 2
+        new_pos_x = screen_pos[0] + (screen_size[0] - self.pixel_size * self.width) // 2
+        new_pos_y = (
+            screen_pos[1] + (screen_size[1] - self.pixel_size * self.height) // 2
+        )
         self.screen_pos = (new_pos_x, new_pos_y)
 
-        pygame.draw.rect(
-            self.win,
-            (0, 0, 0),
-            (*screen_pos, *screen_size))
+        pygame.draw.rect(self.win, (0, 0, 0), (*screen_pos, *screen_size))
 
     def _refresh(self):
         pygame.display.update()
@@ -70,15 +67,18 @@ class PygameDisplay(core.Display):
 
 
 class PygameIOManager(core.IOManager):
-    """Pygame IO Manager
-    """
-    def __init__(self, *args,
-                 bg_path=None, # "resources/images/bg.png",
-                 title="FasiBoi-Color",
-                 screen_pos=(0, 0), #(150, 100),
-                 screen_size=(500, 750),
-                 screen_res=(10, 15),
-                 **kwargs):
+    """Pygame IO Manager"""
+
+    def __init__(
+        self,
+        *args,
+        bg_path=None,  # "resources/images/bg.png",
+        title="FasiBoi-Color",
+        screen_pos=(0, 0),  # (150, 100),
+        screen_size=(500, 750),
+        screen_res=(10, 15),
+        **kwargs
+    ):
         pygame.init()
         pygame.display.set_caption(title)
 
@@ -90,13 +90,12 @@ class PygameIOManager(core.IOManager):
             win = pygame.display.set_mode(screen_size)
 
         display = PygameDisplay(win, screen_pos, screen_size, *screen_res)
-        #display = PygameDisplay(win, (0,0), bg_image.get_size(), *screen_res)
+        # display = PygameDisplay(win, (0,0), bg_image.get_size(), *screen_res)
         controller = PygameController()
         super().__init__(controller, display, *args, **kwargs)
 
     def update(self):
-        """Update function that gets called every frame
-        """
+        """Update function that gets called every frame"""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -106,6 +105,5 @@ class PygameIOManager(core.IOManager):
         super().update()
 
     def destroy(self):
-        """Cleanup function that gets called after all applications are closed
-        """
+        """Cleanup function that gets called after all applications are closed"""
         pygame.quit()

@@ -5,8 +5,7 @@ from IO import core
 
 
 class CursesController(core.Controller):
-    """A Controller for command line inputs
-    """
+    """A Controller for command line inputs"""
 
     def __init__(self):
         super().__init__()
@@ -18,7 +17,7 @@ class CursesController(core.Controller):
             97: self.button_a,  # A
             98: self.button_b,  # B
             113: self.button_menu,  # Q
-            116: self.button_teppich  # T
+            116: self.button_teppich,  # T
         }
 
     def update(self, char):
@@ -35,8 +34,7 @@ class CursesController(core.Controller):
 
 
 class CursesDisplay(core.Display):
-    """A Display for within the command line
-    """
+    """A Display for within the command line"""
 
     def __init__(self, win, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -57,14 +55,12 @@ class CursesDisplay(core.Display):
 
 
 class CursesIOManager(core.IOManager):
-    """Command Line IO Manager
-    """
+    """Command Line IO Manager"""
 
     def __init__(self, *args, screen_res=(10, 15), **kwargs):
         curses.initscr()
 
-        self.win = curses.newwin(
-            screen_res[1] + 4, screen_res[0] * 2 + 4, 2, 2)
+        self.win = curses.newwin(screen_res[1] + 4, screen_res[0] * 2 + 4, 2, 2)
         curses.noecho()
         self.win.nodelay(True)
 
@@ -78,11 +74,9 @@ class CursesIOManager(core.IOManager):
         super().__init__(controller, display, *args, **kwargs)
 
     def update(self):
-        """Update function that gets called every frame
-        """
+        """Update function that gets called every frame"""
         self.controller.update(self.win.getch())
 
     def destroy(self):
-        """Cleanup function that gets called after all applications are closed
-        """
+        """Cleanup function that gets called after all applications are closed"""
         curses.endwin()

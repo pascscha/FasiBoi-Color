@@ -5,7 +5,7 @@ import math
 
 class DoodleJump(core.Game):
 
-    bars = [(i, i+1) for i in range(9)]
+    bars = [(i, i + 1) for i in range(9)]
 
     def last(self, l, n):
         sum = 0
@@ -37,7 +37,7 @@ class DoodleJump(core.Game):
             for bar in p:
                 if b1 in bar or b2 in bar:
                     poss = False
-                elif b1-1 == bar[1] or b2+1 == bar[0]:
+                elif b1 - 1 == bar[1] or b2 + 1 == bar[0]:
                     poss = False
             if poss:
                 possible.append((b1, b2))
@@ -50,9 +50,9 @@ class DoodleJump(core.Game):
         self.probblue = 5
         self.blue = [[] for i in range(io.display.height)]
         self.green = [[], [(3, 4)], []]
-        for i in range(io.display.height-3):
+        for i in range(io.display.height - 3):
             n = random.randint(round(self.probmin), round(self.probmax))
-            self.green = [self.get_random_line(n)]+self.green
+            self.green = [self.get_random_line(n)] + self.green
 
         self.blue_ticker = core.Ticker(3)
         self.move_ticker = core.Ticker(12)
@@ -92,7 +92,7 @@ class DoodleJump(core.Game):
         # Check controller values.
         if self.on_bar(io) and self.y_velocity > 0:
             # self.y_pos -=0.1
-            self.y_velocity = - 12
+            self.y_velocity = -12
             # self.y_velocity = min(-2, self.y_velocity)
 
         if io.controller.left.get_value():
@@ -106,7 +106,7 @@ class DoodleJump(core.Game):
                 self.x_pos += d
 
         if self.x_pos < 0:
-            self.x_pos = io.display.width-1
+            self.x_pos = io.display.width - 1
         elif self.x_pos >= io.display.width:
             self.x_pos = 0
 
@@ -145,9 +145,9 @@ class DoodleJump(core.Game):
     def on_bar(self, io):
         if self.y_pos < 0:
             return False
-        if round(self.y_pos) >= io.display.height-1:
+        if round(self.y_pos) >= io.display.height - 1:
             return False
-        check = self.green[round(self.y_pos+1)]
+        check = self.green[round(self.y_pos + 1)]
         for bar in check:
             if self.x_pos in bar:
                 return True

@@ -33,7 +33,7 @@ class SlidingChoice:
             if self.index.get_value() != new_value:
                 self.scroll_offset = animations.AnimatedValue(0)
             self.index.set_value(new_value)
-    
+
         self.prog = self.index.tick(delta)
 
         if io.controller.button_a.fresh_release():

@@ -8,15 +8,15 @@ import time
 from rpi_ws281x import *
 
 # LED strip configuration:
-LED_COUNT = 30      # Number of LED pixels.
-LED_PIN = 18      # GPIO pin connected to the pixels (must support PWM!).
+LED_COUNT = 30  # Number of LED pixels.
+LED_PIN = 18  # GPIO pin connected to the pixels (must support PWM!).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
-LED_DMA = 10      # DMA channel to use for generating signal (try 10)
-LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
+LED_DMA = 10  # DMA channel to use for generating signal (try 10)
+LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
 # True to invert the signal (when using NPN transistor level shift)
 LED_INVERT = False
 LED_CHANNEL = 0
-#LED_STRIP      = ws.SK6812_STRIP_RGBW
+# LED_STRIP      = ws.SK6812_STRIP_RGBW
 LED_STRIP = ws.SK6812W_STRIP
 
 
@@ -30,7 +30,7 @@ def colorWipe(strip, color, wait_ms=50):
 
 
 # Main program logic follows:
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Create NeoPixel object with appropriate configuration.
     strip = Adafruit_NeoPixel(
         LED_COUNT,
@@ -40,11 +40,12 @@ if __name__ == '__main__':
         LED_INVERT,
         LED_BRIGHTNESS,
         LED_CHANNEL,
-        LED_STRIP)
+        LED_STRIP,
+    )
     # Intialize the library (must be called once before other functions).
     strip.begin()
 
-    print('Press Ctrl-C to quit.')
+    print("Press Ctrl-C to quit.")
     while True:
         # Color wipe animations.
         colorWipe(strip, Color(255, 0, 0), 0)  # Red wipe

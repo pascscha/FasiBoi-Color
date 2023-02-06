@@ -14,22 +14,24 @@ class Paint(core.Application):
             (0, 0, 255),
             (0, 255, 255),
             (255, 0, 255),
-            (255, 255, 0)
+            (255, 255, 0),
         ]
         self.pulse_speed = 1.5
         self.selected_index = 3
         self.progression = 0
 
         self.pixels = self.load_value(
-            "pixels", default=[[(0, 0, 0) for _ in range(12)] for _ in range(10)])
+            "pixels", default=[[(0, 0, 0) for _ in range(12)] for _ in range(10)]
+        )
         self.cursor = [0, 0]
 
     def update(self, io, delta):
         if io.controller.button_b.fresh_press():
             self.selected_index = (self.selected_index + 1) % len(self.color_pallette)
         if io.controller.button_a.fresh_press():
-            self.pixels[self.cursor[0]][self.cursor[1]
-            ] = self.color_pallette[self.selected_index]
+            self.pixels[self.cursor[0]][self.cursor[1]] = self.color_pallette[
+                self.selected_index
+            ]
             self.save_value("pixels", self.pixels)
 
         if io.controller.button_left.fresh_press():
@@ -47,7 +49,12 @@ class Paint(core.Application):
         for x in range(len(self.pixels)):
             for y in range(len(self.pixels[x])):
                 if [x, y] == self.cursor:
-                    color = tuple(map(lambda c: int((255 - c) * (1 - pulser) + c * pulser), self.pixels[x][y]))
+                    color = tuple(
+                        map(
+                            lambda c: int((255 - c) * (1 - pulser) + c * pulser),
+                            self.pixels[x][y],
+                        )
+                    )
                     io.display.update(x, y, color)
                 else:
                     io.display.update(x, y, self.pixels[x][y])

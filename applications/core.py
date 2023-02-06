@@ -5,9 +5,11 @@ import json
 import time
 import threading
 
+
 class Waker:
     def wake_up(self):
         raise NotImplementedError("Please implement this method")
+
 
 class TimeWaker(Waker):
     def __init__(self, duration):
@@ -16,6 +18,7 @@ class TimeWaker(Waker):
     def wake_up(self):
         return time.time() >= self.end
 
+
 class ButtonPressWaker(Waker):
     def __init__(self, button):
         self.button = button
@@ -23,12 +26,14 @@ class ButtonPressWaker(Waker):
     def wake_up(self):
         return self.button._value and self.button.fresh
 
+
 class ButtonReleaseWaker(Waker):
     def __init__(self, button):
         self.button = button
 
     def wake_up(self):
         return (not self.button._value) and self.button.fresh
+
 
 class LambdaWaker(Waker):
     def __init__(self, wakeup_fun):
@@ -49,8 +54,9 @@ class Application:
 
         if color is None:
             hue = int(hashlib.md5(self.name.encode()).hexdigest(), 16) % 255
-            self.color = tuple(map(lambda x: int(x * 255),
-                                   colorsys.hsv_to_rgb(hue / 255, 1, 1)))
+            self.color = tuple(
+                map(lambda x: int(x * 255), colorsys.hsv_to_rgb(hue / 255, 1, 1))
+            )
         else:
             self.color = color
 
@@ -58,7 +64,8 @@ class Application:
         self.sleep_time = 0
 
         self.save_path = os.path.join(
-            "resources", "appdata", self.name.replace(" ", "_") + ".json")
+            "resources", "appdata", self.name.replace(" ", "_") + ".json"
+        )
 
     def load_data(self):
         """Loads application data from disk. The filename is automatically generated based on the application name.
@@ -120,10 +127,9 @@ class Application:
         """
         self.sleep_time = 0
         self.wakers = wakers
-    
+
     def wake_up(self):
-        """Wakes application up, ensuring it does not sleep the next frame
-        """
+        """Wakes application up, ensuring it does not sleep the next frame"""
         self.wakers = None
 
     def is_sleeping(self, delta):
@@ -155,7 +161,6 @@ class Application:
         raise NotImplementedError("Please implement this method")
 
     def destroy(self):
-        """Closes application
-        """
+        """Closes application"""
         self.wakers = None
         self.sleep_time = 0

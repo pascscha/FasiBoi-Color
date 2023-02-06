@@ -25,6 +25,7 @@ def blend_hsv_colors(color1, color2, prog):
 
     return Color(*map(lambda c: c[0] * (1 - prog) + c[1] * prog, zip(color1, color2)))
 
+
 class TimedValue:
     """A value that changes over time"""
 

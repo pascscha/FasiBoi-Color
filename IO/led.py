@@ -69,16 +69,29 @@ class FasiBoiController(core.Controller):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.pins = {23: self.button_a}
+        self.pins = {
+            23: self.button_left,
+            27: self.button_right,
+            22: self.button_up,
+            24: self.button_down,
+            5: self.button_a,
+            6: self.button_b,
+            25: self.button_menu,
+        }
 
         self.buttons = {
-            gpiozero.Button(pin): software_button
+            gpiozero.Button(pin, bounce_time=0.1): software_button
             for pin, software_button in self.pins.items()
         }
+
+        for button, software_button in self.buttons.items():
+            button.when_pressed = software_button.update_true
+            button.when_released = software_button.update_false
 
     def update(self):
         for hardware_button, software_button in self.buttons.items():
             software_button.update(hardware_button.is_pressed)
+
 
 class ShittyDisplay(core.Display):
     def _update(self, *args, **kwargs):
@@ -118,7 +131,8 @@ class LEDIOManager(core.IOManager):
 
     def update(self):
         """Update function that gets called every frame"""
-        self.controller.update()
+        pass
+        # self.controller.update()
         # self.display.output_screen()
         # self.controller.update(self.win.getch())
 

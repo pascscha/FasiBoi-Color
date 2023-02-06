@@ -26,8 +26,10 @@ class Pipe:
         return progression > self.x
 
     def collides(self, x, y, progression):
-        return self.x - progression - 2 < x < self.x - \
-            progression and not self.height - self.gap / 2 < y < self.height + self.gap / 2
+        return (
+            self.x - progression - 2 < x < self.x - progression
+            and not self.height - self.gap / 2 < y < self.height + self.gap / 2
+        )
 
 
 class Flappy(core.Game):
@@ -53,11 +55,13 @@ class Flappy(core.Game):
         self.score = 0
         self.pipes = []
         for i in range(10):
-            self.pipes.append(self.get_random_pipe(
-                int(io.display.width * 1.5)))
+            self.pipes.append(self.get_random_pipe(int(io.display.width * 1.5)))
 
     def _update_midgame(self, io, delta):
-        if io.controller.button_up.fresh_press() or io.controller.button_a.fresh_press():
+        if (
+            io.controller.button_up.fresh_press()
+            or io.controller.button_a.fresh_press()
+        ):
             self.y_velocity -= 7
             self.y_velocity = min(-10, self.y_velocity)
 
@@ -70,16 +74,14 @@ class Flappy(core.Game):
             self.state = self.GAME_OVER
             return
 
-        while len(
-                self.pipes) > 0 and self.pipes[0].is_passed(
-                self.pipe_progression):
+        while len(self.pipes) > 0 and self.pipes[0].is_passed(self.pipe_progression):
             self.score += 1
             self.pipes = self.pipes[1:]
             self.pipes.append(self.get_random_pipe(io.display.height))
 
         for pipe in self.pipes:
             if pipe.collides(1, self.y_location, self.pipe_progression):
-                self.y_velocity = -.1
+                self.y_velocity = -0.1
                 self.state = self.GAME_OVER
                 return
 

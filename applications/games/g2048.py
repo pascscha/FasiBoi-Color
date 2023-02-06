@@ -94,9 +94,11 @@ class Tile:
         colors = self.get_colors()
         for x in range(2):
             for y in range(2):
-                prog = min(0,max(-1, self.move_progression))
+                prog = min(0, max(-1, self.move_progression))
                 draw_x = int(1 + self.x * 2 + x) + int(2 * self.direction[0] * prog)
-                draw_y = int(display.height - 9 + self.y * 2 + y) + int(2 * self.direction[1] * prog)
+                draw_y = int(display.height - 9 + self.y * 2 + y) + int(
+                    2 * self.direction[1] * prog
+                )
                 if 0 <= draw_x < display.width and 0 <= draw_y < display.height:
                     display.update(draw_x, draw_y, colors[x + y * 2])
 

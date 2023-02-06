@@ -24,7 +24,11 @@ class ScrollerEntry:
         )
 
     def to_json(self):
-        return {"text": self.text, "color": list(map(int,self.color)), "speed": self.speed}
+        return {
+            "text": self.text,
+            "color": list(map(int, self.color)),
+            "speed": self.speed,
+        }
 
     @classmethod
     def from_json(cls, json):
@@ -66,7 +70,7 @@ class TextScroller(core.Application):
             self.bmp,
             io.display,
             (x, io.display.height // 2 - 2),
-            fg_color=self.entry.color
+            fg_color=self.entry.color,
         )
 
 
@@ -112,7 +116,7 @@ class TextEditor(core.Application):
                 self.entry.text += " "
                 self.idx = len(self.entry.text) - 1
                 self.bmp = textutils.get_text_bitmap(self.entry.text)
-    
+
             else:
                 self.idx += 1
 
@@ -198,7 +202,7 @@ class TextEditor(core.Application):
             io.display,
             (x, io.display.height // 2 - 2),
             fg_color=WHITE,
-            bg_color=WHITE*0.3
+            bg_color=WHITE * 0.3,
         )
 
 

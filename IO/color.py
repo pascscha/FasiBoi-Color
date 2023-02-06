@@ -5,8 +5,7 @@ import numpy as np
 
 
 class Color(np.ndarray):
-    """RGB Color
-    """
+    """RGB Color"""
 
     def __new__(cls, r, g, b):
         return np.array([r, g, b], dtype=np.uint8).view(cls)
@@ -52,20 +51,17 @@ class Color(np.ndarray):
 
     @property
     def r(self):
-        """The amount of red in the color
-        """
+        """The amount of red in the color"""
         return self[0]
 
     @property
     def g(self):
-        """The amount of green in the color
-        """
+        """The amount of green in the color"""
         return self[1]
 
     @property
     def b(self):
-        """The amount of blue in the color
-        """
+        """The amount of blue in the color"""
         return self[2]
 
     @r.setter
