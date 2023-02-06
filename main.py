@@ -66,17 +66,15 @@ if __name__ == "__main__":
                         [
                             Menu(
                                 [
-                                    Snake(color=(11, 200, 93)),
                                     Tetris(color=(255, 127, 0)),
+                                    Snake(color=(11, 200, 93)),
                                     Flappy(color=(116, 190, 46), name="Flappy Bird"),
                                     Racer(color=(255, 0, 0)),
                                     Pong(color=(0, 0, 255)),
                                     Pacman(color=(255, 255, 0)),
                                     G2048(name="2048"),
-                                    Frat(name="Felder Raten"),
                                     Maze(),
                                     Supermario(),
-                                    Pushy(),
                                     Menu(
                                         [
                                             TicTacToe(name="Tic Tac Toe"),
@@ -86,6 +84,8 @@ if __name__ == "__main__":
                                         name="Strategy",
                                     ),
                                     Sudoku(),
+                                    Pushy(),
+                                    Frat(name="Felder Raten"),
                                 ],
                                 name="Games",
                             ),
