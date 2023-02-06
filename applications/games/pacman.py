@@ -109,9 +109,9 @@ class Field:
             for y in range(display.height):
                 val = self.field[x][y]
                 if val == self.WALL:
-                    display.update(x, y, (0, 0, 255))
+                    display.update(x, y, (50, 100, 255))
                 elif val == self.GHOST_DOOR:
-                    display.update(x, y, (128, 128, 255))
+                    display.update(x, y, (100, 100, 255))
                 elif val == self.FOOD:
                     display.update(x, y, (bright2, bright2, bright2))
                 elif val == self.SUPER_FOOD:
@@ -273,7 +273,7 @@ class Ghost(Entity):
 
     def get_color(self):
         if self.state == self.FRIGHTENED:
-            return (64, 64, 255)
+            return (128, 64, 255)
         elif self.state == self.EATEN:
             return (200, 200, 200)
         else:
@@ -433,3 +433,5 @@ class Pacman(core.Game):
             VideoPlayer("resources/animations/pacman-death.gif", loop=False)
         )
         self.state = self.PRE_GAME
+        self.score = round(self.score/10)
+
