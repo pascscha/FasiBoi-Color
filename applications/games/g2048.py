@@ -30,8 +30,7 @@ class Tile:
         (232, 190, 82)  # 2048
         # TODO
     ]
-
-    SPEED = 32
+    SPEED = 12
 
     def __init__(self, value, pos):
         self.value = value
@@ -62,6 +61,8 @@ class Tile:
     def update(self, field, delta):
         score_increment = 0
         if self.direction != (0, 0):
+            self.move_progression += delta * self.SPEED
+
             if self.move_progression >= 0:
                 nx = self.x + self.direction[0]
                 ny = self.y + self.direction[1]
@@ -87,27 +88,23 @@ class Tile:
                 else:
                     self.direction = (0, 0)
                     self.move_progression = 0
-            else:
-                self.move_progression += delta * self.SPEED
         return score_increment
 
     def draw(self, display):
         colors = self.get_colors()
         for x in range(2):
             for y in range(2):
-                display.update(
-                    int(1 + self.x * 2 + x +
-                        self.direction[0] * self.move_progression),
-                    int(display.height - 9 + self.y * 2 + y +
-                        self.direction[1] * self.move_progression),
-                    colors[x + y * 2]
-                )
+                prog = min(0,max(-1, self.move_progression))
+                draw_x = int(1 + self.x * 2 + x) + int(2 * self.direction[0] * prog)
+                draw_y = int(display.height - 9 + self.y * 2 + y) + int(2 * self.direction[1] * prog)
+                if 0 <= draw_x < display.width and 0 <= draw_y < display.height:
+                    display.update(draw_x, draw_y, colors[x + y * 2])
 
 
 class G2048(core.Game):
     RANGES = {
         1: (3, -1, -1),
-        -1: (0, 4),
+        -1: (1, 4),
         0: (0, 4),
     }
 
@@ -169,10 +166,12 @@ class G2048(core.Game):
         self.field[x][y] = Tile(random.choice([1, 2]), (x, y))
 
     def any_moving(self):
-        for x in range(4):
-            for y in range(4):
+        for x in range(*self.RANGES[self.direction[0]]):
+            for y in range(*self.RANGES[self.direction[1]]):
                 if self.field[x][y] is not None and self.field[x][y].direction != (
-                        0, 0):
+                    0,
+                    0,
+                ):
                     return True
         return False
 
@@ -231,12 +230,11 @@ class G2048(core.Game):
                 if self.field[x][y] is not None:
                     self.field[x][y].draw(io.display)
 
-        score_bmp = textutils.get_text_bitmap(
-            str(round(math.log(self.score, 2))))
+        score_bmp = textutils.get_text_bitmap(str(round(math.log(self.score, 2))))
 
         bitmaputils.apply_bitmap(
             score_bmp,
             io.display,
-            (io.display.width // 2 -
-             score_bmp.shape[1] // 2, 0),
-            fg_color=(255, 255, 255))
+            (io.display.width // 2 - score_bmp.shape[1] // 2, 0),
+            fg_color=(255, 255, 255),
+        )
