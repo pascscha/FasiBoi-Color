@@ -106,6 +106,9 @@ class Menu(core.Application):
 
         for x in range(1 + round((io.display.width - 1) * battery)):
             io.display.update(x, 0, battery_color)
+        for x in range(1 + round((io.display.width - 1) * battery), io.display.width):
+            io.display.update(x, 0, BLACK)
+
 
         # Clock
         now = datetime.now()

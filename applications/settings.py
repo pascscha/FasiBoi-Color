@@ -34,6 +34,10 @@ class Slider(core.Application):
             ):
                 io.display.update(x, y, self.color)
 
+    def set_value(self, value):
+        self.value_index = round((value - self.start) / self.delta)
+        self.value_index = min(self.steps, max(0, self.value_index))
+
     def get_value(self):
         return self.start + self.value_index * self.delta
 
@@ -88,6 +92,18 @@ class FPSChoice(NumberChoice):
     def update(self, io, delta):
         super().update(io, delta)
         io.fps = self.value
+
+
+class ChargeSlider(Slider):
+    def update(self, io, delta):
+        self.set_value(io.get_battery())
+        super().update(io, delta)
+        io.set_battery(self.get_value())
+
+class BatteryCapacity(NumberChoice):
+    def update(self, io, delta):
+        super().update(io, delta)
+        io.expected_battery_life = self.value * 60
 
 
 class ColorPaletteApplyer:

@@ -1,10 +1,10 @@
 from cv2 import INTER_NEAREST
 
 # from IO.led import LEDIOManager
-# from IO.gui import PygameIOManager
+from IO.gui import PygameIOManager
 from IO.web import WebIOManager
 from IO.commandline import CursesIOManager
-from applications.settings import BrightnessSlider, FPSChoice, ColorPaletteChoice
+from applications.settings import BrightnessSlider, FPSChoice, ChargeSlider, BatteryCapacity
 from applications.menu import Menu
 from applications.closeall import CloseAll
 from applications.filebrowser import Filebrowser
@@ -34,7 +34,7 @@ import argparse
 
 if __name__ == "__main__":
     io = {
-        # "pygame": PygameIOManager,
+        "pygame": PygameIOManager,
         "web": WebIOManager,
         "commandLine": CursesIOManager,
     }
@@ -49,7 +49,8 @@ if __name__ == "__main__":
     settings = [
         BrightnessSlider(start=0.1, end=1, default=1, name="Brightness"),
         FPSChoice(default=30, name="FPS"),
-        ColorPaletteChoice("Color Palette"),
+        ChargeSlider(name="Battery Charge"),
+        BatteryCapacity(default=60, name="Battery Life", step_size=10, start=0, end=1000)
     ]
 
     with io[args.io]() as ioManager:

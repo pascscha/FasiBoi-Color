@@ -17,6 +17,8 @@ from IO.effects import (
 )
 from IO.color import Color
 import cv2
+import json
+import os
 
 
 class ControllerValue:
@@ -209,7 +211,10 @@ class IOManager:
         animation_duration=0.25,
         record_path=None,
         record_scale=10,
+        expected_battery_life=60,
     ):
+        self.running_uncharged = self.load_running_uncharged()
+        self.expected_battery_life = expected_battery_life
         self.controller = controller
         self.display = display
         self.running = True
@@ -254,6 +259,19 @@ class IOManager:
                 self.video_out = cv2.VideoWriter(
                     record_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, self.record_shape
                 )
+
+    @staticmethod
+    def load_running_uncharged():
+        if os.path.exists("resources/appdata/Core.json"):
+            with open("resources/appdata/Core.json") as f:
+                return json.load(f).get("running_uncharged", 0)
+        return 0
+
+    def set_battery(self, battery):
+        self.running_uncharged = (1 - battery) * self.expected_battery_life
+
+    def set_fully_charged(self):
+        self.running_uncharged = 0
 
     def run(self, application):
         """Runs an application. Should only be invoked with the root
@@ -321,15 +339,21 @@ class IOManager:
 
             # Sleep for the rest of the frame
             calc_duration = time.time() - last
-            mfps = (10 * mfps + 1 / calc_duration) / 11
+            # mfps = (10 * mfps + 1 / calc_duration) / 11
             # print("max FPS", int(mfps), "\tFPS", int(fps))
 
             time.sleep(max(0, 1 / fps - calc_duration))
+
+            self.running_uncharged += calc_duration + max(0, 1 / fps - calc_duration)
 
     def __enter__(self):
         return self
 
     def __exit__(self, *args, **kwargs):
+
+        with open("resources/appdata/Core.json", "w+") as f:
+            json.dump({"running_uncharged": self.running_uncharged}, f)
+
         self.running = False
         while len(self.applications) > 0:
             self.close_application()
@@ -366,4 +390,5 @@ class IOManager:
 
     def get_battery(self):
         """Calculates the current battery, returns value between 0 (empty) and 1 (fully charged)"""
-        return 1
+        print(self.running_uncharged, self.expected_battery_life)
+        return min(1, max(0, 1 - self.running_uncharged / self.expected_battery_life))
