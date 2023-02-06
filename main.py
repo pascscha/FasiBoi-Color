@@ -1,7 +1,7 @@
 from cv2 import INTER_NEAREST
 
 # from IO.led import LEDIOManager
-from IO.gui import PygameIOManager
+# from IO.gui import PygameIOManager
 from IO.web import WebIOManager
 from IO.commandline import CursesIOManager
 from applications.settings import BrightnessSlider, FPSChoice, ChargeSlider, BatteryCapacity
@@ -34,7 +34,7 @@ import argparse
 
 if __name__ == "__main__":
     io = {
-        "pygame": PygameIOManager,
+        # "pygame": PygameIOManager,
         "web": WebIOManager,
         "commandLine": CursesIOManager,
     }
