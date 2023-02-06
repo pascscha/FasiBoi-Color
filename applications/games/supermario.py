@@ -241,7 +241,10 @@ class Supermario(core.Game):
                 self.super_time = self.SUPER_TIME
 
     def _update_midgame(self, io, delta):
-        if io.controller.button_up.get_fresh_value():
+        if (
+            io.controller.button_up.get_fresh_value()
+            or io.controller.button_a.get_fresh_value()
+        ):
             if self.get_collision(
                 self.mario_entity.pos[0], self.mario_entity.pos[1] + 1
             ):
