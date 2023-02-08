@@ -1,7 +1,7 @@
 # Measurements
 Measurements over 12V Battery output, the Battery Life is calculated over the advertised 15'000mAh, will likely be lower.
 
-## Raspberry Pi 3 B+
+## Raspberry Pi 3 B+ (#1, IP:192.168.43.252)
 ### Unoptimized, Brightness 3, 10 FPS
 
 | What           | Current | Battery Life |
@@ -86,3 +86,32 @@ Measurements over 12V Battery output, the Battery Life is calculated over the ad
 | Simpsons.mp4   | 500mA   | 30.0h        |
 | MV: Sound Wave | 180mA   | 83.3h        |
 | MV: Little Big | 340mA   | 44.1h        |
+
+## Raspberry Pi 3 B+ (#2, IP: 192.168.43.246)
+### Optimized, Brightness 3, 10 FPS
+| What           | Current | Battery Life |
+| :------------- | :------ | :----------- |
+| Main Menu      | 170mA   | 88.2h        |
+| Spin.mp4       | 180mA   | 83.3h        |
+| Fasiboi.gif    | 200mA   | 75.0h        |
+| Simpsons.mp4   | 480mA   | 31.2h        |
+| MV: Sound Wave | 160mA   | 93.8h        |
+| MV: Little Big | 300mA   | 50.0h        |
+
+## Raspberry Pi 3 B (#3)
+Does not Boot
+
+## Raspberry Pi 4 B (#4)
+Does not Boot
+
+## Raspberry Pi 4 B (#5, IP: 192.168.43.210)
+### Optimized, Brightness 3, 10 FPS
+| What           | Current | Battery Life |
+| :------------- | :------ | :----------- |
+| Main Menu      | 250mA   | 60.0h        |
+| Spin.mp4       | 240mA   | 62.5h        |
+| Fasiboi.gif    | 250mA   | 60.0h        |
+| Simpsons.mp4   | 500mA   | 30.0h        |
+| MV: Sound Wave | 270mA   | 55.6h        |
+| MV: Little Big | 360mA   | 41.7h        |
+
