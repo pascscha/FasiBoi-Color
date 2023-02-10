@@ -7,11 +7,12 @@ from IO.color import *
 
 
 class Tetromino:
-    def __init__(self, rot, color=0):
+    def __init__(self, rot, color=0, name=""):
         self.color = color
         self.rotations = []
         self.rotations += rot
         self.nrot = len(self.rotations)
+        self.name = name
 
     def get_color(self):
         return self.color
@@ -21,7 +22,12 @@ class Tetromino:
 
     def get_rotation(self, i):
         return np.copy(self.rotations[i][1]), np.copy(self.rotations[i][0])
+    
+    def __str__(self):
+        return self.name
 
+    def __repr__(self):
+        return str(self)
 
 class TetrominoList:
     SHAPE_I = [
@@ -68,9 +74,13 @@ class TetrominoList:
 
     COLORS = [COLOR_I, COLOR_O, COLOR_L, COLOR_J, COLOR_T, COLOR_Z, COLOR_S, COLOR_B]
 
+    SAMPLE_REPETITIONS = 4
+
     def __init__(self):
         self.tetlist = []
-        for tet, (idx, color) in zip(
+        self.sample_list = []
+
+        for tet, (idx, color), name in zip(
             [
                 self.SHAPE_I,
                 self.SHAPE_O,
@@ -81,11 +91,26 @@ class TetrominoList:
                 self.SHAPE_S,
             ],
             enumerate(self.COLORS),
+            [
+                'I','O','L','J','T','Z', 'S'
+            ]
         ):
-            self.tetlist.append(Tetromino(tet, idx))
+            self.tetlist.append(Tetromino(tet, idx, name=name))
+
+    def fill_tetlist(self):
+        for i in range(self.SAMPLE_REPETITIONS):
+            self.sample_list += self.tetlist
+        random.shuffle(self.sample_list)
 
     def sample(self):
-        return random.choice(self.tetlist)
+        if len(self.sample_list) == 0:
+            self.fill_tetlist()
+
+        # print(list(reversed(self.sample_list)))
+
+        out = self.sample_list[0]
+        self.sample_list = self.sample_list[1:]
+        return out
 
 
 class Tetris(core.Game):
@@ -94,6 +119,7 @@ class Tetris(core.Game):
     LEFT = (-1, 0)
     RIGHT = (1, 0)
     BG = 7
+    ACCELERATION = 0.05
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -105,6 +131,7 @@ class Tetris(core.Game):
         self.score = 0
         self.game_over_counter = 0
 
+        self.tl.fill_tetlist()
         self.tetromino = self.tl.sample()
         self.curr_rot = 0
         self.curr_pos_x, self.curr_pos_y = self.tetromino.get_rotation(0)
@@ -121,6 +148,7 @@ class Tetris(core.Game):
         self.blink_time = 0.5
         self.blink_start = None
         self.blink_rows = []
+
 
     def _update_midgame(self, io, delta):
         if (
@@ -227,7 +255,7 @@ class Tetris(core.Game):
         return True
 
     def new_tetromino(self, io):
-        self.ticker.speed += 0.01
+        self.ticker.speed += self.ACCELERATION
         self.tetromino = self.tl.sample()
         self.curr_rot = 0
         self.curr_pos_x, self.curr_pos_y = self.tetromino.get_rotation(0)
