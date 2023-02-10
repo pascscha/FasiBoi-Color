@@ -273,7 +273,7 @@ class Ghost(Entity):
 
     def get_color(self):
         if self.state == self.FRIGHTENED:
-            return (128, 64, 255)
+            return (0, 0, 255)
         elif self.state == self.EATEN:
             return (200, 200, 200)
         else:
@@ -296,7 +296,7 @@ class Pacman(core.Game):
         self.field = Field()
         self.pac = Pac(self.field, Position(4, 11), speed=5, direction=Field.RIGHT)
 
-        frighten_duration = max(2, 6 - level / 2)
+        frighten_duration = max(1, 3 - level / 2)
         release_after_eaten = max(0, 3 - level / 2)
         target_speed = 3 + level / 4
         release = max(0.5, 2 - level / 4)
@@ -413,6 +413,7 @@ class Pacman(core.Game):
         self.pac.draw(io.display)
 
         if time.time() < self.level_start + self.NEW_LEVEL_WAIT:
+            io.display.pixels //= 2
             if int(self.pulse_progression * 3) % 2 == 0:
                 level_text = textutils.get_text_bitmap(str(self.level))
                 bitmaputils.apply_bitmap(
