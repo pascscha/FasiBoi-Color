@@ -229,11 +229,11 @@ class Pushy(core.Game):
                 elif self.field.field[fx, fy] == self.field.BOX:
                     io.display.update(x, y, Color(128, 64, 0))
                 elif self.field.field[fx, fy] == self.field.HOME:
-                    io.display.update(x, y, Color(0, 128, 128))
+                    io.display.update(x, y, Color(255, 0, 0))
                 elif self.field.field[fx, fy] == self.field.BALL:
-                    io.display.update(x, y, Color(0, 0, 255))
+                    io.display.update(x, y, Color(0, 128, 128))
                 elif self.field.field[fx, fy] == self.field.GOAL:
-                    io.display.update(x, y, Color(0, 0, 128))
+                    io.display.update(x, y, Color(0, 0, 255))
                 elif self.field.field[fx, fy] == self.field.PORTAL:
                     io.display.update(
                         x, y, Color.from_hsv(self.portal_hue.progression, 1, 1)
