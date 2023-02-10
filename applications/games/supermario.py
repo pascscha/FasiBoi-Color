@@ -137,14 +137,17 @@ class Supermario(core.Game):
     MARIO_TROUSERS = (0, 0, 255)
     MARIO_HAT = (255, 0, 0)
     GRAVITY = 60
-    SPEED = 7
+    SPEED = 8
     SUPER_TIME = 10
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, is_luigi=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.level = 0
         self.gameover_scroll = None
         self.gameover_bmp = textutils.get_text_bitmap("GAME OVER!")
+        if is_luigi:
+            self.name = "Superluigi"
+            self.MARIO_HAT = (0, 255, 0)
 
     def load_level(self, level):
         level_data = cv2.imread(f"resources/images/supermario/{level}.png")
@@ -248,7 +251,7 @@ class Supermario(core.Game):
             if self.get_collision(
                 self.mario_entity.pos[0], self.mario_entity.pos[1] + 1
             ):
-                self.mario_entity.vel[1] = -0.4 * self.GRAVITY
+                self.mario_entity.vel[1] = -0.43 * self.GRAVITY
 
         if io.controller.button_left.get_value():
             if self.super:
@@ -372,3 +375,6 @@ class Supermario(core.Game):
         if text_pos == 1:
             self.gameover_scroll = None
             self.state = self.PRE_GAME
+
+        # read button presses
+        io.controller.button_a.fresh_press()
