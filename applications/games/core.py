@@ -100,17 +100,6 @@ class Game(core.Application):
                     self.score_str(self.score), monospace=False
                 )
 
-                # Draw highscore
-                bitmaputils.apply_bitmap(
-                    highscore_bmp,
-                    io.display,
-                    (
-                        io.display.width // 2 - highscore_bmp.shape[1] // 2,
-                        4 - highscore_bmp.shape[0] // 2,
-                    ),
-                    fg_color=(255, 255, 0),
-                )
-
                 # Make color rainbow if its a new highscore
                 if self.score == self.highscore:
                     score_hue = self.pulse_progression - int(self.pulse_progression)
@@ -119,19 +108,40 @@ class Game(core.Application):
                             lambda x: int(x * 255), colorsys.hsv_to_rgb(score_hue, 1, 1)
                         )
                     )
-                else:
-                    score_color = (0, 0, 255)
 
-                # Draw last score
-                bitmaputils.apply_bitmap(
-                    score_bmp,
-                    io.display,
-                    (
-                        io.display.width // 2 - score_bmp.shape[1] // 2,
-                        10 - score_bmp.shape[0] // 2,
-                    ),
-                    fg_color=score_color,
-                )
+                    # If we have no last score yet, just display highscore
+                    bitmaputils.apply_bitmap(
+                        highscore_bmp,
+                        io.display,
+                        (
+                            io.display.width // 2 - highscore_bmp.shape[1] // 2,
+                            io.display.height // 2 - highscore_bmp.shape[0] // 2,
+                        ),
+                        fg_color=score_color,
+                    )
+
+                else:
+                    # Draw highscore
+                    bitmaputils.apply_bitmap(
+                        highscore_bmp,
+                        io.display,
+                        (
+                            io.display.width // 2 - highscore_bmp.shape[1] // 2,
+                            4 - highscore_bmp.shape[0] // 2,
+                        ),
+                        fg_color=(255, 255, 0),
+                    )
+
+                    # Draw last score
+                    bitmaputils.apply_bitmap(
+                        score_bmp,
+                        io.display,
+                        (
+                            io.display.width // 2 - score_bmp.shape[1] // 2,
+                            10 - score_bmp.shape[0] // 2,
+                        ),
+                        fg_color=(0, 0, 255),
+                    )
 
     def _update_midgame(self, io, delta):
         """The actual gameplay when the game is running. Put your game code here.
