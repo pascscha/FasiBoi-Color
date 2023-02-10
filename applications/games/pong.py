@@ -18,6 +18,9 @@ class Pong(core.Game):
         self.ai_platform_pos = io.display.width / 2
         self.score = 0
 
+        self.disp_x = round(self.ball_x)
+        self.disp_y = round(self.ball_y)
+
     def _update_midgame(self, io, delta):
         if io.controller.button_left.get_value():
             self.platform_pos -= self.platform_speed * delta
@@ -28,8 +31,16 @@ class Pong(core.Game):
             if self.platform_pos + self.platform_width / 2 > io.display.width:
                 self.platform_pos = io.display.width - self.platform_width / 2
 
-        self.ball_x += math.cos(self.ball_direction) * self.ball_speed * delta
-        self.ball_y += math.sin(self.ball_direction) * self.ball_speed * delta
+        dx = math.cos(self.ball_direction) * self.ball_speed * delta
+        dy =  math.sin(self.ball_direction) * self.ball_speed * delta
+        
+        if abs(dy) > 0.9:
+            dx /= abs(dy)
+            dy /= abs(dy)
+
+        self.ball_x += dx
+        self.ball_y += dy
+
 
         t = -(self.ball_y - 1) / math.sin(self.ball_direction)
         if t > 0:
@@ -101,7 +112,15 @@ class Pong(core.Game):
 
         io.display.fill((0, 0, 0))
 
-        io.display.update(round(self.ball_x), round(self.ball_y), (255, 255, 255))
+
+        distance = (self.ball_x - self.disp_x)**2 + (self.ball_y - self.disp_y)**2 
+        if distance > 1:
+            self.disp_x = round(self.ball_x)
+            self.disp_y = round(self.ball_y)
+            
+
+
+        io.display.update(self.disp_x, self.disp_y, (255, 255, 255))
 
         for x in range(
             round(self.ai_platform_pos - self.ai_platform_width / 2),
