@@ -1091,10 +1091,12 @@ class Milkdrop(core.Application):
             self.reset()
 
         if io.controller.button_up.fresh_press():
-            self.energy = min(1.0, self.energy + 1 / self.ENERGY_GRANULARITY)
+            self.beat_duration /= 2
+            # self.energy = min(1.0, self.energy + 1 / self.ENERGY_GRANULARITY)
 
         if io.controller.button_down.fresh_press():
-            self.energy = max(0.0, self.energy - 1 / self.ENERGY_GRANULARITY)
+            self.beat_duration *= 2
+            # self.energy = max(0.0, self.energy - 1 / self.ENERGY_GRANULARITY)
 
         if io.controller.button_right.fresh_press():
             self.last_change = self.beat_count
