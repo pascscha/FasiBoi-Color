@@ -3,6 +3,7 @@ from applications.games.alphabeta import BitField
 from helpers import animations
 from IO.color import *
 import random
+import time
 
 
 def printbb(maze, bb):
@@ -116,23 +117,52 @@ class MazeUtils:
 class Maze(core.Game):
     MISERE = True
     DEFAULT_SCORE = 99
+    MOVE_SPEED = 0.2
 
     def reset(self, io):
         self.maze, _ = MazeUtils.generate_maze(io.display.width, io.display.height)
         self.pos = (self.maze.width // 2, 0)
         self.score = 0
+        self.last_moved = time.time()
 
     def _update_midgame(self, io, delta):
         new_pos = self.pos
         self.score += delta
 
-        if io.controller.button_left.fresh_press():
+        if io.controller.button_b.fresh_press():
+            self.reset(io)
+            return
+
+        now = time.time()
+        time_since_last_moved = time.time() - self.last_moved
+
+        if (
+            io.controller.button_left.fresh_press()
+            or io.controller.button_left.get_value()
+            and time_since_last_moved >= self.MOVE_SPEED
+        ):
+            self.last_moved = now
             new_pos = (self.pos[0] - 1, self.pos[1])
-        if io.controller.button_right.fresh_press():
+        if (
+            io.controller.button_right.fresh_press()
+            or io.controller.button_right.get_value()
+            and time_since_last_moved >= self.MOVE_SPEED
+        ):
+            self.last_moved = now
             new_pos = (self.pos[0] + 1, self.pos[1])
-        if io.controller.button_up.fresh_press():
+        if (
+            io.controller.button_up.fresh_press()
+            or io.controller.button_up.get_value()
+            and time_since_last_moved >= self.MOVE_SPEED
+        ):
+            self.last_moved = now
             new_pos = (self.pos[0], self.pos[1] - 1)
-        if io.controller.button_down.fresh_press():
+        if (
+            io.controller.button_down.fresh_press()
+            or io.controller.button_down.get_value()
+            and time_since_last_moved >= self.MOVE_SPEED
+        ):
+            self.last_moved = now
             new_pos = (self.pos[0], self.pos[1] + 1)
 
         if (
@@ -143,7 +173,6 @@ class Maze(core.Game):
             self.pos = new_pos
             if self.pos[1] == self.maze.height - 1:
                 self.state = self.GAME_OVER
-                print(self.score)
 
         io.display.fill((0, 0, 0))
         for x in range(io.display.width):
