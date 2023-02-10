@@ -311,6 +311,10 @@ class IOManager:
                 else:
                     fps = self.fps
 
+            # Close application if button is pressed
+            if self.controller.button_menu.fresh_press():
+                self.close_application()
+
             # Apply Effects
             if self.current_animation is not None:
                 if self.current_animation.is_finished():
@@ -336,10 +340,6 @@ class IOManager:
 
             # Update display
             self.display.refresh()
-
-            # Close application if button is pressed
-            if self.controller.button_menu.fresh_press():
-                self.close_application()
 
             # Save frame to recording
             if self.video_out is not None:

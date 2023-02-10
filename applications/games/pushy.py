@@ -200,10 +200,10 @@ class Pushy(core.Game):
         if io.controller.button_right.fresh_press():
             self.field.move(self.RIGHT)
 
-        if io.controller.button_a.fresh_release():
+        if io.controller.button_b.fresh_release():
             self.field = self.reset_field.copy()
 
-        if io.controller.button_b.fresh_release():
+        if io.controller.button_menu.fresh_press():
             self.state = self.PRE_GAME
             self.chooser.index.set_value(self.idx)
             # self.chooser.scroll_offset = animations.AnimatedValue(0)
