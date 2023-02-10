@@ -134,7 +134,7 @@ def main():
                 else:
                     mode = "a"
 
-                with open("errors.log", mode) as f:
+                with open("error.log", mode) as f:
                     f.write(error)
                 print(error)
 
