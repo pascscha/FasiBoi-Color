@@ -1,4 +1,4 @@
-# Measurements
+# Corrent Measurements
 Measurements over 12V Battery output, the Battery Life is calculated over the advertised 15'000mAh, will likely be lower.
 
 ## Raspberry Pi 3 B+ (#1, IP:192.168.43.252)
@@ -87,7 +87,7 @@ Measurements over 12V Battery output, the Battery Life is calculated over the ad
 | MV: Sound Wave | 180mA   | 83.3h        |
 | MV: Little Big | 340mA   | 44.1h        |
 
-## Raspberry Pi 3 B+ (#2, IP: 192.168.43.246)
+## Raspberry Pi 3 B+ (#2, IP: 192.168.43.252)
 ### Optimized, Brightness 3, 10 FPS
 | What           | Current | Battery Life |
 | :------------- | :------ | :----------- |
@@ -115,3 +115,24 @@ Does not Boot
 | MV: Sound Wave | 270mA   | 55.6h        |
 | MV: Little Big | 360mA   | 41.7h        |
 
+# Battery Life Measurements
+## Li Ion from Aliexpress
+- Running Simpsons.mp3 on an Unoptimized but Headless Raspi with Brightness 6 and 10 FPS
+  - Expected current consumption 660mA
+  - Battery Life: 0.5h
+  - Calculated capacity 330mAh
+  - Max. Runtime
+### Charging Diary
+- 09:25: 11.6V
+- 10:15: 12.6V
+- 11:12: 12.6V
+
+## RealPower Powerbank from Digitec
+- Playing around and running Music visualization
+  - 15:17 91%
+  - 10:42 0%
+  - -> **ca. 20h runtime**
+- Charging:
+  - 11:13 - 14:55 for 6 -> 77
+  - 3h40min for 70%
+  - -> **ca 5.5h for full charge**
