@@ -269,7 +269,8 @@ class Tetris(core.Game):
         to_delete = np.where(np.any(self.gb == self.BG, axis=0) == False)
         to_delete = list(to_delete[0])
         for idx in to_delete:
-            self.blink_rows.append(idx)
+            if idx < 18:
+                self.blink_rows.append(idx)
             self.blink_start = time.time()
         self.score += 2 ** len(to_delete) - 1
 
