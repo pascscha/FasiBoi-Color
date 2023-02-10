@@ -64,6 +64,9 @@ class LEDDisplay(core.Display):
     def _refresh(self):
         self.strip.show()
 
+start_display = LEDDisplay(10, 15)
+start_display.start()
+del start_display
 
 class FasiBoiController(core.Controller):
     def __init__(self, *args, **kwargs):
@@ -77,6 +80,7 @@ class FasiBoiController(core.Controller):
             5: self.button_a,
             6: self.button_b,
             25: self.button_menu,
+            26: self.button_teppich
         }
 
         self.buttons = {
@@ -131,8 +135,7 @@ class LEDIOManager(core.IOManager):
 
     def update(self):
         """Update function that gets called every frame"""
-        pass
-        # self.controller.update()
+        self.controller.update()
         # self.display.output_screen()
         # self.controller.update(self.win.getch())
 

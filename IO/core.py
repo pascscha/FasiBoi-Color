@@ -197,6 +197,19 @@ class Display:
         self.last_pixels = self.pixels.copy()
         self._refresh()
 
+    def show_img(self, path):
+        off_img = cv2.imread(path)
+        for x in range(10):
+            for y in range(15):
+                b, g, r = off_img[y][x]
+                self.update(x, y, (r, g, b))
+        self.refresh()
+
+    def off(self):
+        self.show_img("resources/images/off.png")
+
+    def start(self):
+        self.show_img("resources/images/start.png")
 
 class IOManager:
     """The IOManager, that controls the applications and provides them with access to controler and
@@ -217,6 +230,7 @@ class IOManager:
         self.expected_battery_life = expected_battery_life
         self.controller = controller
         self.display = display
+        self.display.start()
         self.running = True
         self.applications = None
         self.fps = fps
@@ -229,7 +243,6 @@ class IOManager:
         self.teppich = 0
         self.teppich_animations = [
             None,
-            Notch(),
             EffectCombination(
                 [VerticalDistort(frequency=1 / 60), StripedNoise(limit=50)]
             ),
@@ -347,19 +360,19 @@ class IOManager:
             self.running_uncharged += calc_duration + max(0, 1 / fps - calc_duration)
 
     def __enter__(self):
+        self.display.start()
         return self
 
     def __exit__(self, *args, **kwargs):
+        self.display.off()
 
         with open("resources/appdata/Core.json", "w+") as f:
             json.dump({"running_uncharged": self.running_uncharged}, f)
 
         self.running = False
         while len(self.applications) > 0:
-            self.close_application()
-
-        if self.video_out is not None:
-            self.video_out.release()
+            self.applications[-1].destroy()
+            self.applications = self.applications[:-1]
 
         self.destroy()
 
@@ -387,6 +400,8 @@ class IOManager:
 
     def destroy(self):
         """Cleanup function that gets called after all applications are closed"""
+        if self.video_out is not None:
+            self.video_out.release()
 
     def get_battery(self):
         """Calculates the current battery, returns value between 0 (empty) and 1 (fully charged)"""
