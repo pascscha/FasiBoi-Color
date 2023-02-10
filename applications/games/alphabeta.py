@@ -264,6 +264,8 @@ class AIPlayer(Strategy):
                 # print("AI ran out of time at depth", d)
                 return move
         # print("AI finished analysis with depth", d, self.max_depth, move)
+        if self.time_limit < 2:
+            time.sleep(2-self.time_limit)
         return move
 
     def make_move(self, io, delta, field, left, top, square_size):
@@ -290,6 +292,7 @@ class HumanPlayer(Strategy):
 
     def make_move(self, io, delta, field, left, top, square_size):
         """Return a move on the given field"""
+
         possible_moves = list(field.possible_moves(self.color))
         if len(possible_moves) == 0:
             return None
@@ -449,6 +452,11 @@ class StrategyGame(core.Game):
             self.state = self.MID_GAME
 
     def _update_midgame(self, io, delta):
+        if io.controller.button_b.fresh_press():
+            self.field = self.FIELD_CLASS()
+            self.active_color = BitField.COLOR1
+            return
+
         # Switch players if active player cannot move
         if len(list(self.field.possible_moves(self.active_color))) == 0:
             self.active_color = self.field.other(self.active_color)
@@ -481,6 +489,9 @@ class StrategyGame(core.Game):
                 self.active_color = self.field.other(self.active_color)
                 self.border_color.set_value(self.COLOR_MAP[self.active_color])
 
+            # Consume button clicks while player was not active
+            io.controller.button_a.fresh_release()
+
     def _update_gameover(self, io, delta):
         if io.controller.button_a.fresh_release():
             self.reset()
@@ -489,6 +500,7 @@ class StrategyGame(core.Game):
             self.player1 = None
             self.player2 = None
             self.gameover_scroller = None
+            io.close_application()
         else:
             square_size = int(
                 min(
