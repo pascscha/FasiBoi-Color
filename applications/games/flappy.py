@@ -96,7 +96,12 @@ class Flappy(core.Game):
 
     def _update_gameover(self, io, delta):
         io.open_application(
-            VideoPlayer(
-                "resources/animations/flappy-death.gif",
-                loop=False))
+            VideoPlayer("resources/animations/flappy-death.gif", loop=False)
+        )
+        if ( # Make sure no buttons are queued
+            io.controller.button_up.fresh_press()
+            or io.controller.button_a.fresh_press()
+        ):
+            pass
+
         self.state = self.PRE_GAME
