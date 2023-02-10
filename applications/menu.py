@@ -36,7 +36,7 @@ class SlidingChoice:
 
         self.prog = self.index.tick(delta)
 
-        if io.controller.button_a.fresh_release():
+        if io.controller.button_a.fresh_release() or io.controller.button_right.fresh_release():
             self.choices[round(self.prog)].fun(io)
 
         for i, bmp in enumerate(self.bmps):
@@ -90,6 +90,9 @@ class Menu(core.Application):
 
     def update(self, io, delta):
         io.display.fill((0, 0, 0))
+
+        if io.controller.button_left.fresh_release():
+            io.close_application()
 
         # Text
         self.chooser.update(io, delta)
