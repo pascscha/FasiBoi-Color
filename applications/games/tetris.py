@@ -190,7 +190,7 @@ class Tetris(core.Game):
                     if self.move_ticker.tick(delta):
                         self.curr_pos_y += d
                         self.curr_shift_y += d
-            if io.controller.button_a.fresh_release():
+            if io.controller.button_a.fresh_release() or io.controller.button_up.fresh_release():
                 self.curr_rot = (self.curr_rot - 1) % self.tetromino.nrot
                 new_pos_x, new_pos_y = self.tetromino.get_rotation(self.curr_rot)
                 new_pos_x += self.curr_shift_x - int(np.median(new_pos_x))
