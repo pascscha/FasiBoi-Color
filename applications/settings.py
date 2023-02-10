@@ -103,7 +103,7 @@ class ChargeSlider(Slider):
 class BatteryCapacity(NumberChoice):
     def update(self, io, delta):
         super().update(io, delta)
-        io.expected_battery_life = self.value * 60
+        io.expected_battery_life = self.value * 60 * 60
 
 
 class ColorPaletteApplyer:
