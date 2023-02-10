@@ -209,6 +209,12 @@ class G2048(core.Game):
             for y in range(*self.RANGES[self.direction[1]]):
                 if self.field[x][y] is not None:
                     self.score += self.field[x][y].update(self.field, delta)
+        
+        for x in range(*self.RANGES[self.direction[0]]):
+            for y in range(*self.RANGES[self.direction[1]]):
+                if self.field[x][y] is not None:
+                    self.field[x][y].fresh = False
+        
 
         if self.is_game_over():
             self.score = round(math.log(self.score, 2))
