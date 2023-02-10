@@ -2,7 +2,7 @@ from applications.games import core
 import random
 from helpers import textutils, bitmaputils
 import math
-
+from IO.color import *
 
 class Tile:
     COLORS = [
@@ -216,16 +216,6 @@ class G2048(core.Game):
 
         io.display.fill((0, 0, 0))
 
-        # Draw Border
-        """
-        for x in range(io.display.width):
-            io.display.update(x, 5, (190, 174, 161))
-            io.display.update(x, 14, (190, 174, 161))
-        for y in range(5, io.display.height):
-            io.display.update(0, y, (190, 174, 161))
-            io.display.update(9, y, (190, 174, 161))
-        """
-
         # Draw fields
         for x in range(4):
             for y in range(4):
@@ -240,3 +230,31 @@ class G2048(core.Game):
             (io.display.width // 2 - score_bmp.shape[1] // 2, 0),
             fg_color=(255, 255, 255),
         )
+
+    def _update_gameover(self, io, delta):
+        io.display.fill((0, 0, 0))
+
+        for x in range(io.display.width):
+            io.display.update(x, 5, RED)
+            io.display.update(x, 14, RED)
+        for y in range(5, io.display.height):
+            io.display.update(0, y, RED)
+            io.display.update(9, y, RED)
+    
+        # Draw fields
+        for x in range(4):
+            for y in range(4):
+                if self.field[x][y] is not None:
+                    self.field[x][y].draw(io.display)
+
+        score_bmp = textutils.get_text_bitmap(str(round(math.log(self.score, 2))))
+
+        bitmaputils.apply_bitmap(
+            score_bmp,
+            io.display,
+            (io.display.width // 2 - score_bmp.shape[1] // 2, 0),
+            fg_color=(255, 255, 255),
+        )
+
+        if io.controller.button_a.fresh_release():
+            self.state = self.PRE_GAME
