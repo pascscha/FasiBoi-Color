@@ -82,7 +82,7 @@ class Pong(core.Game):
                 )
                 self.ball_y = 1
 
-        elif io.display.height - 2 < self.ball_y < io.display.height - 1:
+        elif io.display.height - 2 < self.ball_y < io.display.height:
             if (
                 self.platform_pos - self.platform_width / 2 - 1
                 < self.ball_x
@@ -106,20 +106,16 @@ class Pong(core.Game):
             self.ball_y = 1
             self.ball_direction *= -1
 
-        elif self.ball_y > io.display.height - 1:
+        elif self.ball_y > io.display.height:
             self.state = self.GAME_OVER
             return
 
         io.display.fill((0, 0, 0))
 
 
-        distance = (self.ball_x - self.disp_x)**2 + (self.ball_y - self.disp_y)**2 
-        if distance > 1:
-            self.disp_x = round(self.ball_x)
-            self.disp_y = round(self.ball_y)
-            
-
-
+        self.disp_x = round(self.ball_x)
+        self.disp_y = min(io.display.height-1, round(self.ball_y))
+        
         io.display.update(self.disp_x, self.disp_y, (255, 255, 255))
 
         for x in range(
