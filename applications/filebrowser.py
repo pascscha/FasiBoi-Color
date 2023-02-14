@@ -22,7 +22,7 @@ class Filebrowser(core.Application):
     def refresh(self):
         folders = []
         files = []
-        for file in sorted(os.listdir(self.root)):
+        for file in sorted(os.listdir(self.root), key=lambda name:name.upper()):
             full = os.path.join(self.root, file)
             if os.path.isdir(full):
                 folders.append(
