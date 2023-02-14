@@ -149,6 +149,7 @@ class Animation(Drawer):
             while cap.isOpened():
                 ret, frame = cap.read()
                 if ret == True:
+                    frame = cv2.resize(frame, (10, 15))
                     self.frame_coords.append(
                         list(zip(*reversed(np.where(frame[:, :, 0] == 255))))
                     )
@@ -230,12 +231,73 @@ class Slideshow(Content):
         alpha = image[:, :, 3] / 255
         alpha_inv = 1 - alpha
 
-
         frame[:, :, 0] = frame[:, :, 0] * alpha_inv + image[:, :, 0] * alpha
         frame[:, :, 1] = frame[:, :, 1] * alpha_inv + image[:, :, 1] * alpha
         frame[:, :, 2] = frame[:, :, 2] * alpha_inv + image[:, :, 2] * alpha
 
         return frame
+
+
+class ColoredVideo(Content):
+    def __init__(
+        self,
+        path,
+        *args,
+        driver=AnimatedValue(fun1=lambda x: x),
+        draw_black=True,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        frames_noalpha = []
+        cap = cv2.VideoCapture(path)
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if ret == True:
+                frames_noalpha.append(
+                    cv2.cvtColor(
+                        cv2.resize(frame, (10, 15)), cv2.COLOR_BGR2RGB
+                    ).swapaxes(0, 1)
+                )
+            else:
+                break
+        cap.release()
+
+        self.frames = [
+            np.ndarray((10, 15, 4), dtype=np.uint8) for _ in range(len(frames_noalpha))
+        ]
+
+        for i, frame in enumerate(frames_noalpha):
+            self.frames[i][:, :, :3] = frame
+            self.frames[i][:, :, 3] = 255
+
+            if not draw_black:
+                self.frames[i][
+                    np.where(
+                        (frame[:, :, 0] == 0)
+                        & (frame[:, :, 1] == 0)
+                        & (frame[:, :, 2] == 0)
+                    )
+                ] = 0
+
+        self.driver = driver
+        self.animation_length = len(self.frames)
+
+    def apply(self, frame, delta, progression, beat):
+        idx = int(
+            self.driver.get_value(delta, progression, beat) * self.animation_length
+        )
+        idx = min(idx, self.animation_length - 1)
+
+        image = self.frames[idx]
+
+        alpha = image[:, :, 3] / 255
+        alpha_inv = 1 - alpha
+
+        frame[:, :, 0] = frame[:, :, 0] * alpha_inv + image[:, :, 0] * alpha
+        frame[:, :, 1] = frame[:, :, 1] * alpha_inv + image[:, :, 1] * alpha
+        frame[:, :, 2] = frame[:, :, 2] * alpha_inv + image[:, :, 2] * alpha
+
+        return frame.astype(np.uint8)
 
 
 class TextDrawer(Drawer):
@@ -419,6 +481,10 @@ class Maze(Content):
                 frame[x][y] = bg
 
         return frame
+
+
+def stay(w, h, x, y):
+    return (0, 0)
 
 
 def down(w, h, x, y):
@@ -841,11 +907,11 @@ class Milkdrop(core.Application):
                     Drawer(color=AnimatedHSVColor(h=AnimatedValue(period=8))),
                 ],
             ),
-            Visualization(
-                name="PARTY!!!",
-                energy=0.8,
-                effects=[Distorter(vect_fun=from_center, darken=0.4), TextDrawer()],
-            ),
+            # Visualization(
+            #     name="PARTY!!!",
+            #     energy=0.8,
+            #     effects=[Distorter(vect_fun=from_center, darken=0.4), TextDrawer()],
+            # ),
             Visualization(
                 name="FASNACHT",
                 energy=0.3,
@@ -865,110 +931,110 @@ class Milkdrop(core.Application):
                     ),
                 ],
             ),
-            Visualization(
-                name="UNZ",
-                min_bpm=100,
-                energy=0.9,
-                effects=[
-                    Distorter(vect_fun=from_center),
-                    Distorter(vect_fun=to_center),
-                    Distorter(vect_fun=swirl2, darken=0.2),
-                    TextDrawer(
-                        text="U  ",
-                        loc=(0, 0),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(
-                                fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
-                            ),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                    TextDrawer(
-                        text="N  ",
-                        loc=(3, 0),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(period=8),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                    TextDrawer(
-                        text="Z  ",
-                        loc=(6, 0),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(
-                                fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
-                            ),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                    TextDrawer(
-                        text=" U ",
-                        loc=(0, 5),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(
-                                fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
-                            ),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                    TextDrawer(
-                        text=" N ",
-                        loc=(3, 5),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(period=8),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                    TextDrawer(
-                        text=" Z ",
-                        loc=(6, 5),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(
-                                fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
-                            ),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                    TextDrawer(
-                        text="  U",
-                        loc=(0, 10),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(period=8),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                    TextDrawer(
-                        text="  N",
-                        loc=(3, 10),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(
-                                fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
-                            ),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                    TextDrawer(
-                        text="  Z",
-                        loc=(6, 10),
-                        driver=AnimatedValue(fun2=lambda x: x, period=3),
-                        color=AnimatedHSVColor(
-                            h=AnimatedValue(period=8),
-                            v=AnimatedValue(fun1=lambda x: x / 2),
-                        ),
-                    ),
-                ],
-            ),
+            # Visualization(
+            #     name="UNZ",
+            #     min_bpm=100,
+            #     energy=0.9,
+            #     effects=[
+            #         Distorter(vect_fun=from_center),
+            #         Distorter(vect_fun=to_center),
+            #         Distorter(vect_fun=swirl2, darken=0.2),
+            #         TextDrawer(
+            #             text="U  ",
+            #             loc=(0, 0),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(
+            #                     fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
+            #                 ),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #         TextDrawer(
+            #             text="N  ",
+            #             loc=(3, 0),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(period=8),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #         TextDrawer(
+            #             text="Z  ",
+            #             loc=(6, 0),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(
+            #                     fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
+            #                 ),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #         TextDrawer(
+            #             text=" U ",
+            #             loc=(0, 5),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(
+            #                     fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
+            #                 ),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #         TextDrawer(
+            #             text=" N ",
+            #             loc=(3, 5),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(period=8),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #         TextDrawer(
+            #             text=" Z ",
+            #             loc=(6, 5),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(
+            #                     fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
+            #                 ),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #         TextDrawer(
+            #             text="  U",
+            #             loc=(0, 10),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(period=8),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #         TextDrawer(
+            #             text="  N",
+            #             loc=(3, 10),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(
+            #                     fun2=lambda x: x - 0.5 if x > 0.5 else x + 0.5, period=8
+            #                 ),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #         TextDrawer(
+            #             text="  Z",
+            #             loc=(6, 10),
+            #             driver=AnimatedValue(fun2=lambda x: x, period=3),
+            #             color=AnimatedHSVColor(
+            #                 h=AnimatedValue(period=8),
+            #                 v=AnimatedValue(fun1=lambda x: x / 2),
+            #             ),
+            #         ),
+            #     ],
+            # ),
             Visualization(name="maze", effects=[Distorter(darken=1), Maze()]),
             Visualization(
-                name="Fireworks",
+                name="Maze",
                 min_bpm=30,
                 max_bpm=180,
                 energy=0.8,
@@ -1072,6 +1138,49 @@ class Milkdrop(core.Application):
                     ),
                 ],
             ),
+            Visualization(
+                name="",
+                min_bpm=30,
+                max_bpm=180,
+                energy=0.8,
+                effects=[
+                    Distorter(vect_fun=stay, darken=0.9),
+                    ColoredVideo(
+                        "resources/videos/Walking2.mp4",
+                        driver=AnimatedValue(
+                            fun1=lambda x: x, fun2=lambda x: x, period=4
+                        ),
+                        draw_black=False,
+                    ),
+                ],
+            ),
+            Visualization(
+                name="Eight",
+                min_bpm=30,
+                max_bpm=180,
+                energy=0.8,
+                effects=[
+                    portal_out,
+                    Distorter(vect_fun=stay, darken=0.2),
+                    Animation(
+                        path="resources/videos/eight.gif",
+                        driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
+                        color=AnimatedHSVColor(v=ConstantValue(1)),
+                    ),
+                    portal_in,
+                    Animation(
+                        path="resources/videos/eight.gif",
+                        driver=AnimatedValue(fun1=lambda x: 1 - x, period=2),
+                        color=AnimatedHSVColor(
+                            h=ConstantValue(1),
+                            s=ConstantValue(0),
+                            v=AnimatedValue(
+                                fun1=lambda x: 1 - x, fun2=lambda x: x / 2 + 0.5
+                            ),
+                        ),
+                    ),
+                ],
+            ),
         ]
         self.visualization_index = len(self.visualizations) - 1
 
@@ -1091,11 +1200,22 @@ class Milkdrop(core.Application):
             self.reset()
 
         if io.controller.button_up.fresh_press():
-            self.beat_duration /= 2
+            new_beat_duration = self.beat_duration / 2
+            self.last_beats[0] = (
+                now
+                - (now - self.last_beats[0]) * new_beat_duration / self.beat_duration
+            )
+            self.beat_duration = new_beat_duration
             # self.energy = min(1.0, self.energy + 1 / self.ENERGY_GRANULARITY)
 
         if io.controller.button_down.fresh_press():
-            self.beat_duration *= 2
+            new_beat_duration = self.beat_duration * 2
+            self.last_beats[0] = (
+                now
+                - (now - self.last_beats[0]) * new_beat_duration / self.beat_duration
+            )
+            self.beat_duration = new_beat_duration
+
             # self.energy = max(0.0, self.energy - 1 / self.ENERGY_GRANULARITY)
 
         if io.controller.button_right.fresh_press():
@@ -1171,7 +1291,7 @@ class Milkdrop(core.Application):
         progression = (now - self.last_beats[0]) / self.beat_duration
         viz = self.visualizations[self.visualization_index]
         self.last_frame = viz.apply(self.last_frame, delta, progression, self.beat)
-        io.display.pixels = self.last_frame
+        io.display.pixels = self.last_frame.astype(np.uint8)
         self.last = now
 
     def destroy(self):
