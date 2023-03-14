@@ -1,7 +1,9 @@
 # FasiBoi-Color
 This project was done together with with [@jgygax](https://github.com/jgygax) to run on our costume at Lucerne Carneval 2023.
 
-![Showcase](img/showcase.gif)
+![Showcase](img/showcase.jpg)
+
+![Showcase](img/showcase.gif) 
 
 _[@jgygax](https://github.com/jgygax) and [@pascscha](https://github.com/pascscha) playing Tetris on each other's costumes_
 
