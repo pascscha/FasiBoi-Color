@@ -1,6 +1,8 @@
 # FasiBoi-Color
 This project was done together with with [@jgygax](https://github.com/jgygax) to run on our costume at Lucerne Carneval 2023.
 
+![Showcase](img/showcase.gif)
+
 This repository contains the software for a Game-Boy inspired console, that runs on a 10x15 pixel home made LED grid, which is incorporated into our costume as a playable game boy costume. It features many games, music visualization and other applications.
 
 ## Installation
