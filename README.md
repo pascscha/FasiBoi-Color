@@ -3,6 +3,10 @@ This project was done together with with [@jgygax](https://github.com/jgygax) to
 
 ![Showcase](img/showcase.gif)
 
+_[@jgygax](https://github.com/jgygax) and [@pascscha](https://github.com/pascscha) playing Tetris on each other's costumes_
+
+---
+
 This repository contains the software for a Game-Boy inspired console, that runs on a 10x15 pixel home made LED grid, which is incorporated into our costume as a playable game boy costume. It features many games, music visualization and other applications.
 
 ## Installation
